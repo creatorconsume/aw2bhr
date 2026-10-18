@@ -3,7 +3,7 @@
 //             [--script FILE] [--out DIR] [--autostate FILE] [--map FILE] [--hang-secs N] [-v]
 // SCRIPT lines (same as deadwars/test/gbarun.c, plus extras):
 //   wait N | press KEYS [N] | hold KEYS | release | shot NAME | dump HEXADDR LEN NAME
-//   savestate FILE | loadstate FILE | sram FILE | peek ADDR LEN | count ADDR | reset
+//   savestate FILE | loadstate FILE | sram FILE | peek ADDR LEN | poke ADDR BYTE.. | count ADDR | reset
 // FILE and NAME paths are relative to --out unless absolute. ADDR is hex, or a symbol name when --map points at the game's GNU ld map file.
 // "count ADDR" reads a u32 frame counter and prints how many game frames ran since the last count
 // (game frames < emulated frames means the game lags / misses vblanks).
@@ -440,7 +440,19 @@ static void run_script(const char* path) {
 		else if (!strcmp(cmd, "loadstate")) state_load(out_path(a1, ""));
 		else if (!strcmp(cmd, "sram")) sram_write(out_path(a1, ""));
 		else if (!strcmp(cmd, "reset")) core.reset(), printf("reset at frame %ld\n", frame_no);
-		else if (!strcmp(cmd, "count")) {
+		else if (!strcmp(cmd, "poke")) {
+			// poke ADDR B0 [B1 ...]: write bytes (hex) into RAM, e.g. to force a game state
+			uint32_t addr = parse_addr(a1);
+			char* p = line;
+			for (int k = 0; k < 2; ++k) p += strspn(p, " \t"), p += strcspn(p, " \t\n");
+			for (char* end;; p = end) {
+				unsigned long v = strtoul(p, &end, 16);
+				if (end == p) break;
+				uint8_t* m = gba_addr(addr++);
+				if (m) *m = v;
+				else printf("poke %08x: not mapped\n", addr - 1);
+			}
+		} else if (!strcmp(cmd, "count")) {
 			uint32_t addr = parse_addr(a1), v = 0;
 			for (int i = 0; i < 4; ++i) {
 				const uint8_t* p = gba_addr(addr + i);
