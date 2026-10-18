@@ -72,7 +72,7 @@ To **revert** a change, delete its record from `CHANGES`. To **retune** one, edi
 3. **Emulator (headless mGBA via `gbadbg`).**
    - **Boot.** The `boot_cleanup.txt` run (power-on → new campaign → Cleanup → Options) is pixel-identical to the stock ROM.
    - **Versus setup.** New Versus game on Ball Islands. The P1 CO byte `0x020232DD` was poked on the stock ROM and on the balanced ROM:
-     - **Build menus.** Kanbei base: Infantry 1300, Mech 3900, Recon 5200, Tank 9100, Md Tank 20800, Neotank 28600, APC 6500. Kanbei port: B Ship 32500 (stock 33600), Cruiser 23400. Andy port: B Ship 25000 (stock 28000).
+     - **Build menus.** Kanbei base: Infantry 1300, Mech 3900, Recon 5200, Tank 9100, Md Tank 20800, Neotank 28600, APC 6500 (stock: 1200 / 3600 / 4800 / 8400 / 19200 / 26400 / 6000). Kanbei port: B Ship 32500 (stock 33600), Cruiser 23400 (stock 21600). Andy port: B Ship 25000 (stock 28000).
      - **HUD power meter (small + big stars).** Hawke 6+3 (stock 5+4), Colin 3+3 (stock 2+4), Sami 3+4 (stock 3+5). Andy 3+3 on both.
      - **Grit COP.** With power state `0x020232DE` = 1, a freshly built Artillery shows fire range 2–5. That value is read from the new free-space entry and matches stock. Back in D2D it shows 2–4.
    - **Not exercised at runtime:**
@@ -85,7 +85,7 @@ To **revert** a change, delete its record from `CHANGES`. To **retune** one, edi
 
 - **Player structs.**
   - The array is at `*0x08499598` = `0x02023284`, `0x3C` bytes each, indexed by player 1..4. P1 is at `0x020232C0`.
-  - Fields: `+0x08` funds, `+0x1D` CO ID, `+0x1E` power state (0 D2D, 1 COP, 2 SCOP; this selects the power block), `+0x26` player number.
+  - Fields: `+0x08` funds, `+0x1D` CO ID, `+0x1E` power state (0 D2D, 1 COP, 2 SCOP; this selects the power block), `+0x25` number of powers used.
   - P1 funds are therefore at `0x020232C8`. ROM_NOTES §6's `0x02023304` is P2's funds field.
 - **Modifier slots** (`sub_080430B0` and the getters after it):
   - Foot units (domain 0) use **only** slot 0.
@@ -99,7 +99,7 @@ To **revert** a change, delete its record from `CHANGES`. To **retune** one, edi
 - **Counter %.** Block +0x12 (`sub_08042FC4`).
 - **Stars.**
   - Charge needed = star value × stars: header +0x0C for the COP (`sub_080441D4`), +0x10 for the SCOP (`sub_08044208`).
-  - Star value = `9000 × f(times used) / 100` (`sub_0804419C`).
+  - Star value = `9000 × (100 + 20 × uses) / 100` while uses ≤ 9, else `9000 × 2` (`sub_0804419C`; uses = player +0x25).
   - Power activation (`sub_08044B28`) stores the state in player +0x1F and calls the block's +0x04 function.
 - **Block +0x08 flags** (`sub_0804301C`).
   - 0x20 and 0x40 select doubled or plain terrain-star bonuses (`sub_08043304` / `sub_0804334C`). This is Lash: 0x40 for D2D and COP, 0x60 for SCOP. GUESS on the exact use.
