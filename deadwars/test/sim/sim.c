@@ -737,7 +737,7 @@ static void dump_map(void)
 enum { END_WIN, END_OVERRUN, END_WIPED, END_DEADLINE, END_TIMEOUT, END_STALL, END_COUNT };
 static const char *const end_name[END_COUNT] = { "win", "overrun", "wiped", "deadline", "timeout", "STALL" };
 
-typedef struct { int end, day, kills, losses, peak_horde, survivors, burned, evacs; } Result;
+typedef struct { int end, day, kills, losses, peak_horde, survivors, burned, evacs, stuck, full; } Result;
 
 static void on_alarm(int sig)
 {
@@ -758,8 +758,8 @@ static Result play(int m, int seed)
 	map_load(m);
 	start_side_turn(SIDE_SURVIVOR);
 	alarm(20);
-	static int peak;
-	peak = 0;
+	static int peak, stuck, full;
+	peak = stuck = full = 0;
 	if (setjmp(watchdog)) {
 		printf("STALL: mission %d seed %d day %d: %s turn exceeded %d frames\n", m + 1, seed, gs.day,
 		       gs.side == SIDE_HORDE ? "horde" : "player", FRAME_CAP);
@@ -768,6 +768,17 @@ static Result play(int m, int seed)
 	}
 	for (;;) {
 		peak = MAX(peak, count_side(SIDE_HORDE));
+		full |= count_side(SIDE_HORDE) + count_side(SIDE_SURVIVOR) >= MAX_UNITS; // unit pool exhausted
+		if (count_side(SIDE_SURVIVOR) == 0) {
+			// no units left but the game goes on (workshop owned + funds); stuck if
+			// every workshop we own has a zombie standing on it, so nothing can be built
+			bool can_build = false;
+			for (int y = 0; y < gs.h; y++)
+				for (int x = 0; x < gs.w; x++)
+					if (gs.terrain[y][x] == TT_WORKSHOP && gs.owner[y][x] == SIDE_SURVIVOR && unit_at(x, y) < 0)
+						can_build = true;
+			stuck += !can_build;
+		}
 		if (sim_verbose)
 			dump_map();
 		sim_frames = 0;
@@ -803,6 +814,8 @@ static Result play(int m, int seed)
 done:
 	alarm(0);
 	r.peak_horde = peak;
+	r.stuck = stuck;
+	r.full = full;
 	r.burned = st.burned;
 	r.evacs = st.evacs;
 	r.day = gs.day;
@@ -860,6 +873,7 @@ int main(int argc, char **argv)
 			continue;
 		int ends[END_COUNT] = { 0 }, wins = 0;
 		double days = 0, wdays = 0, kills = 0, losses = 0, peak = 0, prog = 0;
+		int stuck_games = 0, stuck_turns = 0, full_games = 0;
 		for (int s = first; s < first + seeds; s++) {
 			Result r = play(m, s);
 			ends[r.end]++;
@@ -871,6 +885,9 @@ int main(int argc, char **argv)
 			losses += r.losses;
 			peak += r.peak_horde;
 			prog += missions[m].goal == GOAL_EVAC ? r.evacs : r.burned;
+			stuck_games += r.stuck > 0;
+			stuck_turns += r.stuck;
+			full_games += r.full;
 			if (sim_verbose)
 				printf("seed %d: %s day %d\n", s, end_name[r.end], r.day);
 		}
@@ -882,6 +899,10 @@ int main(int argc, char **argv)
 		out[p] = 0;
 		printf("%d %-14s %4.0f%%  %-40s %5.1f %5.1f %5.1f %5.1f %5.1f\n", m + 1, missions[m].title, 100.0 * wins / seeds,
 		       out, days / seeds, kills / seeds, losses / seeds, peak / seeds, prog / seeds);
+		if (stuck_games)
+			printf("  note: %d games had %d player turns with no units and a blocked workshop (game not over)\n", stuck_games, stuck_turns);
+		if (full_games)
+			printf("  note: %d games filled all %d unit slots\n", full_games, MAX_UNITS);
 		fflush(stdout);
 	}
 	return 0;
