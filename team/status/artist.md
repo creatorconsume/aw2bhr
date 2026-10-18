@@ -1,10 +1,11 @@
 # Artist status
 
 - **Session:** session_01YDdSYUkiJH2qD5sNiJiBop
-- **Branch:** claude/dw-art @ c4ba564 (plus this status commit)
-- **Current focus:** waiting. Need "hardening merged" to export fx/vip/night preview in gfx.py, and the engineer's pick (boss_gfx vs UG_ZERO).
+- **Branch:** claude/dw-art @ 2797c2b (plus this status commit)
+- **Current focus:** waiting for the engineer: battle contract feedback, and boss_gfx vs UG_ZERO. Then export the map fx and VIP marker.
 
 ## Last done
+- Battle scene art (owner request): 13 battle figures x 4 frames, 5 backdrops (387 tiles, pal_terrain so night tint works), 5 effects (muzzle, slash, acid, spark, rise). Exported as battle_* in assets.h. Look at build/preview/battle_day.png, battle_night.png, battle_boss.png and battle_sheet.png. Contract proposal is in inbox/engineer/*-artist-battle-scene-contract.md.
 - Onion box art: deadwars/boxart/deadwars.png, aw2remix.png (250x360, `python3 -I boxart/boxart.py .` from deadwars/).
 - Patient Zero redrawn to the designer's spec: BOSS_ZERO map sprite (boss_gfx) + PT_ZERO_BOSS portrait (M10).
 - Effects drawn in art/fx.txt: rise, Bloater burst, nest burn, secured flag, VIP star (export after the freeze). Look at build/preview/units.png, portraits.png, scene.png.

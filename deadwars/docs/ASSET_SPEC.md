@@ -98,6 +98,37 @@ extern const u16 title_map[20][30];   // screen entries (tile | flip bits)
 ```
 Logo "DEAD WARS", ruined city skyline, moon, zombie silhouettes.
 
+## Battle scene (full-screen split view, its own screen mode)
+Proposed by the artist (see team/inbox/engineer/*-artist-battle-scene-contract.md); the engineer may
+rename anything before wiring it in. **No new palette banks:** figures use `pal_survivor` /
+`pal_horde`, backdrops use `pal_terrain`, so `palettes_apply()` night tinting works unchanged.
+```c
+enum { BF_IDLE0, BF_IDLE1, BF_ATK0, BF_ATK1, BF_FRAMES };
+extern const u8 battle_fig_gfx[UG_COUNT][BF_FRAMES][512];    // 32x32 OBJ, 16 tiles row-major, facing RIGHT
+extern const u8 battle_boss_gfx[BOSS_COUNT][BF_FRAMES][512]; // pal_horde
+extern const s8 battle_fig_muzzle[UG_COUNT][2];   // impact point (x,y) in BF_ATK1; -1,-1 = none (Bus)
+enum { BB_PLAIN, BB_WOODS, BB_RUINS, BB_CITY, BB_NEST, BB_COUNT };   // append only
+#define BATTLE_BG_W 15, BATTLE_BG_H 13              // 120x104 panel, drawn for the RIGHT side
+#define BATTLE_BG_GROUND 88                          // ground line y in the panel
+extern const u8  battle_bg_tiles[BATTLE_BG_TILE_COUNT * 32];        // shared bank, <= 448 tiles
+extern const u16 battle_bg_map[BB_COUNT][13][15];   // tile | hflip<<10 | vflip<<11, palette bits 0
+enum { BFX_MUZZLE, BFX_SLASH, BFX_ACID, BFX_SPARK, BFX_RISE, BFX_COUNT };   // append only
+extern const u8 battle_fx_gfx[BFX_COUNT][4][512];   // 32x32, centre (16,16) = impact point
+extern const u8 battle_fx_pal[BFX_COUNT];           // 0 = pal_cursor, 1 = pal_horde
+```
+- Left panel: hflip every screen entry and every OBJ. Right panel: as stored.
+- Backdrop per terrain: plain/road/bridge/helipad -> PLAIN, forest -> WOODS,
+  ruins/wall/wreck/hill -> RUINS, house/workshop/safehouse/hospital/radio -> CITY, nest -> NEST.
+- Squads: N figures = displayed HP. Suggested slots (top-left of the 32x32, right-facing side,
+  back to front): (10,50) (40,48) (70,50) (24,58) (54,57) (84,58) (6,66) (36,66) (66,67) (20,72).
+  The bottom 56 px are left for HP and name windows. Patient Zero reads best drawn once, not as a squad.
+- Frames: IDLE0/IDLE1 alternate; ATK0 (wind-up) -> ATK1 (fire/lunge) + effect. Effects play 4
+  frames x 8 video frames (BOOM_FRAMES pacing). MUZZLE at the attacker's muzzle point, SPARK /
+  SLASH / ACID on the defender, RISE for the kill beat when a zombie kills a foot unit.
+- Source: figures are Scale2x of the map sprites plus pose shifts (gfx.py), overridable per frame
+  by `BF_<UNIT>[.f1|.a0|.a1]` 32x32 sprites in `art/battle.txt`; effects are text grids there too.
+  Previews: `battle_day.png`, `battle_night.png`, `battle_boss.png` (+ `_1x`), `battle_sheet.png`.
+
 ## Effects: drawn, export pending (proposal, not yet in assets.h)
 Sprites are in `art/fx.txt`. They get C symbols once the `gfx.py` freeze lifts ("hardening merged")
 and the engineer agrees the names. Every effect is 16x16, 4 tiles per frame, paced like the
