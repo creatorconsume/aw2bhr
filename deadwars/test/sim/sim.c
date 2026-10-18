@@ -24,7 +24,7 @@
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
 #define NO_PATH 255
 #define NTILES (MAP_MAX_W * MAP_MAX_H)
-#define DAY_CAP 30            // a mission still running on this day counts as a timeout
+static int DAY_CAP = 30;      // a mission still running on this day counts as a timeout (-d)
 #define FRAME_CAP 400000      // per horde turn; more means the AI is stuck
 
 extern u32 sim_frames;
@@ -169,7 +169,7 @@ static void sim_build(int x, int y, int type)
 static int guard_ui = -1; // unit told to stay home this turn (objective missions)
 
 // bot tuning knobs (per tile-turn of distance to the objective, and % of damage value)
-static int W_HOME = 250, W_HUNT = 400, W_HELI = 3000, W_NEST = 1200, W_NEST_DAY = 150, W_RISK = 60, W_FOCUS = 40, W_BLOCK = 4, W_ESCORT = 1, W_EVAC_ATK = 50, W_GUARD = 2500;
+static int W_HOME = 250, W_HUNT = 400, W_HELI = 3000, W_NEST = 1200, W_NEST_DAY = 150, W_RISK = 60, W_FOCUS = 40, W_BLOCK = 4, W_ESCORT = 1, W_EVAC_ATK = 50, W_GUARD = 2500, W_GROUP = 50;
 
 // ------------------------------------------------------------ bot: threat model
 
@@ -294,6 +294,14 @@ static int threat_at(int ui, const Unit *u, int x, int y, int skip, int *share)
 {
 	int mel[MAX_UNITS], nm = 0, ranged = 0;
 	*share = 0;
+	// friends that haven't moved yet and are close can follow us in and split the bites
+	int backup = 0;
+	for (int i = 0; i < MAX_UNITS; i++) {
+		Unit *f = &gs.units[i];
+		if (i != ui && f->alive && !f->carried && f->side == SIDE_SURVIVOR && !f->moved &&
+		    !(unit_info[f->type].flags & UF_TRANSPORT) && ABS(f->x - x) + ABS(f->y - y) <= unit_info[f->type].move + 1)
+			backup++;
+	}
 	Unit tmp = *u;
 	tmp.x = x;
 	tmp.y = y;
@@ -304,7 +312,7 @@ static int threat_at(int ui, const Unit *u, int x, int y, int skip, int *share)
 		if (!zawake[z] && ABS(zu->x - x) + ABS(zu->y - y) > 4)
 			continue;
 		int dmg = damage_estimate(zu, &tmp, false) + 4 * DISP_HP(zu->hp) / 10;
-		*share += dmg / (zprey[z] + (zhit[z][IDX(u->x, u->y)] ? 0 : 1));
+		*share += dmg * 100 / (100 * (zprey[z] + (zhit[z][IDX(u->x, u->y)] ? 0 : 1)) + backup * W_GROUP);
 		if (unit_info[zu->type].flags & UF_INDIRECT)
 			ranged += dmg;
 		else
@@ -602,6 +610,19 @@ static void plan_unit(int ui, Plan *best)
 			if (infantry && tt == TT_HOUSE && !gs.looted[y][x])
 				consider(&mine, base, pos + 900, ui, x, y, A_SEARCH, -1);
 		}
+	if (sim_verbose >= 3 && mine.ui >= 0) {
+		// debug: score of every reachable tile for this unit (Wait only)
+		printf("    [%s %d,%d base %d] best %s %d,%d gain %d\n", unit_info[u->type].name, u->x, u->y, base,
+		       act_name[mine.act], mine.x, mine.y, mine.gain);
+		for (int y = 0; y < gs.h; y++)
+			for (int x = 0; x < gs.w; x++)
+				if (d[IDX(x, y)] != NO_PATH && can_end_on(ui, x, y)) {
+					Unit tmp = *u;
+					int sh, th = threat_at(ui, &tmp, x, y, -1, &sh);
+					printf("      %2d,%2d pos %6d goal %6d threat %3d share %3d\n", x, y,
+					       position_score(ui, u, x, y, -1, u->hp), goal_cost(u, x, y), th, sh);
+				}
+	}
 	if (mine.ui >= 0 && (best->ui < 0 || mine.gain > best->gain))
 		*best = mine;
 }
@@ -811,12 +832,14 @@ int main(int argc, char **argv)
 			only = atoi(argv[++i]) - 1;
 		else if (!strcmp(argv[i], "-n") && i + 1 < argc)
 			seeds = atoi(argv[++i]);
+		else if (!strcmp(argv[i], "-d") && i + 1 < argc)
+			DAY_CAP = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-s") && i + 1 < argc)
 			first = atoi(argv[++i]);
 		else if (!strncmp(argv[i], "-W", 2) && strchr(argv[i], '=')) {
 			static const struct { const char *n; int *v; } knobs[] = {
 				{ "home", &W_HOME }, { "hunt", &W_HUNT }, { "heli", &W_HELI }, { "nest", &W_NEST },
-				{ "nestday", &W_NEST_DAY }, { "risk", &W_RISK }, { "focus", &W_FOCUS }, { "block", &W_BLOCK }, { "escort", &W_ESCORT }, { "evacatk", &W_EVAC_ATK }, { "guard", &W_GUARD },
+				{ "nestday", &W_NEST_DAY }, { "risk", &W_RISK }, { "focus", &W_FOCUS }, { "block", &W_BLOCK }, { "escort", &W_ESCORT }, { "evacatk", &W_EVAC_ATK }, { "guard", &W_GUARD }, { "group", &W_GROUP },
 			};
 			for (unsigned k = 0; k < sizeof knobs / sizeof knobs[0]; k++)
 				if (!strncmp(argv[i] + 2, knobs[k].n, strlen(knobs[k].n)) && argv[i][2 + strlen(knobs[k].n)] == '=')
@@ -824,7 +847,7 @@ int main(int argc, char **argv)
 		} else if (!strcmp(argv[i], "-v"))
 			sim_verbose++;
 		else {
-			fprintf(stderr, "usage: %s [-m mission 1..%d] [-n seeds] [-s first_seed] [-v[-v]] [-Wknob=N]\n", argv[0], mission_count);
+			fprintf(stderr, "usage: %s [-m mission 1..%d] [-n seeds] [-s first_seed] [-d day_cap] [-v[-v[-v]]] [-Wknob=N]\n", argv[0], mission_count);
 			return 1;
 		}
 	}
