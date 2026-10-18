@@ -55,6 +55,7 @@ import os
 import sys
 import glob
 import random
+import math
 
 from PIL import Image, ImageDraw
 
@@ -590,6 +591,256 @@ def build_portraits(art):
     return out
 
 
+# ---- battle scene -----------------------------------------------------------
+
+BB = ['PLAIN', 'WOODS', 'RUINS', 'CITY', 'NEST']          # battle backdrops; append only
+BFX = ['MUZZLE', 'SLASH', 'ACID', 'SPARK', 'RISE']         # battle effects; append only
+BFX_PAL = {'MUZZLE': 0, 'SLASH': 0, 'ACID': 1, 'SPARK': 0, 'RISE': 1}   # 0 cursor, 1 horde
+BG_W, BG_H, BG_GROUND = 120, 104, 88
+BATTLE_BG_MAX_TILES = 448
+VEHICLES = ('PICKUP', 'BUS', 'ARMOR')
+
+
+def scale2x(pix):
+    """Scale2x/EPX: doubles a sprite while keeping diagonals chunky instead of jagged."""
+    h, w = len(pix), len(pix[0])
+    g = lambda x, y: pix[min(max(y, 0), h - 1)][min(max(x, 0), w - 1)]
+    out = blank(w * 2, h * 2)
+    for y in range(h):
+        for x in range(w):
+            P, A, B, C, D = pix[y][x], g(x, y - 1), g(x + 1, y), g(x - 1, y), g(x, y + 1)
+            e0, e1, e2, e3 = P, P, P, P
+            if C == A and C != D and A != B:
+                e0 = A
+            if A == B and A != C and B != D:
+                e1 = B
+            if D == C and D != B and C != A:
+                e2 = C
+            if B == D and B != A and D != C:
+                e3 = D
+            out[2 * y][2 * x], out[2 * y][2 * x + 1] = e0, e1
+            out[2 * y + 1][2 * x], out[2 * y + 1][2 * x + 1] = e2, e3
+    return out
+
+
+def shift_rows(pix, y0, y1, dx):
+    out = [row[:] for row in pix]
+    w = len(pix[0])
+    for y in range(y0, y1):
+        out[y] = [pix[y][x - dx] if 0 <= x - dx < w else 0 for x in range(w)]
+    return out
+
+
+def battle_frames(art, base, f0, f1, kind):
+    """4 battle frames for one unit: explicit BF_ sprites win, else derived poses.
+    kind: 'gun' (survivor foot), 'veh' (vehicle), 'claw' (zombie)."""
+    def pick(suffix, make):
+        nm = base + suffix
+        if art.has(nm):
+            w, h, _, pix = art.get(nm)
+            if (w, h) != (32, 32):
+                raise ArtError('%s must be 32x32' % nm)
+            return pix
+        return make()
+    i0 = pick('', lambda: scale2x(f0))
+    i1 = pick('.f1', lambda: scale2x(f1))
+    if kind == 'veh':
+        a0 = pick('.a0', lambda: shift_rows(i0, 0, 32, 1))
+        a1 = pick('.a1', lambda: shift_rows(i0, 0, 32, -1))
+    elif kind == 'gun':
+        a0 = pick('.a0', lambda: shift_rows(i0, 0, 22, 1))       # lean into the aim
+        a1 = pick('.a1', lambda: shift_rows(i0, 0, 22, -1))      # recoil
+    else:
+        a0 = pick('.a0', lambda: shift_rows(i0, 0, 24, -1))      # rear back
+        a1 = pick('.a1', lambda: shift_rows(i0, 0, 24, 2))       # lunge
+    return [i0, i1, a0, a1]
+
+
+def muzzle_point(pix, kind):
+    best = None
+    for y in range(4, 24):
+        for x in range(31, -1, -1):
+            if pix[y][x]:
+                if best is None or x > best[0]:
+                    best = (x, y)
+                break
+    if best is None:
+        return (-1, -1)
+    return (min(best[0] + 2, 31), best[1])
+
+
+def build_battle_bg(art):
+    P = art.palette('terrain').chars
+    _, _, _, grass = art.get('MT_PLAIN')
+    _, _, _, tex = art.get('road_tex')
+
+    def sky():
+        pix = blank(BG_W, BG_H, P['u'])
+        for y in range(BG_H):
+            for x in range(BG_W):
+                if y < 16:
+                    pix[y][x] = P['n']
+                elif y < 32:
+                    lvl = (y - 16 + 0.5) / 16.0
+                    pix[y][x] = P['u'] if lvl > [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9],
+                                                  [15, 7, 13, 5]][y & 3][x & 3] / 16.0 else P['n']
+        for cx, cy, w in ((24, 22, 26), (88, 14, 20)):        # tile-aligned puffy clouds
+            for y in range(cy - 6, cy + 4):
+                for x in range(cx - w // 2, cx + w // 2):
+                    dx = (x - cx) / (w / 2.0)
+                    top = cy - 2 - int(4 * (1 - dx * dx)) - (2 if abs(dx) < 0.3 else 0)
+                    if top <= y < cy + 3 and 0 <= x < BG_W:
+                        pix[y][x] = P['c'] if y >= cy + 1 else P['w']
+                if 0 <= y < BG_H:
+                    pass
+        return pix
+
+    def stamp(pix, name, x0, y0, scale=1, skip='GlgX', keep_ground=False):
+        w, h, _, sp = art.get(name)
+        skipv = {P[c] for c in skip if c in P}
+        for y in range(h):
+            for x in range(w):
+                v = sp[y][x]
+                if v == 0 or (v in skipv and not keep_ground):
+                    continue
+                for sy in range(scale):
+                    for sx in range(scale):
+                        tx, ty = x0 + x * scale + sx, y0 + y * scale + sy
+                        if 0 <= tx < BG_W and 0 <= ty < BG_H:
+                            pix[ty][tx] = v
+
+    def ground(pix, y0, kind):
+        for y in range(y0, BG_H):
+            for x in range(BG_W):
+                if kind == 'grass':
+                    pix[y][x] = grass[y % 16][x % 16]
+                elif kind == 'dirt':
+                    v = grass[y % 16][x % 16]
+                    pix[y][x] = {P['G']: P['d'], P['l']: P['D'], P['g']: P['K']}.get(v, P['d'])
+                elif kind == 'rubble':
+                    v = tex[y % 16][x % 16]
+                    pix[y][x] = P['c'] if v == P['a'] else P['a']
+                elif kind == 'asphalt':
+                    pix[y][x] = tex[y % 16][x % 16]
+        for x in range(BG_W):                                  # horizon edge
+            pix[y0][x] = P['K'] if kind != 'grass' else P['g']
+
+    def road(pix, y0, y1):
+        for y in range(y0, y1):
+            for x in range(BG_W):
+                pix[y][x] = tex[y % 16][x % 16]
+        for x in range(BG_W):
+            pix[y0][x] = pix[y1 - 1][x] = P['c']
+            pix[y0 - 1][x] = pix[y1][x] = P['a']
+            if (x // 8) % 2 == 0:
+                pix[(y0 + y1) // 2][x] = P['D']
+
+    def treeline(pix, y, col):
+        for x in range(BG_W):
+            hgt = 5 + int(3 * math.sin(x * 0.35) + 2 * math.sin(x * 0.11 + 1))
+            for yy in range(y - hgt, y):
+                pix[yy][x] = col
+
+    out = {}
+    # PLAIN / road: open field, far treeline, a road across the front
+    p = sky()
+    treeline(p, 72, P['g'])
+    ground(p, 72, 'grass')
+    road(p, 84, 98)
+    out['PLAIN'] = p
+    # WOODS: big trees behind, bushes at the sides
+    p = sky()
+    treeline(p, 72, P['g'])
+    for x, y in ((-6, 40), (20, 44), (52, 38), (84, 42), (108, 40)):
+        stamp(p, 'tree', x, y, 3, skip='')
+    ground(p, 72, 'grass')
+    for x in (-8, 104):
+        stamp(p, 'tree', x, 76, 2, skip='')
+    out['WOODS'] = p
+    # RUINS: broken buildings behind, rubble underfoot
+    p = sky()
+    for x, y in ((-10, 24), (36, 30), (80, 22)):
+        stamp(p, 'MT_RUINS', x, y, 3)
+    ground(p, 72, 'rubble')
+    stamp(p, 'MT_HILL', 96, 64, 2)
+    stamp(p, 'MT_HILL', -12, 66, 2)
+    out['RUINS'] = p
+    # CITY: houses and the hospital behind a sidewalk and street
+    p = sky()
+    stamp(p, 'MT_HOUSE', -8, 24, 3)
+    stamp(p, 'MT_HOSPITAL', 38, 24, 3)
+    stamp(p, 'MT_HOUSE_LOOTED', 84, 24, 3)
+    for y in range(72, 80):
+        for x in range(BG_W):
+            p[y][x] = P['c'] if (x % 16) and y != 79 else P['a']
+    for y in range(80, BG_H):
+        for x in range(BG_W):
+            p[y][x] = tex[y % 16][x % 16]
+    for x in range(BG_W):
+        p[72][x] = P['w']
+        if (x // 10) % 2 == 0:
+            p[92][x] = P['D']
+    out['CITY'] = p
+    # NEST: dead trees, a gore mound pulsing behind, raw dirt with red veins
+    p = sky()
+    treeline(p, 72, P['K'])
+    for x0 in (10, 46, 98):
+        for yy in range(40, 72):
+            p[yy][x0] = p[yy][x0 + 1] = P['K']
+        for k in range(1, 8):
+            for b in (-1, 1):
+                xx, yy = x0 + b * k, 52 - k + (k // 3) * 3 + (8 if b > 0 else 0)
+                if 0 <= xx < BG_W:
+                    p[yy][xx] = P['K']
+    stamp(p, 'MT_NEST', 36, 40, 3, skip='GlgX')
+    ground(p, 72, 'dirt')
+    for x in range(BG_W):
+        y = 82 + int(4 * math.sin(x * 0.2)) + int(2 * math.sin(x * 0.07))
+        p[y][x] = P['r']
+        y2 = 94 + int(3 * math.sin(x * 0.15 + 2))
+        p[y2][x] = P['r']
+    out['NEST'] = p
+    ts = TileSet()
+    maps = {}
+    for n in BB:
+        pix = out[n]
+        for row in pix:
+            if 0 in row:
+                raise ArtError('battle backdrop %s uses index 0' % n)
+        maps[n] = [[ts.add(tile_at(pix, tx * 8, ty * 8)) for tx in range(BG_W // 8)] for ty in range(BG_H // 8)]
+    if len(ts.tiles) > BATTLE_BG_MAX_TILES:
+        raise ArtError('battle backdrops use %d tiles (max %d)' % (len(ts.tiles), BATTLE_BG_MAX_TILES))
+    return ts, maps, out
+
+
+def build_battle(art, R):
+    figs, muz = [], []
+    for k, n in enumerate(UG):
+        f0, f1 = R['units'][k]
+        kind = 'veh' if n in VEHICLES else ('gun' if k < UG_HORDE_FIRST else 'claw')
+        fr = battle_frames(art, 'BF_' + n, f0, f1, kind)
+        figs.append(fr)
+        muz.append((-1, -1) if n == 'BUS' else muzzle_point(fr[3], kind))
+    bosses = []
+    for k, n in enumerate(BOSS):
+        f0, f1 = R['bosses'][k]
+        bosses.append(battle_frames(art, 'BF_BOSS_' + n, f0, f1, 'claw'))
+    fx = []
+    for n in BFX:
+        frames = []
+        for f in range(4):
+            nm = 'bfx_%s%d' % (n.lower(), f)
+            if art.has(nm):
+                frames.append(art.get(nm)[3])
+            elif n == 'RISE':
+                frames.append(scale2x(art.get('fx_rise%d' % f)[3]))
+            else:
+                raise ArtError('missing battle effect %s' % nm)
+        fx.append(frames)
+    ts, maps, pix = build_battle_bg(art)
+    return dict(figs=figs, muzzle=muz, bosses=bosses, fx=fx, bg_ts=ts, bg_maps=maps, bg_pix=pix)
+
+
 # ---- title -----------------------------------------------------------------
 
 def build_title(art):
@@ -841,6 +1092,21 @@ def write_c(gen_dir, art, R):
     h.append('\n/* ---- boss units: 16x16 OBJ, 2 frames, same layout as unit_gfx, pal_horde ---- */')
     h.append('enum { ' + ', '.join('BOSS_' + n for n in BOSS) + ', BOSS_COUNT };')
     h.append('extern const uint8_t boss_gfx[BOSS_COUNT][2][128];')
+    h.append('\n/* ---- battle scene (full-screen split view; see docs/ASSET_SPEC.md) ---- */')
+    h.append('enum { BF_IDLE0, BF_IDLE1, BF_ATK0, BF_ATK1, BF_FRAMES };')
+    h.append('extern const uint8_t battle_fig_gfx[UG_COUNT][BF_FRAMES][512];    /* 32x32, facing right, map sprite palette */')
+    h.append('extern const uint8_t battle_boss_gfx[BOSS_COUNT][BF_FRAMES][512]; /* pal_horde */')
+    h.append('extern const int8_t  battle_fig_muzzle[UG_COUNT][2];  /* x,y of the impact point in BF_ATK1; -1 = none */')
+    h.append('enum { ' + ', '.join('BB_' + n for n in BB) + ', BB_COUNT };')
+    h.append('#define BATTLE_BG_W 15  /* tiles; panel is 120x104, drawn for the right side */')
+    h.append('#define BATTLE_BG_H 13')
+    h.append('#define BATTLE_BG_GROUND %d  /* y of the ground line in the panel */' % BG_GROUND)
+    h.append('#define BATTLE_BG_TILE_COUNT %d' % len(R['battle']['bg_ts'].tiles))
+    h.append('extern const uint8_t  battle_bg_tiles[BATTLE_BG_TILE_COUNT * 32];  /* pal_terrain */')
+    h.append('extern const uint16_t battle_bg_map[BB_COUNT][BATTLE_BG_H][BATTLE_BG_W];')
+    h.append('enum { ' + ', '.join('BFX_' + n for n in BFX) + ', BFX_COUNT };')
+    h.append('extern const uint8_t battle_fx_gfx[BFX_COUNT][4][512];  /* 32x32, centre = impact point */')
+    h.append('extern const uint8_t battle_fx_pal[BFX_COUNT];          /* 0 = pal_cursor, 1 = pal_horde */')
     h.append('\n/* ---- cursor / small UI sprites (pal_cursor) ---- */')
     h.append('extern const uint8_t cursor_gfx[2][128];')
     h.append('extern const uint8_t digit_gfx[10][32];')
@@ -899,6 +1165,40 @@ def write_c(gen_dir, art, R):
             c.append('        {\n%s\n        },' % c_bytes(sprite_tiles_1d(f, 16, 16), '            '))
         c.append('    },')
     c.append('};\n')
+
+    B = R['battle']
+
+    def fig_arr(name, dim, names, sets):
+        c.append('const uint8_t %s[%s][BF_FRAMES][512] %s = {' % (name, dim, ALIGN))
+        for nm, frames in zip(names, sets):
+            c.append('    { /* %s */' % nm)
+            for f in frames:
+                c.append('        {\n%s\n        },' % c_bytes(sprite_tiles_1d(f, 32, 32), '            '))
+            c.append('    },')
+        c.append('};\n')
+
+    fig_arr('battle_fig_gfx', 'UG_COUNT', ['UG_' + n for n in UG], B['figs'])
+    fig_arr('battle_boss_gfx', 'BOSS_COUNT', ['BOSS_' + n for n in BOSS], B['bosses'])
+    c.append('const int8_t battle_fig_muzzle[UG_COUNT][2] = {')
+    for n, (x, y) in zip(UG, B['muzzle']):
+        c.append('    { %d, %d }, /* UG_%s */' % (x, y, n))
+    c.append('};\n')
+    c.append('const uint8_t battle_bg_tiles[BATTLE_BG_TILE_COUNT * 32] %s = {\n%s\n};' % (ALIGN, c_bytes(B['bg_ts'].data())))
+    c.append('const uint16_t battle_bg_map[BB_COUNT][BATTLE_BG_H][BATTLE_BG_W] = {')
+    for n in BB:
+        c.append('    { /* BB_%s */' % n)
+        for row in B['bg_maps'][n]:
+            c.append('        { %s },' % ', '.join('0x%04X' % v for v in row))
+        c.append('    },')
+    c.append('};\n')
+    c.append('const uint8_t battle_fx_gfx[BFX_COUNT][4][512] %s = {' % ALIGN)
+    for n, frames in zip(BFX, B['fx']):
+        c.append('    { /* BFX_%s */' % n)
+        for f in frames:
+            c.append('        {\n%s\n        },' % c_bytes(sprite_tiles_1d(f, 32, 32), '            '))
+        c.append('    },')
+    c.append('};\n')
+    c.append('const uint8_t battle_fx_pal[BFX_COUNT] = { %s };\n' % ', '.join(str(BFX_PAL[n]) for n in BFX))
 
     c.append('const uint8_t cursor_gfx[2][128] %s = {' % ALIGN)
     for f in R['cursor']:
@@ -1127,6 +1427,124 @@ def write_previews(prev_dir, art, R):
 
     # --- scene mock-up (1x and 3x): readability check
     write_scene(prev_dir, art, R)
+    write_battle_previews(prev_dir, art, R)
+
+
+def night_cols(cols, terrain):
+    """mirror video.c palettes_apply(): terrain 7/16 toward (2,3,10), units 3/16 toward (4,6,14)"""
+    t, n = ((2, 3, 10), 7) if terrain else ((4, 6, 14), 3)
+    out = []
+    for c in cols:
+        c5 = [v >> 3 for v in c]
+        c5 = [c5[k] + (t[k] - c5[k]) * n // 16 for k in range(3)]
+        out.append(tuple((v << 3) | (v >> 2) for v in c5))
+    return out
+
+
+# squad slots in a 120x104 panel for the side facing right (x, y = top-left of a 32x32),
+# drawn in list order (back to front); the first N are used for N displayed HP
+BATTLE_SLOTS = [(10, 50), (40, 48), (70, 50), (24, 58), (54, 57), (84, 58),
+                (6, 66), (36, 66), (66, 67), (20, 72)]
+
+
+def battle_mock(art, R, left, right, night=False):
+    """240x160 battle screen: (unit, hp, backdrop) for each side; left faces right"""
+    B = R['battle']
+    tcol = pal_rgb(art.palette('terrain').colors)
+    pals = {'survivor': pal_rgb(art.palette('survivor').colors), 'horde': pal_rgb(art.palette('horde').colors),
+            'cursor': pal_rgb(art.palette('cursor').colors)}
+    if night:
+        tcol = night_cols(tcol, True)
+        pals = {k: (night_cols(v, False) if k != 'cursor' else v) for k, v in pals.items()}
+    im = Image.new('RGB', (240, 160), (16, 16, 24))
+    ui = pal_rgb(art.palette('ui').colors)
+    for side, (unit, hp, bb) in enumerate((left, right)):
+        panel = Image.new('RGB', (BG_W, BG_H))
+        for ty, row in enumerate(B['bg_maps'][bb]):
+            for tx, se in enumerate(row):
+                blit_tile(panel, decode_se(B['bg_ts'].tiles, se), tx * 8, ty * 8, tcol, False)
+        if side == 0:
+            panel = panel.transpose(Image.FLIP_LEFT_RIGHT)
+        if unit.startswith('BOSS_'):
+            frames, palname = B['bosses'][BOSS.index(unit[5:])], 'horde'
+        else:
+            k = UG.index(unit)
+            frames, palname = B['figs'][k], 'survivor' if k < UG_HORDE_FIRST else 'horde'
+        for i in range(hp):
+            x, y = BATTLE_SLOTS[i]
+            f = frames[(i & 1) if side == 1 else (3 if i % 3 == 0 else 0)]
+            if side == 1:
+                f = [row[::-1] for row in f]
+                x = BG_W - 32 - x
+            blit_obj(panel, sprite_tiles_1d(f, 32, 32), 32, 32, x, y, pals[palname])
+        im.paste(panel, (side * 120, 0))
+    # effects on the defender and at the attacker's muzzle
+    B_fx = dict(zip(BFX, B['fx']))
+    lu = left[0]
+    if not lu.startswith('BOSS_') and UG.index(lu) < UG_HORDE_FIRST and B['muzzle'][UG.index(lu)][0] >= 0:
+        mx, my = B['muzzle'][UG.index(lu)]
+        x, y = BATTLE_SLOTS[0]
+        blit_obj(im, sprite_tiles_1d(B_fx['MUZZLE'][1], 32, 32), 32, 32, x + mx - 16, y + my - 16, pals['cursor'])
+        blit_obj(im, sprite_tiles_1d(B_fx['SPARK'][1], 32, 32), 32, 32, 160, 60, pals['cursor'])
+    else:
+        blit_obj(im, sprite_tiles_1d(B_fx['SLASH'][1], 32, 32), 32, 32, 160, 58, pals['cursor'])
+    # divider + bottom UI windows (stand-ins for the engine's)
+    for y in range(BG_H):
+        im.putpixel((119, y), (8, 8, 16))
+        im.putpixel((120, y), (8, 8, 16))
+    d = ImageDraw.Draw(im)
+    for side in range(2):
+        x0 = side * 120
+        d.rectangle((x0 + 2, BG_H + 2, x0 + 117, 157), fill=ui[3], outline=ui[4])
+        name = (left if side == 0 else right)[0].replace('BOSS_', '')
+        d.text((x0 + 8, BG_H + 8), name.title(), fill=ui[1])
+        d.text((x0 + 8, BG_H + 24), '%d HP' % (left if side == 0 else right)[1], fill=ui[6])
+    return im
+
+
+def write_battle_previews(prev_dir, art, R):
+    B = R['battle']
+    BGc = (40, 40, 48)
+    day = battle_mock(art, R, ('HEAVY', 7, 'PLAIN'), ('WALKER', 10, 'WOODS'))
+    night = battle_mock(art, R, ('BRUTE', 8, 'NEST'), ('SURVIVOR', 6, 'CITY'), night=True)
+    boss = battle_mock(art, R, ('SNIPER', 4, 'RUINS'), ('BOSS_ZERO', 9, 'NEST'))
+    for nm, im in (('battle_day', day), ('battle_night', night), ('battle_boss', boss)):
+        im.save(os.path.join(prev_dir, nm + '_1x.png'))
+        up(im).save(os.path.join(prev_dir, nm + '.png'))
+    # sheet: every figure x 4 frames on its usual backdrop colour, backdrops, effects
+    upal = {'survivor': pal_rgb(art.palette('survivor').colors), 'horde': pal_rgb(art.palette('horde').colors),
+            'cursor': pal_rgb(art.palette('cursor').colors)}
+    names = UG + ['BOSS_' + n for n in BOSS]
+    sets = B['figs'] + B['bosses']
+    cell = 36
+    sheet = Image.new('RGB', (max(len(names) * cell, len(BB) * (BG_W + 4), len(BFX) * 4 * 34) + 8,
+                              4 * cell + 20 + 112 + 2 * cell), BGc)
+    for k, (n, frames) in enumerate(zip(names, sets)):
+        cols = upal['survivor' if k < UG_HORDE_FIRST else 'horde']
+        for f, fr in enumerate(frames):
+            im = Image.new('RGB', (32, 32), (92, 148, 224) if f % 2 == 0 else (80, 160, 60))
+            blit_obj(im, sprite_tiles_1d(fr, 32, 32), 32, 32, 0, 0, cols)
+            if f == 3 and k < len(UG) and B['muzzle'][k][0] >= 0:
+                im.putpixel(B['muzzle'][k], (255, 0, 255))
+            sheet.paste(im, (8 + k * cell, 16 + f * cell))
+        label(sheet, 8 + k * cell, 2, n.replace('BOSS_', '*')[:6])
+    y0 = 20 + 4 * cell
+    tcol = pal_rgb(art.palette('terrain').colors)
+    for k, n in enumerate(BB):
+        im = Image.new('RGB', (BG_W, BG_H))
+        for ty, row in enumerate(B['bg_maps'][n]):
+            for tx, se in enumerate(row):
+                blit_tile(im, decode_se(B['bg_ts'].tiles, se), tx * 8, ty * 8, tcol, False)
+        sheet.paste(im, (8 + k * (BG_W + 4), y0))
+    y0 += 112
+    for k, (n, frames) in enumerate(zip(BFX, B['fx'])):
+        cols = upal['cursor' if BFX_PAL[n] == 0 else 'horde']
+        for f, fr in enumerate(frames):
+            im = Image.new('RGB', (32, 32), (24, 24, 32))
+            blit_obj(im, sprite_tiles_1d(fr, 32, 32), 32, 32, 0, 0, cols)
+            sheet.paste(im, (8 + (k * 4 + f) * 34, y0 + 4))
+    sheet.save(os.path.join(prev_dir, 'battle_sheet_1x.png'))
+    up(sheet, 2).save(os.path.join(prev_dir, 'battle_sheet.png'))
 
 
 SCENE = [
@@ -1223,6 +1641,7 @@ def main(argv):
         R['cursor'] = [art.get('cursor0')[3], art.get('cursor1')[3]]
         R['pointer'] = art.get('pointer')[3]
         R['explode'] = [art.get('explode%d' % f)[3] for f in range(4)]
+        R['battle'] = build_battle(art, R)
         R['digits'] = build_digits(art)
         R['font'] = build_font(art)
         R['window'] = build_windows(art)
