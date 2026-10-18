@@ -121,6 +121,8 @@ typedef struct {
 	u8 has_suspend;
 	u8 pad;
 	u16 best_days[16];
+	u8 snd_flags;       // sound.c: music / SFX off bits
+	u8 snd_magic;       // sound.c: set once snd_flags is valid (older saves lack it)
 } Profile;
 extern Profile profile;
 

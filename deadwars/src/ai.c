@@ -2,6 +2,7 @@
 #include "game.h"
 #include "video.h"
 #include "perf.h"
+#include "sound.h"
 #include <string.h>
 
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
@@ -203,6 +204,7 @@ static void act(int z)
 		int need = zu->capture - DISP_HP(zu->hp);
 		if (need <= 0) {
 			gs.owner[zu->y][zu->x] = SIDE_HORDE;
+			sfx(SFX_OVERRUN);
 			zu->capture = 20;
 			map_redraw_tile(zu->x, zu->y);
 			fog_update();
@@ -224,8 +226,10 @@ void horde_turn(void)
 	// nests breed
 	if (m->spawn_every && gs.day % m->spawn_every == 0)
 		spawn_at_nests(1 + (gs.night ? m->spawn_night_extra : 0), gs.night);
-	if (m->day_wave && gs.day == m->day_wave && spawn_at_nests(m->wave_size, gs.night))
+	if (m->day_wave && gs.day == m->day_wave && spawn_at_nests(m->wave_size, gs.night)) {
+		sfx(SFX_WAVE);
 		banner("A huge wave!", "The nests boil over.", 60);
+	}
 	fog_update();
 
 	// wake sleepers near the living, or anyone hurt, or everyone at night

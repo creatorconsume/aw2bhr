@@ -2,6 +2,7 @@
 #include "game.h"
 #include "video.h"
 #include "perf.h"
+#include "sound.h"
 #include <string.h>
 
 u16 keys_down, keys_held, keys_rep;
@@ -286,6 +287,7 @@ void frame(void)
 	last = perf_now();
 #endif
 	copy16(OAM, shadow_oam, sizeof(shadow_oam));
+	sound_update();
 	if (spr.map_visible) {
 		REG_BGHOFS(1) = REG_BGHOFS(2) = cam_px;
 		REG_BGVOFS(1) = REG_BGVOFS(2) = cam_py;

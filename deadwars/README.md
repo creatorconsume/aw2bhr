@@ -41,8 +41,8 @@ Horde: **Walker**, **Runner** (fast), **Brute** (vehicle crusher), **Spitter** (
 | SELECT / L | Jump to your next unit that hasn't moved |
 | Hold B during the horde's turn | Speed it up |
 
-There are no battle animations; combat resolves on the map. You can switch between
-Fast and Normal speed on the title screen.
+There are no battle animations; combat resolves on the map. **Options** (title screen or
+the START menu) switches Fast/Normal speed, Music and SFX on/off, and has a Sound Test.
 
 ## Campaign (pilot: Part One)
 
@@ -68,6 +68,18 @@ Art is plain-text pixel grids in `art/`, converted by `tools/gfx.py`
 (see `docs/ASSET_SPEC.md`). Missions, maps and dialogue are in `src/missions.c`. The map legend
 is at the top of `src/map.c`. `python3 test/check_maps.py src/missions.c` validates maps.
 
+## Sound
+
+Music and effects use only the four GBA PSG channels (2 square, wave, noise), so they cost
+almost nothing: `sound_update()` runs once per frame from `frame()` and averages under 1,000
+CPU cycles (0.3% of a frame). The music picks itself from the game state (title, day, night,
+horde turn, victory, defeat), and the battle theme resumes where it left off after the horde's turn.
+
+- `audio/music.txt`: all songs, written in a small MML-like text format (documented at the top of
+  `tools/music.py`, which compiles it to `build/gen/music.c`). Loops are checked to be seamless.
+- `src/sound.c`: the sequencer, the director, and the sound effects (C tables of short register
+  steps). An effect borrows a channel and gives it back to the music when it ends.
+
 ## Testing
 
 `test/gbarun.c` is a headless mGBA runner that plays scripted button presses and
@@ -77,3 +89,7 @@ saves screenshots (`sudo apt install libmgba-dev`):
 gcc -O2 -o gbarun test/gbarun.c -lmgba
 ./gbarun deadwars.gba test/smoke.txt out   # writes out-*.ppm
 ```
+
+Script commands are listed at the top of `test/gbarun.c`. `record NAME` / `stop` capture the
+emulator's audio as a WAV, `channels MASK` isolates audio channels, and `peek ADDR LABEL`
+prints a variable (for example `frame_count`, to confirm no frames are dropped).
