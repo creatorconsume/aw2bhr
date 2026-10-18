@@ -8,9 +8,15 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-Waiting for the producer's next message. The battle scene art will be wired in once the artist pushes `battle_gfx`.
+Waiting for the producer's next message.
 
 ## Last done
+- **Battle scene uses the artist's art** (contract in ASSET_SPEC "Battle scene").
+  - Backdrop per terrain on BG2 (CBB2 tiles 128+, SB26), mirrored for the left panel.
+  - 32x32 figures in the artist's 10 slots, with the IDLE/ATK poses.
+  - Effects: MUZZLE, SPARK, SLASH, ACID and RISE.
+  - HP windows on rows 13-19. Night tint comes from the existing palettes.
+  - The map is restored untouched afterwards.
 - **AW2 battle scene (producer request 2), new `src/scene.c`:**
   - A full-screen split: survivors on the left, the horde on the right, N figures = displayed HP (placeholder: map sprites at 2x, affine), and a ground strip from each unit's terrain.
   - Sequence: lunge and flash, then the HP bar counts down, then the counter, then "Destroyed" or the "Rises again..." beat. A skips.
