@@ -108,7 +108,7 @@ def test_rom(base, tmp):
     for m, v in export_map.ORIG_SET:
         export_map.export_one(base, m, v, mdir)
     out = os.path.join(tmp, "rt.gba")
-    build_remix.main(["--rom", ROM, "--maps-dir", mdir, "--out", out, "--no-bps", "--no-balance", "--no-qol", "--quiet"])
+    build_remix.main(["--rom", ROM, "--maps-dir", mdir, "--out", out, "--no-bps", "--no-balance", "--quiet"])
     rom = open(out, "rb").read()
     for m, v in export_map.ORIG_SET:
         vi = 0 if v == "normal" else 1
@@ -168,8 +168,8 @@ def test_build(base, tmp):
     rom = open(out, "rb").read()
     for a, b, what in build_remix.PROTECTED:
         check(rom[a:b] == base[a:b], "unchanged: " + what)
-    check(rom[0x016A6A] == 0, "No Visual default")
-    check(struct.unpack_from("<h", rom, 0x49CD88 + 0x18)[0] == build_remix.DEFAULT_MOVE_SPEED, "move speed")
+    check(rom[0x016A6A] == 1, "stock Visual A default kept (speed is a player setting)")
+    check(struct.unpack_from("<h", rom, 0x49CD88 + 0x18)[0] == build_remix.STOCK_MOVE_SPEED, "stock move speed kept")
     check(hashlib.sha1(bps.decode(base, open(pt, "rb").read())).digest() == hashlib.sha1(rom).digest(),
           "BPS applies to the output sha1")
     try:

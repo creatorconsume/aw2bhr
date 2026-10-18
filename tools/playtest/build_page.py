@@ -31,7 +31,7 @@ AW_CHECKS = [
     "Cleanup: 10 enemy units hold the river ford. Does the tutorial still play through?",
     "Border Skirmish and Orange Dawn now have fog of war and fortified bridges.",
     "Lash Out keeps its 7-day limit. Tell us if it is impossible or just brutal.",
-    "Battle animations start off, and units move about twice as fast.",
+    "Speed is your choice: Options > Visual Off (or B/C) doubles map speed, like the original.",
 ]
 
 

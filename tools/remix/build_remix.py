@@ -9,7 +9,8 @@ usage:
   --only-maps IDS     only apply these map files, e.g. 139,141 or 138-142; 'none' = no maps
   --maps-dir DIR      map text files (default tools/remix/maps; only *.txt directly inside)
   --no-balance        skip tools/remix/balance.py
-  --no-qol            skip the speed / animation patches
+  --qol               also apply the speed / animation patches (off by default: the stock
+                      Options menu already offers Visual A/B/C/Off, and non-A doubles map speed)
   --visual N          new-save default battle animation: 0 No Visual (default), 1 A, 2 B, 3 C
   --move-speed N      map move speed px/frame for every unit (stock 2; doubled when Visual != A)
   --start-map ID      TEST ROM: Campaign > New starts directly at mission ID (138-179), see
@@ -375,7 +376,7 @@ def build(a):
     rom = bytearray(base)
     log.append("base: %s sha1 %s" % (a.rom, sha))
     alloc = FreeSpace(rom, start=a.alloc_start)
-    if not a.no_qol:
+    if a.qol:
         apply_qol(rom, a.visual, a.move_speed, log)
     if not a.no_balance:
         apply_balance(rom, alloc, log)
@@ -398,7 +399,7 @@ def main(argv=None):
     ap.add_argument("--only-maps")
     ap.add_argument("--maps-dir", default=os.path.join(HERE, "maps"))
     ap.add_argument("--no-balance", action="store_true")
-    ap.add_argument("--no-qol", action="store_true")
+    ap.add_argument("--qol", action="store_true")
     ap.add_argument("--visual", type=int, default=0, choices=(0, 1, 2, 3))
     ap.add_argument("--move-speed", type=int, default=DEFAULT_MOVE_SPEED)
     ap.add_argument("--start-map", type=int)

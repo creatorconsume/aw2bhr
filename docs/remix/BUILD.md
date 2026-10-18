@@ -35,7 +35,7 @@ Other options:
 | `--bps` / `--no-bps` | write the patch to this path / skip the patch |
 | `--maps-dir` | read map files from another directory |
 | `--no-balance` | skip `balance.py` |
-| `--no-qol` | skip the speed and animation patches |
+| `--qol` | also apply the speed and animation patches (off by default; the stock Options menu already offers Visual A/B/C/Off, and anything but A doubles map speed) |
 | `--visual N` | new-save default animation: 0 = No Visual (default), 1 = A, 2 = B, 3 = C |
 | `--move-speed N` | map move speed in px/frame (default 4) |
 | `--alloc-start` | first free-space offset handed out (default `0x620000`) |
