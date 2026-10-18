@@ -53,6 +53,8 @@ void text_window(int x, int y, int w, int h)
 	for (int j = 0; j < h; j++) {
 		int row = j == 0 ? 0 : j == h - 1 ? 2 : 1;
 		for (int i = 0; i < w; i++) {
+			if (x + i < 0 || x + i > 31 || y + j < 0 || y + j > 31)
+				continue; // never wrap into the next row
 			int col = i == 0 ? 0 : i == w - 1 ? 2 : 1;
 			WIN(x + i, y + j) = TILE_WINDOW + row * 3 + col;
 			TXT(x + i, y + j) = 0;
@@ -146,6 +148,8 @@ void dialogue(const Line *lines)
 				text_put(tx, by + 2 + r, tmp, BGPAL_UI);
 				if (!skip) {
 					frame();
+					if (keys_down & KEY_START)
+						goto done; // skip the whole scene
 					if (keys_down & (KEY_A | KEY_B))
 						skip = true;
 				}
@@ -159,18 +163,19 @@ void dialogue(const Line *lines)
 		if (keys_down & KEY_START)
 			break; // skip the whole scene
 	}
+done:
 	spr.portrait = -1;
 	text_clear_rect(bx, by, bw, bh);
 }
 
 void banner(const char *l1, const char *l2, int frames)
 {
-	int w = MAX(strlen(l1), l2 ? strlen(l2) : 0) + 4;
-	int x = (30 - w) / 2, h = l2 ? 4 : 3, y = (20 - h) / 2;
+	int w = MIN(MAX((int)strlen(l1), l2 ? (int)strlen(l2) : 0) + 4, 30);
+	int x = MAX(0, (30 - w) / 2), h = l2 ? 4 : 3, y = (20 - h) / 2;
 	text_window(x, y, w, h);
-	text_put(x + (w - strlen(l1)) / 2, y + 1, l1, BGPAL_TEXT_YEL);
+	text_put(x + MAX(0, (w - (int)strlen(l1)) / 2), y + 1, l1, BGPAL_TEXT_YEL);
 	if (l2)
-		text_put(x + (w - strlen(l2)) / 2, y + 2, l2, BGPAL_UI);
+		text_put(x + MAX(0, (w - (int)strlen(l2)) / 2), y + 2, l2, BGPAL_UI);
 	for (int i = 0; i < frames; i++) {
 		frame();
 		if (keys_down & (KEY_A | KEY_B))

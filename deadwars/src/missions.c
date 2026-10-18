@@ -153,7 +153,8 @@ static const UnitPlacement m4_units[] = {
 static const Line m4_intro[] = {
 	{ PT_HOLT, "St. Agnes. The Guard walled the courtyard in. Didn't help." },
 	{ PT_DOC, "Hello? HELLO? I'm on the roof! Dr. Ellis Park! I've been up here for a week!" },
-	{ PT_DOC, "Listen to me: the first patient was brought in here. The infection spread from this building. I have his files." },
+	{ PT_DOC, "Listen to me: the first patient was brought in here." },
+	{ PT_DOC, "The infection spread from this building. I have his files." },
 	{ PT_ZERO, "............" },
 	{ PT_MARA, "Clear every last one of them. Burn the nests. We're getting the doctor out." },
 	{ 0, NULL },
@@ -218,7 +219,7 @@ const Mission missions[] = {
 	  5000, 100, GOAL_NESTS, 0, 0, 3, 3, 0, 5, 1, m2_intro, m2_outro },
 	{ "Bridge Out", "Evac 3 units by Day 9.", MAP(m3_rows), m3_units,
 	  3000, 100, GOAL_EVAC, 9, 3, 3, 3, 0, 5, 2, m3_intro, m3_outro },
-	{ "St. Agnes", "Destroy all zombies and nests.", MAP(m4_rows), m4_units,
+	{ "St. Agnes", "Kill all zombies + nests.", MAP(m4_rows), m4_units,
 	  7000, 100, GOAL_ROUT, 0, 0, 3, 4, 0, 6, 1, m4_intro, m4_outro },
 	{ "The Long Night", "Survive until Day 10.", MAP(m5_rows), m5_units,
 	  500, 20, GOAL_SURVIVE, 9, 0, 2, 1, 2, 5, 3, m5_intro, m5_outro },

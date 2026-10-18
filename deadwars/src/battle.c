@@ -177,7 +177,8 @@ static void hit(int a, int d, int dmg)
 {
 	Unit *du = &gs.units[d];
 	spr.flash_unit = d;
-	popup(du->x, du->y, (dmg + 9) / 10);
+	int after = dmg >= du->hp ? 0 : DISP_HP(du->hp - dmg);
+	popup(du->x, du->y, DISP_HP(du->hp) - after);
 	wait_frames((keys_held & KEY_B) && gs.side == SIDE_HORDE ? 4 : profile.anim_speed ? 24 : 12);
 	spr.flash_unit = -1;
 	if (dmg >= du->hp) {
@@ -267,10 +268,10 @@ void check_victory(void)
 void info_panel(void)
 {
 	int sx = gs.cur_x - gs.cam_x;
-	int px = sx < 8 ? 20 : 0;
+	int px = sx < 8 ? 18 : 0;
 	text_clear_rect(0, 15, 30, 5);
 	int tt = gs.terrain[gs.cur_y][gs.cur_x];
-	text_window(px, 15, 10, 5);
+	text_window(px, 15, 12, 5);
 	if (gs.fog[gs.cur_y][gs.cur_x] && gs.night)
 		text_put(px + 1, 16, "Fog", BGPAL_TEXT_GREY);
 	else
@@ -280,7 +281,7 @@ void info_panel(void)
 	if (o >= 0 && !(gs.units[o].side == SIDE_HORDE && gs.fog[gs.cur_y][gs.cur_x])) {
 		Unit *u = &gs.units[o];
 		text_printf(px + 1, 18, u->side == SIDE_SURVIVOR ? BGPAL_TEXT_BLUE : BGPAL_TEXT_RED, "%-8s", unit_info[u->type].name);
-		text_printf(px + 6, 17, BGPAL_UI, "%2dHP", DISP_HP(u->hp));
+		text_printf(px + 7, 17, BGPAL_UI, "%2dHP", DISP_HP(u->hp));
 	} else if (terrain_info[tt].building && gs.owner[gs.cur_y][gs.cur_x] != SIDE_NEUTRAL) {
 		text_put(px + 1, 18, gs.owner[gs.cur_y][gs.cur_x] == SIDE_SURVIVOR ? "Ours" : "Overrun",
 		         gs.owner[gs.cur_y][gs.cur_x] == SIDE_SURVIVOR ? BGPAL_TEXT_BLUE : BGPAL_TEXT_RED);
@@ -288,9 +289,9 @@ void info_panel(void)
 		text_put(px + 1, 18, "Unsearched", BGPAL_TEXT_GREY);
 	}
 	// day / funds in the opposite top corner
-	int fx = sx < 8 ? 20 : 0;
+	int fx = sx < 8 ? 18 : 0;
 	text_clear_rect(0, 0, 30, 3);
-	text_window(fx, 0, 10, 3);
+	text_window(fx, 0, 12, 3);
 	text_printf(fx + 1, 1, gs.night ? BGPAL_TEXT_BLUE : BGPAL_TEXT_YEL, "D%-2d $%ld", gs.day, (long)gs.funds);
 }
 
@@ -322,8 +323,9 @@ static void show_ranges(int ui)
 				overlay_set(x, y, OV_ATTACK);
 		}
 	text_clear();
-	while (!(keys_down & (KEY_A | KEY_B)))
+	do
 		frame();
+	while (!(keys_down & (KEY_A | KEY_B)));
 	overlay_clear();
 }
 
@@ -392,8 +394,9 @@ static void search_house(int ui)
 			    move_cost(MOVE_FOOT, gs.terrain[y][x]) == IMPASSABLE)
 				continue;
 			int n = spawn_unit(UT_SURVIVOR, SIDE_SURVIVOR, x, y, 40 + (rng_next() % 5) * 10);
-			if (n >= 0)
-				gs.units[n].moved = 1;
+			if (n < 0)
+				break; // unit pool full: scraps instead
+			gs.units[n].moved = 1;
 			banner("A survivor joins!", "They were hiding inside.", 60);
 			return;
 		}
@@ -409,7 +412,7 @@ static void search_house(int ui)
 			if (z >= 0) {
 				gs.units[z].moved = 1;
 				fog_update();
-				banner("It's a trap!", "Something was waiting inside...", 60);
+				banner("It's a trap!", "Something was inside!", 60);
 				attack(z, ui);
 				return;
 			}
@@ -456,12 +459,14 @@ static bool drop_cargo(int ui)
 	if (!n)
 		return false;
 	int sel = 0;
+	spr.cursor_show = 1;
 	for (;;) {
 		overlay_clear();
 		for (int i = 0; i < n; i++)
 			overlay_set(bus->x + dirx[opts[i]], bus->y + diry[opts[i]], OV_MOVE);
 		gs.cur_x = bus->x + dirx[opts[sel]];
 		gs.cur_y = bus->y + diry[opts[sel]];
+		camera_follow(gs.cur_x, gs.cur_y, true);
 		frame();
 		if (keys_rep & (KEY_RIGHT | KEY_DOWN))
 			sel = (sel + 1) % n;
@@ -469,11 +474,15 @@ static bool drop_cargo(int ui)
 			sel = (sel + n - 1) % n;
 		if (keys_down & KEY_B) {
 			overlay_clear();
+			spr.cursor_show = 0;
+			gs.cur_x = bus->x;
+			gs.cur_y = bus->y;
 			return false;
 		}
 		if (keys_down & KEY_A)
 			break;
 	}
+	spr.cursor_show = 0;
 	overlay_clear();
 	Unit *cu = &gs.units[c];
 	cu->carried = 0;
@@ -522,14 +531,18 @@ static bool action_menu(int ui, bool moved_this_turn)
 		for (int i = 0; i < n; i++)
 			items[i] = (ids[i] == ACT_CAPTURE && tt == TT_NEST) ? "Burn" : act_names[ids[i]];
 		int sx = u->x - gs.cam_x;
-		int choice = text_menu(sx < 8 ? 21 : 1, 3, 8, items, NULL, n, 0);
+		int choice = text_menu(sx < 8 ? 20 : 1, 3, 9, items, NULL, n, 0);
 		if (choice < 0)
 			return false;
 		switch (ids[choice]) {
 		case ACT_FIRE: {
 			int t = pick_target(ui, targets, nt);
-			if (t < 0)
+			if (t < 0) {
+				spr.cursor_show = 0; // back to the menu: no stray cursor on the target
+				gs.cur_x = u->x;
+				gs.cur_y = u->y;
 				continue;
+			}
 			spr.cursor_show = 0;
 			attack(ui, t);
 			break;
@@ -612,15 +625,16 @@ static void objective_screen(void)
 	if (m->goal == GOAL_EVAC)
 		text_printf(3, 11, BGPAL_TEXT_BLUE, "Evacuated %d/%d", gs.evacuated, m->evac_needed);
 	text_put(3, 12, "Night: zombies +1 move", BGPAL_TEXT_GREY);
-	while (!(keys_down & (KEY_A | KEY_B)))
+	do
 		frame();
+	while (!(keys_down & (KEY_A | KEY_B)));
 	text_clear();
 }
 
 static void options_menu(void)
 {
 	static const char *const items[2] = { "Speed: Fast", "Speed: Normal" };
-	int c = text_menu(8, 5, 15, items, NULL, 2, profile.anim_speed);
+	int c = text_menu(8, 5, 16, items, NULL, 2, profile.anim_speed);
 	if (c >= 0) {
 		profile.anim_speed = c;
 		profile_save();
@@ -713,7 +727,7 @@ static bool player_turn(void)
 		}
 		if (ui >= 0 && gs.units[ui].side == SIDE_SURVIVOR && !gs.units[ui].moved) {
 			Unit *u = &gs.units[ui];
-			int ox = u->x, oy = u->y;
+			int ox = u->x, oy = u->y, ocap = u->capture;
 			find_paths(ui, dist, prev);
 			text_clear();
 			for (int y = 0; y < gs.h; y++)
@@ -769,6 +783,7 @@ static bool player_turn(void)
 					// undo the move
 					u->x = ox;
 					u->y = oy;
+					u->capture = ocap;
 					fog_update();
 					spr.cursor_show = 1;
 					for (int y = 0; y < gs.h; y++)
@@ -839,8 +854,9 @@ static void results(void)
 	text_printf(7, 8, BGPAL_UI, "Zombies  %d", gs.kills);
 	text_printf(7, 9, BGPAL_UI, "Lost     %d", gs.losses);
 	text_put(7, 11, "Press A", BGPAL_TEXT_GREY);
-	while (!(keys_down & KEY_A))
+	do
 		frame();
+	while (!(keys_down & KEY_A));
 	text_clear();
 }
 

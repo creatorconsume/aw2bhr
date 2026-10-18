@@ -56,8 +56,10 @@ static void build_field(void)
 	}
 }
 
-static void spawn_at_nests(int count, bool night)
+// Returns how many zombies were actually placed.
+static int spawn_at_nests(int count, bool night)
 {
+	int total = 0;
 	for (int y = 0; y < gs.h; y++)
 		for (int x = 0; x < gs.w; x++) {
 			if (gs.terrain[y][x] != TT_NEST)
@@ -77,11 +79,13 @@ static void spawn_at_nests(int count, bool night)
 				else if (r > 82 && gs.day >= 6) type = UT_BRUTE;
 				int i = spawn_unit(type, SIDE_HORDE, sx, sy, 100);
 				if (i < 0)
-					return;
+					return total;
 				gs.units[i].moved = 1; // fresh spawns act next turn
 				made++;
+				total++;
 			}
 		}
+	return total;
 }
 
 static int nearest_survivor(int x, int y)
@@ -198,15 +202,13 @@ void horde_turn(void)
 	const Mission *m = &missions[gs.mission];
 	start_side_turn(SIDE_HORDE);
 	text_clear();
-	banner("The Horde", gs.night ? "They smell you in the dark." : "The dead are moving...", 45);
+	banner("The Horde", gs.night ? "They hunt in the dark." : "The dead are moving...", 45);
 
 	// nests breed
 	if (m->spawn_every && gs.day % m->spawn_every == 0)
 		spawn_at_nests(1 + (gs.night ? m->spawn_night_extra : 0), gs.night);
-	if (m->day_wave && gs.day == m->day_wave) {
-		spawn_at_nests(m->wave_size, gs.night);
-		banner("A huge wave!", "The nests are boiling over.", 60);
-	}
+	if (m->day_wave && gs.day == m->day_wave && spawn_at_nests(m->wave_size, gs.night))
+		banner("A huge wave!", "The nests boil over.", 60);
 	fog_update();
 
 	// wake sleepers near the living, or anyone hurt, or everyone at night

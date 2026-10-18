@@ -9,12 +9,13 @@ static int mission_select(void)
 	char lines[16][28];
 	int n = MIN(profile.unlocked, mission_count);
 	for (int i = 0; i < n; i++) {
-		memset(lines[i], 0, sizeof lines[i]);
+		// "N Title.............. *": star at col 25, inside the frame
+		memset(lines[i], ' ', sizeof lines[i]);
 		lines[i][0] = '1' + i;
-		lines[i][1] = ' ';
-		strncpy(lines[i] + 2, missions[i].title, 20);
-		if (profile.best_days[i])
-			lines[i][23] = '*';
+		int tl = MIN((int)strlen(missions[i].title), 18);
+		memcpy(lines[i] + 2, missions[i].title, tl);
+		lines[i][21] = profile.best_days[i] ? '*' : ' ';
+		lines[i][22] = 0;
 		items[i] = lines[i];
 	}
 	return text_menu(2, 2, 26, items, NULL, n, n - 1);
@@ -43,8 +44,9 @@ int main(void)
 		spr.map_visible = 0;
 		text_clear();
 		text_put(9, 19, "Press START", BGPAL_UI);
-		while (!(keys_down & (KEY_START | KEY_A)))
+		do
 			frame();
+		while (!(keys_down & (KEY_START | KEY_A)));
 		text_clear();
 		const char *items[4] = { "Campaign", "Continue", "How to Play", "Speed" };
 		u8 en[4] = { 1, profile.has_suspend, 1, 1 };

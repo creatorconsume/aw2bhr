@@ -1,0 +1,368 @@
+<title>Dead Wars Playtest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a handheld on the left (screen + buttons), the cartridge slot and test notes on the right; stacks on phones. Deliberately single dark theme, like the device. */
+:root {
+  --bg: #0e1117;         /* night over Cedar Falls */
+  --shell: #171b24;      /* device shell */
+  --shell-hi: #222837;
+  --line: #2c3344;
+  --fg: #e9e3d6;         /* bone */
+  --muted: #8f97a8;
+  --blood: #d23a32;      /* logo red, used sparingly */
+  --survivor: #5b8fe6;   /* team blue */
+  --toxic: #a8bd84;      /* zombie skin: OK states */
+  --warn: #e3b04b;
+  --display: "Silkscreen", "Courier New", monospace;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--fg); }
+body {
+  font: 15px/1.5 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+h1 { font: 400 clamp(22px, 4vw, 30px)/1.1 var(--display); letter-spacing: 0.04em; margin: 0; text-wrap: balance; }
+h1 span { color: var(--blood); }
+.sub { color: var(--muted); margin: 0; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* the handheld */
+.device { background: var(--shell); border: 1px solid var(--line); border-radius: 18px 18px 40px 18px; padding: 18px; display: grid; gap: 16px; }
+.bezel { background: #05070a; border-radius: 10px; padding: 12px; position: relative; }
+canvas#screen { display: block; width: 100%; max-width: 100%; aspect-ratio: 3 / 2; image-rendering: pixelated; image-rendering: crisp-edges; background: #000; border-radius: 3px; }
+.overlay { position: absolute; inset: 12px; display: grid; place-items: center; text-align: center; background: rgba(5, 7, 10, 0.86); border-radius: 3px; padding: 16px; }
+.overlay[hidden] { display: none; }
+.overlay p { margin: 6px 0 0; color: var(--muted); max-width: 40ch; }
+.screen-meta { display: flex; justify-content: space-between; gap: 12px; font: 12px/1.4 var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+.led { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--line); margin-right: 6px; vertical-align: 1px; }
+.led.on { background: var(--toxic); box-shadow: 0 0 6px var(--toxic); }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; }
+button, .file-btn {
+  font: 600 13px/1 var(--body); letter-spacing: 0.02em; color: var(--fg);
+  background: var(--shell-hi); border: 1px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; cursor: pointer; touch-action: manipulation;
+}
+button:hover, .file-btn:hover { border-color: var(--muted); }
+button:focus-visible, .file-btn:focus-within, input:focus-visible + span { outline: 2px solid var(--survivor); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--survivor); border-color: var(--survivor); color: #0b1020; }
+button.primary { background: var(--blood); border-color: var(--blood); color: #fff; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* touch pad, laid out like the Miyoo: d-pad left, A/B right */
+.pad { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; user-select: none; -webkit-user-select: none; }
+.shoulders { grid-column: 1 / -1; display: flex; justify-content: space-between; }
+.dpad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(3, 46px); gap: 2px; }
+.dpad button { padding: 0; border-radius: 6px; font-size: 16px; }
+.dpad .c { background: transparent; border: none; pointer-events: none; }
+.mid { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.mid button { border-radius: 20px; font-size: 11px; padding: 7px 14px; }
+.ab { display: grid; grid-template-columns: 58px 58px; grid-template-rows: 30px 58px; gap: 0 6px; }
+.ab button { border-radius: 50%; width: 58px; height: 58px; font: 400 16px var(--display); }
+.ab .a { grid-column: 2; grid-row: 1 / span 2; align-self: start; background: var(--blood); border-color: var(--blood); }
+.ab .b { grid-column: 1; grid-row: 2; }
+.pad button.held { filter: brightness(1.5); }
+
+/* side panel */
+.panel { display: grid; gap: 16px; }
+.card { background: var(--shell); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.card h2 { font: 400 13px/1.2 var(--display); letter-spacing: 0.08em; color: var(--muted); margin: 0; text-transform: uppercase; }
+.slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.slot { text-align: left; padding: 12px; display: grid; gap: 4px; line-height: 1.25; }
+.slot strong { font-size: 15px; }
+.slot small { color: var(--muted); font-weight: 400; }
+.slot[aria-pressed="true"] { background: var(--shell-hi); border-color: var(--blood); color: var(--fg); }
+.slot[aria-pressed="true"] small { color: var(--fg); }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font: 12px/1.5 var(--mono); }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; overflow-wrap: anywhere; }
+.status { font-size: 14px; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); }
+.status.ok { border-color: var(--toxic); }
+.status.bad { border-color: var(--blood); }
+.file-btn { display: inline-flex; align-items: center; gap: 8px; position: relative; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.choice { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.choice label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+ul.checks { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.keys { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 14px; font-size: 13px; }
+.keys kbd { font: 600 11px/1 var(--mono); background: var(--shell-hi); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 3px 6px; margin-right: 6px; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+footer { color: var(--muted); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>DEAD <span>WARS</span> PLAYTEST</h1>
+    <p class="sub">Play the current builds in your browser, then leave a comment on this page.</p>
+  </header>
+
+  <div class="grid">
+    <section class="device" aria-label="Game screen and controls">
+      <div class="bezel">
+        <canvas id="screen" width="240" height="160" aria-label="Game Boy Advance screen"></canvas>
+        <div class="overlay" id="overlay">
+          <div>
+            <button class="primary" id="start-btn">Insert Dead Wars</button>
+            <p id="overlay-note">Starts with sound. Saves stay in this browser.</p>
+          </div>
+        </div>
+      </div>
+      <div class="screen-meta">
+        <span><span class="led" id="led"></span><span id="now-playing">No cartridge</span></span>
+        <span id="fps">240×160 · 59.7 Hz</span>
+      </div>
+      <div class="toolbar">
+        <button id="pause-btn" disabled>Pause</button>
+        <button id="reset-btn" disabled>Reset</button>
+        <button id="sound-btn" aria-pressed="true">Sound on</button>
+        <button id="ff-btn" aria-pressed="false" title="Run three frames per tick, handy during the horde's turn">Fast ×3</button>
+      </div>
+      <div class="pad" aria-label="Touch buttons">
+        <div class="shoulders"><button data-key="L">L</button><button data-key="R">R</button></div>
+        <div class="dpad">
+          <span class="c"></span><button data-key="UP" aria-label="Up">▲</button><span class="c"></span>
+          <button data-key="LEFT" aria-label="Left">◀</button><span class="c"></span><button data-key="RIGHT" aria-label="Right">▶</button>
+          <span class="c"></span><button data-key="DOWN" aria-label="Down">▼</button><span class="c"></span>
+        </div>
+        <div class="mid"><button data-key="SELECT">SELECT</button><button data-key="START">START</button></div>
+        <div class="ab"><button class="a" data-key="A">A</button><button class="b" data-key="B">B</button></div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <section class="card" aria-labelledby="slot-h">
+        <h2 id="slot-h">Cartridge</h2>
+        <div class="slots">
+          <button class="slot" id="slot-dw" aria-pressed="true"><strong>Dead Wars</strong><small>Built in · @@DW_VERSION@@</small></button>
+          <button class="slot" id="slot-aw" aria-pressed="false"><strong>AW2 Remix</strong><small>Bring your own ROM</small></button>
+        </div>
+        <div id="dw-info">
+          <dl class="kv">
+            <dt>Build</dt><dd>@@DW_VERSION@@</dd>
+            <dt>SHA-1</dt><dd>@@DW_SHA1@@</dd>
+            <dt>Missions</dt><dd>Part One, 1–5</dd>
+          </dl>
+        </div>
+        <div id="aw-info" hidden>
+          <p class="note">Your ROM is read in this browser only. Nothing is uploaded. The page checks it is the Advance Wars 2 (USA) dump, then applies the remix patch.</p>
+          <label class="file-btn" for="rom-file">Choose AW2 (USA) ROM, .gba or .zip<input type="file" id="rom-file" accept=".gba,.zip,.agb,.bin"></label>
+          <div class="choice" role="radiogroup" aria-label="Version">
+            <label><input type="radio" name="awmode" id="aw-remix" value="remix" checked> Remix @@REMIX_VERSION@@</label>
+            <label><input type="radio" name="awmode" id="aw-orig" value="orig"> Original</label>
+          </div>
+          <div class="status" id="aw-status">No ROM chosen yet.</div>
+          <button class="primary" id="aw-play" disabled>Play</button>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="test-h">
+        <h2 id="test-h">What to try</h2>
+        <ul class="checks" id="checks-dw">
+@@DW_CHECKS@@
+        </ul>
+        <ul class="checks" id="checks-aw" hidden>
+@@AW_CHECKS@@
+        </ul>
+        <p class="note">Found something? Leave a comment on this page. Say which cartridge, which mission and day, and what you pressed.</p>
+      </section>
+
+      <section class="card" aria-labelledby="keys-h">
+        <h2 id="keys-h">Keyboard</h2>
+        <div class="keys">
+          <span><kbd>←↑→↓</kbd>D-Pad</span>
+          <span><kbd>Z</kbd>A</span>
+          <span><kbd>X</kbd>B</span>
+          <span><kbd>Enter</kbd>Start</span>
+          <span><kbd>Shift</kbd>Select</span>
+          <span><kbd>A</kbd>L &nbsp;<kbd>S</kbd>R</span>
+        </div>
+        <p class="note">Gamepads work too. Touch buttons follow the Miyoo layout.</p>
+      </section>
+    </aside>
+  </div>
+
+  <footer>Emulator: gbajs by Jeffrey Pfau (BSD 2-Clause), with its open-source BIOS replacement. Accuracy is lower than mGBA or gpSP on the Miyoo, so confirm visual bugs on the device when you can.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/*@@GBAJS@@*/
+</script>
+<script>
+(function () {
+  "use strict";
+  var BIOS_B64 = "@@BIOS_B64@@";
+  var DW_B64 = "@@DW_B64@@";
+  var BPS_B64 = "@@BPS_B64@@";
+  var AW2_CRC = 0x@@AW2_CRC@@; // CRC32 of Advance Wars 2 - Black Hole Rising (USA)
+
+  function b64(s) { var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+  var crcTable = (function () { var t = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(u8) { var c = 0xFFFFFFFF; for (var i = 0; i < u8.length; i++) c = crcTable[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+  // BPS patch format (beat): https://www.romhacking.net/documents/746/
+  function applyBps(src, patch) {
+    var p = new Uint8Array(patch), s = new Uint8Array(src), pos = 4;
+    if (String.fromCharCode(p[0], p[1], p[2], p[3]) !== "BPS1") throw new Error("Not a BPS patch");
+    function num() { var data = 0, shift = 1; for (;;) { var x = p[pos++]; data += (x & 0x7f) * shift; if (x & 0x80) break; shift *= 128; data += shift; } return data; }
+    var srcSize = num(), dstSize = num(), meta = num(); pos += meta;
+    if (srcSize !== s.length) throw new Error("ROM size does not match the patch");
+    var out = new Uint8Array(dstSize), o = 0, srcRel = 0, dstRel = 0, end = p.length - 12;
+    while (pos < end) {
+      var d = num(), cmd = d & 3, len = (d >>> 2) + 1, off;
+      if (cmd === 0) { while (len--) { out[o] = s[o]; o++; } }
+      else if (cmd === 1) { while (len--) out[o++] = p[pos++]; }
+      else if (cmd === 2) { off = num(); srcRel += (off & 1 ? -1 : 1) * Math.floor(off / 2); while (len--) out[o++] = s[srcRel++]; }
+      else { off = num(); dstRel += (off & 1 ? -1 : 1) * Math.floor(off / 2); while (len--) out[o++] = out[dstRel++]; }
+    }
+    var want = (p[end + 4] | p[end + 5] << 8 | p[end + 6] << 16 | p[end + 7] << 24) >>> 0;
+    if (crc32(out) !== want) throw new Error("Patched ROM failed its checksum");
+    return out.buffer;
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var canvas = $("screen"), overlay = $("overlay"), led = $("led");
+  var gba = null, fast = false, current = null, awRom = null;
+
+  function makeGba() {
+    if (gba) return gba;
+    gba = new GameBoyAdvance();
+    gba.keypad.eatInput = true;
+    gba.keypad.KEYCODE_SELECT = 16;
+    gba.setCanvasDirect(canvas);
+    gba.logLevel = gba.LOG_ERROR;
+    gba.setBios(b64(BIOS_B64));
+    var step = gba.advanceFrame.bind(gba);
+    gba.advanceFrame = function () { step(); if (fast) { step(); step(); } };
+    gba.ERROR = function (msg) { console.error(msg); showCrash(String(msg)); };
+    return gba;
+  }
+
+  function showCrash(msg) {
+    overlay.hidden = false;
+    overlay.firstElementChild.innerHTML = "";
+    var h = document.createElement("strong"); h.textContent = "The emulator stopped.";
+    var p = document.createElement("p"); p.textContent = msg.slice(0, 200) + " — please comment with what you were doing, then press Reset.";
+    overlay.firstElementChild.append(h, p);
+    led.classList.remove("on");
+  }
+
+  function boot(rom, label, saveKey) {
+    var g = makeGba();
+    g.pause();
+    g.SYS_ID = "deadwars.playtest." + saveKey;
+    if (!g.setRom(rom)) { showCrash("This file is not a GBA ROM the emulator can load."); return; }
+    try { if (g.audio.context && g.audio.context.state === "suspended") g.audio.context.resume(); } catch (e) {}
+    g.runStable();
+    current = { rom: rom, label: label, saveKey: saveKey };
+    overlay.hidden = true;
+    $("now-playing").textContent = label;
+    led.classList.add("on");
+    $("pause-btn").disabled = false; $("reset-btn").disabled = false;
+    $("pause-btn").textContent = "Pause";
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  }
+
+  $("start-btn").addEventListener("click", function () {
+    boot(b64(DW_B64), "Dead Wars · @@DW_VERSION@@", "dw");
+  });
+  $("pause-btn").addEventListener("click", function () {
+    if (!gba) return;
+    if (gba.paused) { gba.runStable(); this.textContent = "Pause"; led.classList.add("on"); }
+    else { gba.pause(); this.textContent = "Resume"; led.classList.remove("on"); }
+  });
+  $("reset-btn").addEventListener("click", function () { if (current) boot(current.rom, current.label, current.saveKey); });
+  $("sound-btn").addEventListener("click", function () {
+    var on = this.getAttribute("aria-pressed") !== "true";
+    this.setAttribute("aria-pressed", String(on)); this.textContent = on ? "Sound on" : "Sound off";
+    if (gba) gba.audio.masterVolume = on ? 1.0 : 0.0;
+  });
+  $("ff-btn").addEventListener("click", function () {
+    fast = !fast; this.setAttribute("aria-pressed", String(fast));
+    if (gba) gba.audio.masterVolume = fast || $("sound-btn").getAttribute("aria-pressed") !== "true" ? 0 : 1;
+  });
+
+  // touch / mouse buttons drive the keypad register directly (active low)
+  document.querySelectorAll(".pad [data-key]").forEach(function (btn) {
+    var key = btn.getAttribute("data-key");
+    function set(down) {
+      if (!gba) return;
+      var bit = 1 << gba.keypad[key];
+      if (down) gba.keypad.currentDown &= ~bit; else gba.keypad.currentDown |= bit;
+      btn.classList.toggle("held", down);
+    }
+    btn.addEventListener("pointerdown", function (e) { e.preventDefault(); btn.setPointerCapture && btn.setPointerCapture(e.pointerId); set(true); });
+    ["pointerup", "pointercancel", "lostpointercapture"].forEach(function (ev) { btn.addEventListener(ev, function () { set(false); }); });
+    btn.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+  });
+
+  // cartridge slots
+  function pick(which) {
+    var dw = which === "dw";
+    $("slot-dw").setAttribute("aria-pressed", String(dw));
+    $("slot-aw").setAttribute("aria-pressed", String(!dw));
+    $("dw-info").hidden = !dw; $("aw-info").hidden = dw;
+    $("checks-dw").hidden = !dw; $("checks-aw").hidden = dw;
+    if (dw && (!current || current.saveKey !== "dw")) {
+      overlay.hidden = false;
+      overlay.firstElementChild.innerHTML = "";
+      var b = document.createElement("button"); b.className = "primary"; b.textContent = "Insert Dead Wars";
+      b.addEventListener("click", function () { boot(b64(DW_B64), "Dead Wars · @@DW_VERSION@@", "dw"); });
+      var p = document.createElement("p"); p.textContent = "Starts with sound. Saves stay in this browser.";
+      overlay.firstElementChild.append(b, p);
+      if (gba) { gba.pause(); led.classList.remove("on"); }
+    }
+    try { localStorage.setItem("dwpt.slot", which); } catch (e) {}
+  }
+  $("slot-dw").addEventListener("click", function () { pick("dw"); });
+  $("slot-aw").addEventListener("click", function () { pick("aw"); });
+
+  function setStatus(text, kind) { var s = $("aw-status"); s.textContent = text; s.className = "status" + (kind ? " " + kind : ""); }
+
+  $("rom-file").addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    awRom = null; $("aw-play").disabled = true;
+    if (!f) return;
+    setStatus("Reading " + f.name + "…");
+    var read = /\.zip$/i.test(f.name) && window.JSZip
+      ? JSZip.loadAsync(f).then(function (zip) {
+          var entry = Object.values(zip.files).find(function (z) { return /\.(gba|agb|bin)$/i.test(z.name) && !z.dir; });
+          if (!entry) throw new Error("No .gba file inside that zip.");
+          return entry.async("arraybuffer");
+        })
+      : f.arrayBuffer();
+    read.then(function (buf) {
+      var c = crc32(new Uint8Array(buf));
+      if (c !== AW2_CRC) {
+        setStatus("This isn't the Advance Wars 2 (USA) dump the patch expects (CRC " + c.toString(16).padStart(8, "0").toUpperCase() + "). Use the unmodified USA ROM.", "bad");
+        return;
+      }
+      awRom = buf;
+      setStatus("Advance Wars 2 (USA) verified. Ready to play.", "ok");
+      $("aw-play").disabled = false;
+    }).catch(function (e) { setStatus(e.message || String(e), "bad"); });
+  });
+
+  $("aw-play").addEventListener("click", function () {
+    if (!awRom) return;
+    var remix = $("aw-remix").checked;
+    try {
+      var rom = remix ? applyBps(awRom, b64(BPS_B64)) : awRom.slice(0);
+      boot(rom, remix ? "AW2 Remix · @@REMIX_VERSION@@" : "AW2 · original", remix ? "aw2remix" : "aw2orig");
+    } catch (e) { setStatus(e.message || String(e), "bad"); }
+  });
+
+  try { if (localStorage.getItem("dwpt.slot") === "aw") pick("aw"); } catch (e) {}
+})();
+</script>

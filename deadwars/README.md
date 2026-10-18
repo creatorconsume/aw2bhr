@@ -46,11 +46,11 @@ Fast and Normal speed on the title screen.
 
 ## Campaign (pilot: Part One)
 
-1. **First Night**: hold the firehouse until Day 5.
+1. **First Night**: hold the firehouse until Day 7.
 2. **Supply Run**: burn both nests across the river.
-3. **Bridge Out**: get three units onto the helipad by Day 8.
+3. **Bridge Out**: get three units onto the helipad by Day 9.
 4. **St. Agnes**: clear the hospital where it began.
-5. **The Long Night**: survive seven days in the town square.
+5. **The Long Night**: survive nine days in the town square.
 
 The game saves to battery (SRAM). Progress and one suspended battle are kept.
 
