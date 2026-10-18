@@ -8,9 +8,15 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-**WIP, DO NOT MERGE claude/dw-engine yet.** The owner approved LAST_BOAT.md. The Last Boat demo is being built by role agents in this session. `56bf3d4` holds the contracts and hooks only and does not link until the integration commit lands. I'll message the producer when the branch is green again.
+The Last Boat demo landed and is GREEN (`deadwars/test/all.sh`: ALL PASS). It's playable from the title menu (last entry). Next: an adversarial logic review of the new code, owner-requested.
 
 ## Last done
+- **The Last Boat demo (218790e)**, built by role agents in this session (rules, tactics, run, story, designer, artist, audio, integrator):
+  - Act 1 slice: journey map → stops (choose one) → deploy → three mission types (scavenge, get through, take the bridge) → camp jobs → storylets.
+  - Hit chances, directional cover, noise and the Horde meter with waves, 2x2 buildings with doors and barricades, infection, an A/B ironman save.
+  - The storylet compiler is relational (SQLite with FK/CHECK) and has a selftest and fuzzers.
+  - Art is generated (people, roofs, icons, journey map).
+  - Engine guide: docs/tech/LAST_BOAT_ENGINE.md. One command runs every test: deadwars/test/all.sh.
 - **Battle scene uses the artist's art** (contract in ASSET_SPEC "Battle scene").
   - Backdrop per terrain on BG2 (CBB2 tiles 128+, SB26), mirrored for the left panel.
   - 32x32 figures in the artist's 10 slots, with the IDLE/ATK poses.
