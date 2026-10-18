@@ -45,6 +45,7 @@ pass. Don't redo them.
 ## P1
 
 - [ ] **Part Two mechanics** (designer inbox 20261018-0141): VIP, GOAL_ESCORT, GOAL_BOSS, UT_ZERO behaviour, day events, 10+ missions. Blocked until hardening is merged.
+- [ ] **Audio Part Two hooks** (audio inbox 20261018-0149 on claude/deadwars-dev): `sfx(SFX_CALL/LINK/ROAR)` at the Zero events; `UF_BOSS` as a `#define`; keep `snd_flags`/`snd_magic` when saves get versioned.
 - [ ] **Patient Zero gfx hookup** (artist inbox 20261018-0143): `OBJT_BOSS`, `speaker_names[5]`. Blocked until hardening is merged.
 - [x] **Turn-start summary**: c36b67d (`summary_show`: supplies, healed HP, lost, turned).
 
