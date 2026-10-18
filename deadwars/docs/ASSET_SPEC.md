@@ -107,6 +107,7 @@ explosion (BOOM_FRAMES 32 = 4 frames x 8):
 | `fx_burst_gfx[4][128]` | 4 | pal_horde | Bloater bursts on death |
 | `fx_burn_gfx[4][128]` | 4 | pal_cursor | nest burning: loop 0-2 during Burn, 3 = embers when destroyed |
 | `fx_flag_gfx[2][128]` | 2 | pal_survivor | "secured" flag pop over a captured building |
+| `vip_gfx[32]` | 1 (8x8) | pal_cursor | VIP star drawn at (px+9, py-3), poking above the unit's top-right, clear of HP digits, cargo and capture markers |
 
 ## Extras provided by gfx.py (additive, not required by the engine)
 - `#define UG_FIRST_HORDE UG_WALKER`, `TERRAIN_TEAM_LIGHT/MID/DARK` (13/14/15).
