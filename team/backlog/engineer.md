@@ -77,6 +77,10 @@ pass. Don't redo them.
 
 ## P2
 
+- [ ] Release builds: fill the header logo (gbafix `LOGO_ROM` fallback), as QA suggested via the producer.
+- [ ] Versioned release filename, for example `deadwars-vX.Y-<sha>.gba`.
+- [ ] After the merge: check the text.c:29 `-Warray-bounds` warning (audio's `noinline` on `text_put`).
+
 - [ ] Fix the `-Warray-bounds` warning in `text.c` `dialogue()` (the `text_put` of `"v"`/`" "` gets inlined). It
   showed up in a clean build of integration + `claude/onion-lab`.
 - [ ] Remember the cursor position per unit and per turn. Have SELECT/L skip units that can't act.
