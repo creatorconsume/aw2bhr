@@ -23,5 +23,6 @@ e_start			day		>=	1
 e_end		A	amputee		=	1
 e_end		A	infected		=	1
 e_end		A	hp_pct		<=	99
+e_end		A	deployed		=	1
 e_gated	1		food		>=	5
 e_gated	2	A	mechanics		>=	3

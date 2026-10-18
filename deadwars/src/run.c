@@ -21,7 +21,9 @@ u8 run_phase;
 #define PH_STOP      1    // at run.node: the stop menu
 #define PH_CAMP      2    // night camp, then the road
 #define PH_CAMP_STAY 3    // night camp, then this stop again (rested, or beaten at the bridge)
-#define PH_DAWN_DAY  0x10 // with a camp: a day passes at dawn (bridge retry, farm detour)
+#define PH_DAWN_DAY  0x10 // with a camp: a day passes at dawn (bridge retry; farm detour, + its fuel)
+#define PH_ARRIVE    0x20 // with PH_STOP: the arrival scenes are still to play (arrive_scenes)
+#define PH_AFTER     0x40 // with a camp: the mission's scenes are still to play (after_scenes)
 #define PH_MASK      0x0F
 
 #define WIN(x, y) SCREENBLOCK(SB_WINDOW)[(y) * 32 + (x)]
@@ -37,7 +39,7 @@ u8 run_phase;
 static const u8 ship_days[4] = { 12, 10, 9, 8 };
 static const u8 supply_pct[4] = { 150, 100, 75, 60 };          // starting supplies vs Normal
 static const u8 supply_base[RES_COUNT] = { 24, 12, 20, 4, 4 }; // Normal: food fuel ammo meds parts
-static const s8 bite_days[4] = { 2, 0, -1, -1 };               // turn time after a bite vs base (16)
+// turn time after a bite by difficulty (16): bite_days in person.c (person_bitten)
 static const u8 skill_xp0[6] = { 0, 10, 25, 45, 70, 100 };     // XP at each level (person.c steps)
 #define DEPLOY_MAX  4
 #define BYPASS_FUEL 2
@@ -765,22 +767,38 @@ static void fire_deaths(const u8 *dead, int nd)
 }
 
 // One day passes: the meal, hunger, infection, the clock. false = the run is over.
+// Short of full meals everyone gets half; short of that, each food feeds two and the rest go
+// without, the healthiest first so the weakest eat. More food never ends worse.
 static bool day_pass(void)
 {
-	u8 dead[ROSTER_MAX];
+	u8 dead[ROSTER_MAX], hungry[ROSTER_MAX];
 	char l1[32];
-	int nd = 0, need = ration_need();
+	int nd = 0, need = ration_need(), n = alive_count(), half = (n + 1) >> 1, food = run.res[RES_FOOD];
 	if (run.day < 255)
 		run.day++;
-	ate = run.res[RES_FOOD] >= need;
+	ate = food >= need;
 	if (ate) {
 		run.res[RES_FOOD] -= need;
+	} else if (food >= half) { // only on full meals
+		run.res[RES_FOOD] -= half;
+		say("Not enough food.", "Half meals today.");
 	} else {
 		run.res[RES_FOOD] = 0;
-		say("The food is gone.", "Everyone goes hungry.");
+		memset(hungry, 0, sizeof hungry);
+		for (int k = n - 2 * food; k > 0; k--) { // >= 1 of them
+			int b = -1;
+			for (int i = 0; i < run.nroster; i++)
+				if (run.roster[i].alive && !hungry[i] && (b < 0 || run.roster[i].hp > run.roster[b].hp))
+					b = i;
+			if (b < 0)
+				break;
+			hungry[b] = 1;
+		}
+		snprintf(l1, sizeof l1, "Only %d can eat.", 2 * food);
+		say(food ? "The food runs out." : "The food is gone.", food ? l1 : "Everyone goes hungry.");
 		for (int i = 0; i < run.nroster; i++) {
 			Person *p = &run.roster[i];
-			if (!p->alive)
+			if (!p->alive || !hungry[i])
 				continue;
 			if (p->hp > 1) {
 				p->hp--;
@@ -882,25 +900,34 @@ static void travel_anim(const Edge *e, int day, int days)
 	spr.pointer_show = 0;
 }
 
-static void arrive(int node)
+// The arrival banner and scenes (SP_STOP, and SP_ROAD at a road stop), then the stop menu. A run
+// cut off during them resumes here (PH_ARRIVE) and plays them again with the same dice.
+static void arrive_scenes(void)
 {
 	char b[32];
-	run.node = node;
-	chronicle(LOG_ARRIVE, node, 0);
-	run_phase = PH_STOP;
-	run_save();
-	journey_screen(-1, nodes[node].name, nodes[node].kind);
+	const Node *nd = &nodes[run.node];
+	journey_screen(-1, nd->name, nd->kind);
 	snprintf(b, sizeof b, "Day %d", run.day);
 	sfx(SFX_CONFIRM);
-	banner(nodes[node].name, b, 90);
-	journey_screen(-1, nodes[node].name, nodes[node].kind); // the banner cut into the labels
+	banner(nd->name, b, 90);
+	journey_screen(-1, nd->name, nd->kind); // the banner cut into the labels
 	story(SP_STOP, -1);
-	if (nodes[node].road_event && alive_count()) {
-		journey_screen(-1, nodes[node].name, nodes[node].kind);
+	if (nd->road_event && alive_count()) {
+		journey_screen(-1, nd->name, nd->kind);
 		story(SP_ROAD, -1);
 	}
+	run_phase = PH_STOP;
 	if (!check_over())
 		run_save();
+}
+
+static void arrive(int node)
+{
+	run.node = node;
+	chronicle(LOG_ARRIVE, node, 0);
+	run_phase = PH_STOP | PH_ARRIVE;
+	run_save();
+	arrive_scenes();
 }
 
 static void travel(const Edge *e)
@@ -1109,11 +1136,12 @@ static void rest(void)
 	run_save();
 }
 
-// The stop: choose one. false = save & quit.
+// The stop: choose one. false = save & quit. Nothing blocks the road at a scavenge stop: skipping
+// it is free (Make camp), never dearer than going in and straight out.
 static bool stop(void)
 {
 	int node = run.node, k = node_mission(node), sel = 0;
-	bool last = !roads(node, NULL);
+	bool last = !roads(node, NULL), scav = k >= 0 && tac_missions[k].objective == OBJ_SCAVENGE;
 	const char *items[ACT_COUNT];
 	u8 en[ACT_COUNT];
 	music_play(MUS_AUTO);
@@ -1121,10 +1149,10 @@ static bool stop(void)
 		int n = 0;
 		if (k >= 0)
 			stop_ids[n++] = ACT_MISSION;
-		if (k >= 0 && !last)
+		if (k >= 0 && !last && !scav)
 			stop_ids[n++] = ACT_BYPASS;
 		stop_ids[n++] = ACT_REST;
-		if (k < 0)
+		if (k < 0 || (scav && !last))
 			stop_ids[n++] = ACT_CAMP;
 		stop_ids[n++] = ACT_RATIONS;
 		stop_ids[n++] = ACT_CARAVAN;
@@ -1247,10 +1275,58 @@ static int deploy_screen(int k, u8 *dep)
 	}
 }
 
-static void bite_time(Person *p)
+static void back_screen(void) // the journey map, back from a mission
 {
-	int t = p->turn_in + bite_days[run.difficulty & 3];
-	p->turn_in = t < 1 ? 1 : t > 255 ? 255 : t;
+	journey_screen(-1, nodes[run.node].name, run.vars[SV_MISSION_WON] == 1 ? "Done here" : "Beaten back");
+}
+
+static void scene_done(int i, int flag)
+{
+	run.roster[i].flags &= ~flag;
+	if (!run.over)
+		run_save();
+}
+
+// After a mission (PH_AFTER): the death and bite scenes it still owes, SP_MISSION_END, then what it
+// means for the road. Each scene is saved once played, so a run cut off here plays only the rest
+// on Continue (same dice), none twice and none skipped.
+static void after_scenes(void)
+{
+	for (int i = 0; i < run.nroster; i++)
+		if (run.roster[i].flags & PF_DEATH_SCENE) {
+			if (alive_count())
+				story(SP_DEATH, i);
+			scene_done(i, PF_DEATH_SCENE);
+		}
+	for (int i = 0; i < run.nroster; i++)
+		if (run.roster[i].flags & PF_BITE_SCENE) {
+			if (alive_count() && run.roster[i].alive)
+				story(SP_BITE, i);
+			scene_done(i, PF_BITE_SCENE);
+		}
+	if (alive_count())
+		story(SP_MISSION_END, -1);
+	run_phase &= ~PH_AFTER;
+	if (!run.over && !check_over()) {
+		if (run_phase & PH_DAWN_DAY) {
+			screen();
+			if ((run_phase & PH_MASK) == PH_CAMP_STAY)
+				say("You fall back.", "Tomorrow you try again.");
+			else
+				say("No way through.", "Going round: a day and fuel.");
+		}
+		run_save();
+	}
+}
+
+// PF_DEPLOYED on exactly the people going in (until the next mission): mission_start and
+// mission_end storylets read it, so nobody who stayed with the cars is put in the fight.
+static void mark_deployed(const u8 *dep, int n)
+{
+	for (int i = 0; i < run.nroster; i++)
+		run.roster[i].flags &= ~PF_DEPLOYED;
+	for (int j = 0; j < n; j++)
+		run.roster[dep[j]].flags |= PF_DEPLOYED;
 }
 
 // Deploy, play the mission, apply what it did. false = backed out before it started.
@@ -1262,12 +1338,14 @@ static bool mission(int k)
 	int n = deploy_screen(k, dep), nd = 0, nb = 0;
 	if (!n)
 		return false;
+	mark_deployed(dep, n);
 	story(SP_MISSION_START, -1);
 	int keep = 0; // a storylet may have changed who can go
 	for (int j = 0; j < n; j++)
 		if (dep[j] < run.nroster && run.roster[dep[j]].alive && run.roster[dep[j]].hp)
 			dep[keep++] = dep[j];
 	n = keep;
+	mark_deployed(dep, n);
 	if (!n)
 		return check_over();
 	memset(was_alive, 0, sizeof was_alive);
@@ -1284,7 +1362,7 @@ static bool mission(int k)
 	int r = tac_run(m, dep, n);
 	run.vars[SV_MISSION_WON] = r == 1 ? 1 : 2; // storylets read the last mission's outcome
 	backdrop();
-	journey_screen(-1, nodes[run.node].name, r == 1 ? "Done here" : "Beaten back");
+	back_screen();
 
 	for (int i = 0; i < run.nroster; i++) {
 		Person *p = &run.roster[i];
@@ -1296,15 +1374,13 @@ static bool mission(int k)
 			dead[nd++] = i;
 			morale_add(-2); // tac_rules.c already wrote LOG_DEATH
 		} else if (p->alive && (p->flags & PF_INFECTED) && !was_bit[i]) {
-			bit[nb++] = i;
-			bite_time(p);
+			bit[nb++] = i; // the timer is set (by difficulty) at the bite: person_bitten()
 		}
 	}
 	chronicle(r == 1 ? LOG_MISSION_WON : LOG_MISSION_LOST, k, run.node);
 	if (r == 1)
 		morale_add(1);
 	bool last = !roads(run.node, NULL);
-	const char *l1 = NULL, *l2 = NULL;
 	if (!alive_count()) {
 		run.over = 2;
 	} else if (r == 1 && last) {
@@ -1312,30 +1388,18 @@ static bool mission(int k)
 		run.over = 1;
 	} else if (r != 1 && last) {
 		run_phase = PH_CAMP_STAY | PH_DAWN_DAY;
-		l1 = "You fall back.";
-		l2 = "Tomorrow you try again.";
 	} else if (r != 1 && m->objective == OBJ_GET_THROUGH) {
-		run_phase = PH_CAMP | PH_DAWN_DAY;
-		l1 = "No way through.";
-		l2 = "The way around costs a day.";
+		run_phase = PH_CAMP | PH_DAWN_DAY; // the detour: Bypass's day and fuel (camp's dawn)
 	} else {
 		run_phase = PH_CAMP;
 	}
-	run_save(); // the outcome is final from here on
-	for (int j = 0; j < nd && alive_count(); j++)
-		story(SP_DEATH, dead[j]);
-	for (int j = 0; j < nb && alive_count(); j++)
-		if (run.roster[bit[j]].alive)
-			story(SP_BITE, bit[j]);
-	if (alive_count())
-		story(SP_MISSION_END, -1);
-	if (!run.over && !check_over()) {
-		if (l1) {
-			screen();
-			say(l1, l2);
-		}
-		run_save();
-	}
+	for (int j = 0; j < nd; j++)
+		run.roster[dead[j]].flags |= PF_DEATH_SCENE;
+	for (int j = 0; j < nb; j++)
+		run.roster[bit[j]].flags |= PF_BITE_SCENE;
+	run_phase |= PH_AFTER;
+	run_save(); // the outcome is final from here on; its scenes still play once
+	after_scenes();
 	return true;
 }
 
@@ -1636,8 +1700,12 @@ static void camp(void)
 	if (!check_over()) {
 		bool stay = (run_phase & PH_MASK) == PH_CAMP_STAY;
 		if (run_phase & PH_DAWN_DAY) {
+			char l2[32];
+			int f = stay ? 0 : MIN(run.res[RES_FUEL], BYPASS_FUEL); // the detour costs what Bypass does
+			run.res[RES_FUEL] -= f;
+			snprintf(l2, sizeof l2, "The long way round: -%d fuel.", f);
 			screen();
-			say("Dawn.", stay ? "Another day at the bridge." : "You take the long way round.");
+			say("Dawn.", stay ? "Another day at the bridge." : f ? l2 : "You take the long way round.");
 			if (!day_pass()) {
 				music_play(MUS_AUTO);
 				return;
@@ -1806,9 +1874,14 @@ static void run_loop(void)
 		if (ph == PH_ROAD) {
 			if (!journey())
 				return;
+		} else if (ph == PH_STOP && (run_phase & PH_ARRIVE)) { // cut off during the arrival
+			arrive_scenes();
 		} else if (ph == PH_STOP) {
 			if (!stop())
 				return;
+		} else if (run_phase & PH_AFTER) { // cut off after a mission
+			back_screen();
+			after_scenes();
 		} else {
 			camp();
 		}

@@ -11,6 +11,10 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 The Last Boat demo landed and is GREEN (`deadwars/test/all.sh`: ALL PASS). It's playable from the title menu (last entry). Next: an adversarial logic review of the new code, owner-requested.
 
 ## Last done
+- **Logic review (b44ecc0):**
+  - 6 lenses, each finding checked by 3 skeptics: 23 defects confirmed and fixed with regression tests, 5 rejected.
+  - Test counts now: rules 5169, flow 206, run 330, save 15, 96 storyc bad fixtures; all.sh ALL PASS.
+  - Open design calls for the designer: in docs/tech/LAST_BOAT_ENGINE.md and SLICE_NUMBERS.md (point-blank shots through walls, Main Street "Make camp", meal rationing).
 - **The Last Boat demo (218790e)**, built by role agents in this session (rules, tactics, run, story, designer, artist, audio, integrator):
   - Act 1 slice: journey map → stops (choose one) → deploy → three mission types (scavenge, get through, take the bridge) → camp jobs → storylets.
   - Hit chances, directional cover, noise and the Horde meter with waves, 2x2 buildings with doors and barricades, infection, an A/B ironman save.

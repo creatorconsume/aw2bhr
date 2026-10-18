@@ -11,7 +11,7 @@ road_stranger_help	road	6	0	1	0		stranger	A stranger on the road	a Caring person
 road_stranger_rob	road	6	0	1	0		stranger	A stranger with a bag	a Selfish person wants the stranger's bag
 stop_pharmacy_cross	stop	6	0	0	3			{A.name} saw a pharmacy	a scavenger spots a pharmacy
 mission_end_shaken	mission_end	6	0	0	2			{A.name} was shaken	a hurt person and a friend after the fight
-death_grief_bonded	death	10	0	0	0			{A.name} was buried	a bonded friend grieves
+death_grief_bonded	death	10	0	0	0			{A.name} got a cairn	a bonded friend grieves
 death_rival_guilt	death	6	0	0	0			A rival mourned {A.name}	a rival feels guilty
 bite_confession	bite	6	0	0	0			Bitten: {A.name} told us	the bitten person speaks
 bite_caring_stays	bite	8	0	0	0			{A.name} was not alone	someone Caring stays with the bitten

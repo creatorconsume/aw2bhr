@@ -1,9 +1,11 @@
 # Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
 storylet	choice	role	input	other	op	value	doc
 camp_thin_stew			food		<=	12	only when food is short
+camp_thin_stew			food		>=	1	but not gone: choice 3 costs 1
 camp_thin_stew			alive_count		>=	3
 camp_thin_stew		A	survival		>=	1
 camp_thin_stew		A	trait		lacks	selfish
+camp_thin_stew	1		food		>=	3	eating well costs 3
 camp_thin_stew	3	A	trait		has	optimist	only an Optimist lifts the mood
 camp_hunt_dusk			food		<=	20
 camp_hunt_dusk		A	survival		>=	2
@@ -34,6 +36,7 @@ stop_pharmacy_cross		A	infected		=	0
 stop_pharmacy_cross	1	A	hp		>=	4	the hp_add -2 below never kills
 mission_end_shaken		A	hp_pct		<	50
 mission_end_shaken		B	rel	A	>=	1
+mission_end_shaken		A	deployed		=	1	hurt in the fight, not at camp
 mission_end_shaken	1		meds		>=	1
 death_grief_bonded		B	rel	A	>=	2
 death_rival_guilt		B	rel	A	<=	-2
@@ -150,6 +153,8 @@ mission_end_won		A	hp_pct		>=	50
 mission_end_lost_blame			mission_won		=	2
 mission_end_lost_blame		A	trait		has	hothead
 mission_end_lost_blame		A	rel	B	<=	1
+mission_end_lost_blame		A	deployed		=	1	both were there
+mission_end_lost_blame		B	deployed		=	1
 mission_end_lost_shoulder			mission_won		=	2
 mission_end_lost_shoulder		A	leadership		>=	2
 mission_end_lost_shoulder		A	trait		lacks	hothead
@@ -163,6 +168,7 @@ mission_end_froze		A	trait		has	brave
 mission_end_froze		A	nerve		<=	3
 mission_end_froze		A	hp_pct		<	25
 mission_end_froze		A	infected		=	0
+mission_end_froze		A	deployed		=	1	froze in the fight, so was in it
 death_epitaph_brave		A	trait		has	brave
 death_epitaph_caring		A	trait		has	caring
 death_epitaph_caring		B	rel	A	>=	0

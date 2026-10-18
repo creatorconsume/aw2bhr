@@ -74,8 +74,8 @@ List every phase that has storylets. When the game fires each one:
 | `camp` | every night, after the camp jobs | none |
 | `road` | travelling between stops | none |
 | `stop` | arriving at a stop | none |
-| `mission_start` | before choosing who goes | none |
-| `mission_end` | after a mission, after its death and bite scenes | none |
+| `mission_start` | after choosing who goes, before the fight | none |
+| `mission_end` | after a mission, after its death and bite scenes. Anyone alive binds, also those who stayed with the cars: give a role `deployed = 1` when the scene puts them in the fight | none |
 | `death` | once per person who died (mission, starvation, raid, ...) | the dead person |
 | `bite` | once per person bitten in a mission who is still alive | the bitten person |
 
@@ -85,7 +85,7 @@ World state that storylets remember: "we robbed the stranger", "arguments this w
 
 | column | | meaning |
 |---|---|---|
-| `id` | required | lower-case name, e.g. `stranger_fate`. Must not clash with a builtin input (section 5). |
+| `id` | required | lower-case name, e.g. `stranger_fate`. Must not clash with a builtin input (section 5), and `count` is taken (`SV_COUNT`). |
 | `type` | required | `bool` (0/1) or `int` |
 | `min` `max` | required | range; must fit -32768..32767; a bool is 0..1 |
 | `default` | required | value at the start of a run |
@@ -212,7 +212,7 @@ Person inputs (set `role`):
 | `firearms` `melee` `medicine` `mechanics` `stealth` `scavenge` `survival` `leadership` | 0..5 | skill level |
 | `hp` | 0..99 | hit points |
 | `hp_pct` | 0..100 | hp as a percent of max hp (rounded down) |
-| `infected` `amputee` | 0 / 1 | flags: use `=` or `!=` |
+| `infected` `amputee` `deployed` | 0 / 1 | flags: use `=` or `!=`. `deployed`: went on the last mission (at `mission_start`: is going in) |
 | `grit` `aim` `speed` `nerve` | 0..5 | attributes |
 
 Pair input (set `role` and `other`):
@@ -257,7 +257,7 @@ If a line doesn't fit, the error shows the worst-case wrap with `|` between rows
 
 Only roles declared for this storylet can be used. After a name, the verb is always singular ("{A.name} walks"); the agreement helpers are for pronouns. The Chronicle `log` line can only name the actor (section 4) and has no `{res...}` or `{day}`: the journal shows it long after the scene.
 
-**Never type a character's name** (`Mara`, `Doc`, `June`, `Holt`, `Rosa`, `Tess`) in text: the compiler rejects it. Bind a role with `cast=mara` and write `{A.name}`. This means "June" the month is out too: say "early summer".
+**Never type a character's name** (`Mara`, `Doc`, `June`, `Holt`, `Rosa`, `Tess`) in text, labels or log lines, in any case and anywhere in the line (after a `\n` too): the compiler rejects it. Bind a role with `cast=mara` and write `{A.name}`. This means "June" the month and "the doc" are out too: say "early summer", "the doctor".
 
 ## 7. How the engine picks
 
@@ -281,7 +281,7 @@ At most one storylet plays per trigger.
 | `var_set` | | | a var | min..max | set |
 | `var_add` | | | an int var | ± up to max-min | add; kept in min..max |
 | `hp_add` | yes | | | ±1..99 | heal (never above max hp) or hurt. **Reaching 0 kills**: the person dies, and the Chronicle records it |
-| `infect` | yes | | | | infected (turns in 3 + grit/2 days), like a bite; nothing if already infected |
+| `infect` | yes | | | | infected exactly like a bite: turns in 3 + grit/2 days, adjusted by difficulty (+2 Easy, -1 Hard and Very Hard; at least 1); nothing if already infected |
 | `cure` | yes | | | | no longer infected |
 | `trait_add` | yes | | a trait | | fills an empty trait slot; with two traits already, **the second one is replaced**. Nothing if they have it |
 | `trait_remove` | yes | | a trait | | removes it |
@@ -292,8 +292,9 @@ Order: the storylet's own effects (empty `choice`) first, then the picked choice
 
 - To swap a trait precisely, `trait_remove` the old one first, then `trait_add` the new one.
 - **The dead take no effects.** If an `hp_add` kills someone, the later effects on them are skipped, and so is a `rel_add` with them.
-- A death caused by a storylet does not trigger a death scene by itself, and it costs no morale unless you add a `morale_add`. Guard dangerous effects with conditions, e.g. `hp >= 4` on the choice before an `hp_add -2`.
+- A death caused by a storylet gets a death scene afterwards like any other death (run.c plays the `death` phase for them; a death scene never chains another), but it costs no morale unless you add a `morale_add`. So a death scene can follow a mercy kill, starvation or a raid as well as a mission: the body is there, so never write that there is none. Guard dangerous effects with conditions, e.g. `hp >= 4` on the choice before an `hp_add -2`.
 - An `infect` from a storylet does not trigger a bite scene.
+- A choice that pays for something with `res_add` needs the stock as a choice condition (`food >= 3` before `res_add food -3`): `res_add` stops at 0, so without it the choice is free when the crates are empty.
 
 ## 9. Limits
 
@@ -370,7 +371,7 @@ it.
 
 | storylet | phase | shows |
 |---|---|---|
-| camp_thin_stew | camp | world + person conditions, a choice that needs a trait (Optimist), cool_group `camp_food` |
+| camp_thin_stew | camp | world + person conditions, a choice that needs a trait (Optimist), a choice that needs the food it eats, cool_group `camp_food` |
 | camp_hunt_dusk | camp | choice conditions (ammo, skill), `hp_add` with `chance`, skill XP, shared cooldown |
 | camp_holt_temper | camp | a cast role (Holt, portrait), `rel`, `var_add` |
 | camp_holt_cools_off | camp | priority 1 + once, a var condition, trait swap, a sequel |

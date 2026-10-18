@@ -315,6 +315,8 @@ static void act(int z)
 		if (!on_map(i))
 			continue;
 		int d = ABS(gs.units[i].x - zu->x) + ABS(gs.units[i].y - zu->y);
+		if (d == 1) // one it can bite now first; through a wall it must go round (2+ steps)
+			d = adjacent(zu->x, zu->y, gs.units[i].x, gs.units[i].y) ? 0 : 3;
 		if (d < best && tac_sees(z, i)) {
 			best = d;
 			t = i;
@@ -386,8 +388,8 @@ static void act(int z)
 	} else if (t >= 0) {
 		if (adjacent(zu->x, zu->y, gx, gy))
 			bite(z, t);
-	} else if (ABS(zu->x - gx) + ABS(zu->y - gy) <= 1) {
-		za->alerted = 0; // reached the noise: nothing here
+	} else if ((zu->x == gx && zu->y == gy) || adjacent(zu->x, zu->y, gx, gy)) {
+		za->alerted = 0; // reached the noise (not just its wall): nothing here
 	}
 }
 

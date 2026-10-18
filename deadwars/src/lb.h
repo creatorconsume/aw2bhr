@@ -73,6 +73,9 @@ extern const char *const skill_names[SK_COUNT];
 #define PF_INFECTED 0x01   // bitten: turns into a zombie when turn_in reaches 0
 #define PF_AMPUTEE  0x02
 #define PF_PANIC    0x04   // panicked this mission (overrides)
+#define PF_DEATH_SCENE 0x08 // run.c: died in the last mission, their death scene is still to play
+#define PF_BITE_SCENE  0x10 // run.c: bitten in the last mission, the bite scene is still to play
+#define PF_DEPLOYED    0x20 // run.c: goes / went on the last mission (storylets: `deployed`)
 
 typedef struct {
 	u8 cast;         // CAST_* (named) or 0xFF (unnamed: name[] holds the name)
@@ -127,6 +130,7 @@ extern RunState run;
 int  person_move(const Person *p);           // move points (2 + speed/2 rounded up, minus armour, wounds)
 const char *person_name(const Person *p);
 void skill_use(Person *p, int skill, int xp); // skills grow from use (XP 10/25/45/70/100 -> 1..5)
+void person_bitten(Person *p);               // PF_INFECTED + the bite timer by difficulty (the caller logs it)
 int  seats_total(void);
 void chronicle(int event, int actor, int arg); // append a LogRec (day = run.day)
 
@@ -195,6 +199,7 @@ typedef struct {
 	u8 cache[MAP_MAX_H][MAP_MAX_W]; // CACHE_* (car trunks) or CACHE_PACK + pack index
 	TacPack pack[TAC_MAX_PACKS];
 	u16 horde;                   // horde meter
+	u8 horde_q;                  // quarters of a point carried to the next fill (difficulty scale)
 	u8 wave;                     // waves spawned
 	u8 turn, held;               // turn number; bridge: turns held
 	u8 result;                   // 0 running, 1 success, 2 failed (retreat / all lost)

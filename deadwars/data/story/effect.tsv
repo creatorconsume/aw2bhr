@@ -238,7 +238,7 @@ death_doc_failed	2	morale_add				-1
 bite_hide	1	morale_add				-1
 bite_hide	1	rel_add	A	B		-1
 bite_hide	2	rel_add	A	B		1
-bite_put_me_down	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_put_me_down	1	hp_add	A			-99		mercy: a storylet death (run.c then plays its death scene)
 bite_put_me_down	1	morale_add				-2		as a death costs in run.c
 bite_put_me_down	1	trait_add	B		haunted		50
 bite_put_me_down	2	rel_add	A	B		1
@@ -255,12 +255,12 @@ bite_hothead_denial		rel_add	A	B		-1
 bite_holt_orders		rel_add	A	B		1
 bite_holt_orders		skill_xp	B		leadership	15
 bite_holt_orders		morale_add				-1
-bite_vow_mara	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_vow_mara	1	hp_add	A			-99		mercy: a storylet death (run.c then plays its death scene)
 bite_vow_mara	1	morale_add				-2		as a death costs in run.c
 bite_vow_mara	1	trait_add	B		haunted		50
 bite_vow_mara	2	rel_add	A	B		1
 bite_vow_mara	2	skill_xp	B		medicine	10
-bite_vow_june	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_vow_june	1	hp_add	A			-99		mercy: a storylet death (run.c then plays its death scene)
 bite_vow_june	1	morale_add				-2		as a death costs in run.c
 bite_vow_june	1	trait_add	B		haunted		50
 bite_vow_june	2	rel_add	A	B		1

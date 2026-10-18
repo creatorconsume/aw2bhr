@@ -45,6 +45,8 @@ Not changed, and why:
 
 Missions take no day. These cost a day: rest, bypass, failing the farm (the detour), each retry at the bridge, and pushing a car with dry tanks. The run is lost when `day > ship_day`.
 
+Integration note (2026-10-18, logic review): bypass and the farm detour now cost the same, a day and 2 fuel, so failing the farm is never cheaper than going around it. Main Street offers Make camp (free) instead of Bypass, and a scavenge run counts as won only when loot comes out. See `docs/tech/LAST_BOAT_ENGINE.md` 2.
+
 **Spare days with the current clock (Normal 12):** a 6, b 8, c 7, d 7. With N1 (Normal 10): a 4, b 6, c 5, d 5.
 
 A Normal player who takes the longest route, rests once and fails the bridge once still has 2 days left with N1. On Very Hard (8) the longest route leaves 2 spare days. The slice sim (6.4) puts runs lost to time at 0.1-0.7% with the current clock and 1.7-2.4% with N1. Its missions are dice and its players rest little, so the real numbers will be higher. That is the direction we want.
@@ -148,7 +150,7 @@ So **a 2-wide building can never face north**. Main Street's houses south of the
 
   Amputation stays the reliable cure, through the camp **Tend** job.
 - **Storylet deaths** (`hp_add -99` in the mercy choices):
-  - The engine plays no death scene for them and charges no morale, so the content charges -2 morale itself, matching `die()` in run.c.
+  - The engine charges no morale for them, so the content charges -2 morale itself, matching `die()` in run.c. Since R3, run.c plays their death scene afterwards (with no extra morale).
   - They are written to the Chronicle as LOG_DEATH arg 4 (request R2).
 
 ---
@@ -203,7 +205,7 @@ The starting four have only Brave, Loyal, Weary, Caring, Calm, Curious and Hothe
 Every precise trait swap uses `trait_remove` and then `trait_add` at 100%, so a chance roll can never leave half a swap. The single `trait_add` effects with a chance (Selfish, Cynic, Haunted) replace the person's second trait on purpose.
 
 ### 6.3 Consistency rules the content follows
-- **Nobody is buried.** People killed by zombies rise (`tac_kill`), and the rest are left on the road. Death scenes raise markers and cairns, or pile stones; they never mention a body. The example line in `death_grief_bonded` ("They bury...") was changed to a cairn to match.
+- **Nobody is buried.** People killed by zombies rise (`tac_kill`), and the rest are left on the road. Death scenes raise markers and cairns, or pile stones; they never mention a body. The example line in `death_grief_bonded` ("They bury...") was changed to a cairn to match, and so were its Chronicle line ("got a cairn") and its last line (logic review). `death_grave_generic` piles stones without saying there is nothing to bury: a death scene also follows mercy kills, starvation and raids (R3), where the body is there.
 - **Amputation is done at camp**, by the **Tend** job in `treat()`. `bite_amputation_talk` only sets it up ("Tonight, then") and never cures by itself.
 - **Chance effects get hedged text.** The reply never says something happened when a roll decides it; the banner reports the outcome.
 - **Rosa and Tess** speak in the no-portrait layout. Their 4 storylets fire once they can join (request R5).
@@ -240,4 +242,4 @@ Every precise trait swap uses `trait_remove` and then `trait_add` at 100%, so a 
 | R5 | run.c / story engine | A way for Rosa and Tess (and unnamed survivors) to join: a `join` effect or a recruit at a stop. Five storylets wait for it. |
 | R6 | integrator | N1-N8 above. N6-N8 are data-only edits in `lb_data.c`. N2 and N4 are one number each. N3 and N5 are small rule changes in `tac_rules.c`. |
 | R7 | QA / story engineer | Optional: keep a slice-run reachability sim next to `story_fuzz.c` (it `#include`s `story_fuzz.c` with `main` renamed, builds the real crew and walks the route). The designer has the source. |
-| R8 | story engineer | Optional: a way to mark a var as "set by the game" (for example `set_by=game` in var.tsv) to silence the `mission_won` warning. Also optional: two builtins, `deployed` (the person went on the last mission) and `node` (where we are), so mission_end and stop scenes can name places and stop assuming who was there. `docs/tech/STORY.md` section 11 still says "14 storylets"; point it here. |
+| R8 | story engineer | Optional: a way to mark a var as "set by the game" (for example `set_by=game` in var.tsv) to silence the `mission_won` warning. Also optional: two builtins, `deployed` (the person went on the last mission) and `node` (where we are), so mission_end and stop scenes can name places and stop assuming who was there. `docs/tech/STORY.md` section 11 still says "14 storylets"; point it here. Done (logic review): `deployed` (`PF_DEPLOYED`, set by run.c's `mission()`); `mission_end_froze`, `_lost_blame` and `_shaken` use it. `node` is still open. |

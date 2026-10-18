@@ -135,6 +135,7 @@ static bool person_value(const StoryCond *c, int *v)
 	case SI_HP: *v = p->hp; break;
 	case SI_INFECTED: *v = (p->flags & PF_INFECTED) != 0; break;
 	case SI_AMPUTEE: *v = (p->flags & PF_AMPUTEE) != 0; break;
+	case SI_DEPLOYED: *v = (p->flags & PF_DEPLOYED) != 0; break;
 	case SI_GRIT: *v = p->grit; break;
 	case SI_AIM: *v = p->aim; break;
 	case SI_SPEED: *v = p->speed; break;
@@ -564,8 +565,7 @@ static void effect(const StoryEffect *e)
 		break;
 	case SE_INFECT:
 		if (p && !(p->flags & PF_INFECTED)) {
-			p->flags |= PF_INFECTED;
-			p->turn_in = 3 + (p->grit >> 1); // as a bite in tac_rules.c
+			person_bitten(p); // the same timer as a bite in a mission, by difficulty
 			chronicle(LOG_BITTEN, i, 0);
 			note(p, " infected", NULL);
 		}

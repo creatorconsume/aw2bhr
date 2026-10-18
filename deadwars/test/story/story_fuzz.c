@@ -12,7 +12,8 @@
 //  - every dialogue line, menu, banner and journal line fits the screen (text.c's word wrap);
 //  - a replay from the same state does exactly the same;
 //  - with -d (data where a lethal hp_add is the first effect on its role, like test/story/edge):
-//    whoever a storylet kills takes no later effect.
+//    whoever a storylet kills takes no later effect;
+//  - a few content rules of data/story (check_content).
 // The stubs below stand in for text.c: they check layout instead of drawing.
 #include "game.h"
 #include "video.h"
@@ -196,6 +197,8 @@ static void random_person(Person *p, int cast)
 	}
 	if (rnd(10) == 0)
 		p->flags |= PF_AMPUTEE;
+	if (rnd(2))
+		p->flags |= PF_DEPLOYED;
 	p->weapon = rnd(WP_COUNT);
 	p->he = cast < CAST_COUNT ? cast_info[cast].he : rnd(3);
 	p->xp = rnd(500);
@@ -213,6 +216,7 @@ static void random_person(Person *p, int cast)
 static void random_run(void)
 {
 	memset(&run, 0, sizeof run);
+	run.difficulty = rnd(4);
 	run.day = rnd(60);
 	run.ship_day = 30 + rnd(21);
 	run.morale = rnd(11);
@@ -269,6 +273,7 @@ static bool ref_cond_b(const RunState *rs, const u8 *bind, const StoryCond *c)
 	case SI_HP_PCT: v = p->maxhp ? p->hp * 100 / p->maxhp : 0; break;
 	case SI_INFECTED: v = !!(p->flags & PF_INFECTED); break;
 	case SI_AMPUTEE: v = !!(p->flags & PF_AMPUTEE); break;
+	case SI_DEPLOYED: v = !!(p->flags & PF_DEPLOYED); break;
 	case SI_GRIT: v = p->grit; break;
 	case SI_AIM: v = p->aim; break;
 	case SI_SPEED: v = p->speed; break;
@@ -409,6 +414,31 @@ static int res_bound(const Storylet *st, int r)
 	return b + cb;
 }
 
+// Content rules data/story must keep (logic review; ids missing from the data are skipped): a
+// scene that puts someone in the fight binds only people who went on the mission (`deployed`), and
+// a meal is never free (the stock is there before the choice that eats it).
+static const struct { const char *id; u8 all; } went[] = { // the actor (A) went; all: every role went
+	{ "mission_end_froze", 0 }, { "mission_end_lost_blame", 1 }, { "mission_end_shaken", 0 },
+};
+static const struct { const char *id; s8 choice; u8 res, min; } paid[] = { // choice -1: to play at all
+	{ "camp_thin_stew", -1, RES_FOOD, 1 }, { "camp_thin_stew", 0, RES_FOOD, 3 },
+};
+
+static void check_content(const RunState *b, int idx)
+{
+	const Storylet *st = &story_list[idx];
+	for (unsigned k = 0; k < sizeof went / sizeof went[0]; k++)
+		if (!strcmp(story_ids[idx], went[k].id))
+			for (int r = 0; r < st->nrole; r++)
+				if (went[k].all || r == st->actor)
+					CHECK(b->roster[story_dbg_bind[r]].flags & PF_DEPLOYED, "%s: role %d stayed with the cars",
+					      story_ids[idx], r);
+	for (unsigned k = 0; k < sizeof paid / sizeof paid[0]; k++)
+		if (!strcmp(story_ids[idx], paid[k].id) && (paid[k].choice < 0 || paid[k].choice == story_dbg_choice))
+			CHECK(b->res[paid[k].res] >= paid[k].min, "%s choice %d played with %d of resource %d, needs %d",
+			      story_ids[idx], story_dbg_choice + 1, b->res[paid[k].res], paid[k].res, paid[k].min);
+}
+
 static void check_played(const RunState *b, int phase, int subject)
 {
 	int idx = story_dbg_idx;
@@ -466,6 +496,7 @@ static void check_played(const RunState *b, int phase, int subject)
 	}
 	for (int r = 0; r < RES_COUNT; r++)
 		CHECK(abs(run.res[r] - b->res[r]) <= res_bound(st, r), "%s res %d: %d -> %d", story_ids[idx], r, b->res[r], run.res[r]);
+	check_content(b, idx);
 	// the Chronicle: LOG_STORY first, then deaths and bites of bound people
 	int added = run.log_count - b->log_count;
 	CHECK(added >= 1, "no Chronicle record");
@@ -480,6 +511,8 @@ static void check_played(const RunState *b, int phase, int subject)
 		}
 	}
 }
+
+static const int bite_days[4] = { 2, 0, -1, -1 }; // Easy .. Very Hard, vs 3 + Grit/2
 
 static void check_state(const RunState *b, bool played)
 {
@@ -522,8 +555,9 @@ static void check_state(const RunState *b, bool played)
 		for (int s = 0; s < SK_COUNT; s++)
 			CHECK(p->skill[s] <= 5 && p->skill[s] >= o->skill[s] && p->skill_xp[s] >= o->skill_xp[s], "skill %d", s);
 		CHECK(!(p->flags & ~(o->flags | PF_INFECTED)), "flags %x -> %x", o->flags, p->flags);
-		if ((p->flags & PF_INFECTED) && !(o->flags & PF_INFECTED))
-			CHECK(p->turn_in >= 3, "infected, turn_in %d", p->turn_in);
+		if ((p->flags & PF_INFECTED) && !(o->flags & PF_INFECTED)) // a bite's timer (LAST_BOAT.md 16)
+			CHECK(p->turn_in == MAX(3 + p->grit / 2 + bite_days[run.difficulty & 3], 1),
+			      "infected on difficulty %d with Grit %d, turn_in %d", run.difficulty, p->grit, p->turn_in);
 		if (!(p->flags & PF_INFECTED) && (o->flags & PF_INFECTED))
 			CHECK(p->turn_in == 0, "cured, turn_in %d", p->turn_in);
 		Person a = *p, c = *o; // the rest never changes

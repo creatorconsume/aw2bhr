@@ -934,8 +934,10 @@ void battle_run(int mission)
 {
 	bool resumed = mission < 0;
 	if (resumed) {
-		if (!suspend_load())
+		if (!suspend_load()) {
+			suspend_clear(); // never offer it again
 			return;
+		}
 	} else {
 		map_load(mission);
 #ifdef PERF

@@ -155,24 +155,30 @@ static int person_state(int k)
 	return (!p->alive ? PS_DEAD : 0) | (a->down ? PS_DOWN : 0) | ((p->flags & PF_INFECTED) ? PS_BITTEN : 0);
 }
 
-// The rules don't announce what happens to our people: down, bitten, dead. Show it once.
+// The rules don't announce what happens to our people: down, bitten, dead. Show each once; one
+// bite can down and infect together (both are told), a death says it all.
 void tac_people_notice(void)
 {
 	char l1[24];
 	for (int k = 0; k < dep_n; k++) {
-		int s = person_state(k), was = dep_state[k], i = dep_unit[k];
+		int s = person_state(k), was = dep_state[k], i = dep_unit[k], fresh = s & ~was;
 		const char *name = person_name(&run.roster[dep_person[k]]);
 		dep_state[k] = s;
-		if ((s & PS_DEAD) && !(was & PS_DEAD)) {
+		if (fresh & PS_DEAD) {
 			int o = unit_at(gs.units[i].x, gs.units[i].y);
 			bool rises = o >= 0 && gs.units[o].side == SIDE_HORDE;
 			sfx(rises ? SFX_INFECT : SFX_DESTROY);
 			snprintf(l1, sizeof l1, "%.9s is dead", name);
 			tac_fx_text(l1, rises ? "And rises again." : "Bled out.");
-		} else if ((s & PS_DOWN) && !(was & PS_DOWN)) {
+			continue;
+		}
+		if (s & PS_DEAD)
+			continue;
+		if (fresh & PS_DOWN) {
 			snprintf(l1, sizeof l1, "%.9s is down!", name);
 			tac_fx_text(l1, "Help them within 2 turns.");
-		} else if ((s & PS_BITTEN) && !(was & PS_BITTEN)) {
+		}
+		if (fresh & PS_BITTEN) {
 			sfx(SFX_INFECT);
 			snprintf(l1, sizeof l1, "%.9s was bitten", name);
 			tac_fx_text(l1, "Infected.");
@@ -827,12 +833,23 @@ static bool do_move(int ui, int tx, int ty)
 			break;
 		len--;
 	}
+	// ending in a building nobody of ours is in lifts its roof: what's inside is seen
+	int ex = len ? path[len - 1] & 0xFF : u->x, ey = len ? path[len - 1] >> 8 : u->y, b = tac.bmap[ey][ex];
+	bool lifted = b != 0;
+	u8 seen0[MAX_UNITS];
+	for (int i = 0; i < MAX_UNITS; i++) {
+		lifted = lifted && !(on_map(i) && tac.bmap[gs.units[i].y][gs.units[i].x] == b);
+		seen0[i] = shown(i);
+	}
 	spr.cursor_show = 0;
 	memcpy(fog0, gs.fog, sizeof fog0);
 	unit_move_anim(ui, path, len);
 	tac.actor[ui].moved = 1;
 	tac_fog();
-	bool undo = !revealed();
+	bool undo = !revealed() && !lifted;
+	for (int i = 0; i < MAX_UNITS; i++) // and any zombie that came into view
+		if (gs.units[i].alive && gs.units[i].side == SIDE_HORDE && shown(i) && !seen0[i])
+			undo = false;
 	if (amb >= 0) {
 		undo = false;
 		ambush(ui, amb);
@@ -1029,6 +1046,7 @@ int tac_run(const TacMission *m, const u8 *deploy, int n)
 	tac_mode = true;
 	fx_ready = false;
 	tac_load(m, deploy, n);
+	camera_follow(gs.cur_x, gs.cur_y, false); // snap: cam_px/cam_py still hold the last map's scroll
 	REG_DISPCNT = DCNT_BLANK;
 	video_load_game_gfx();
 	u16 dispcnt = REG_DISPCNT;

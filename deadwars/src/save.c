@@ -25,6 +25,14 @@ static void sram_write(int off, const void *src, int n)
 		SRAM[off + i] = s[i];
 }
 
+// gs.magic is GameState's first field
+static bool suspend_valid(void)
+{
+	u32 magic;
+	sram_read(SUSPEND_OFFSET, &magic, 4);
+	return magic == SUSPEND_MAGIC;
+}
+
 void profile_load(void)
 {
 	(void)*(volatile const char *)save_tag;
@@ -36,6 +44,9 @@ void profile_load(void)
 		profile.anim_speed = 1; // Normal: AW2 pace
 		profile_save();
 	}
+	// a suspend from an older build can't be resumed: drop it, or "Continue" is a dead default
+	if (profile.has_suspend && !suspend_valid())
+		suspend_clear();
 }
 
 void profile_save(void)
@@ -53,8 +64,10 @@ void suspend_save(void)
 
 bool suspend_load(void)
 {
+	if (!suspend_valid())
+		return false; // gs untouched
 	sram_read(SUSPEND_OFFSET, &gs, sizeof gs);
-	return gs.magic == SUSPEND_MAGIC;
+	return true;
 }
 
 void suspend_clear(void)
