@@ -33,6 +33,7 @@ void profile_load(void)
 		memset(&profile, 0, sizeof profile);
 		profile.magic = PROFILE_MAGIC;
 		profile.unlocked = 1;
+		profile.anim_speed = 1; // Normal: AW2 pace
 		profile_save();
 	}
 }

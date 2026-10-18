@@ -8,9 +8,11 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-Waiting for "hardening merged" and the producer's go. Part Two mechanics come next.
+Producer request 2: AW2-style battle scene ("Battle anims" setting).
 
 ## Last done
+- **Paced horde turn (producer request 1).** At Normal speed (now the default for new profiles), each visible zombie gets the cursor, a 20-frame beat, its walk, an 8-frame beat, then the cursor on its target for 16 frames, the attack and a 12-frame beat. Fast speed and holding B skip the beats. Zombies hidden in fog still move unseen. Options label: "Unit speed".
+- **Fog-cancel exploit (producer request 3).** If a move un-fogs any tile, B in the action menu buzzes and shows "No going back" instead of undoing the move.
 - **Perf (d68ceeb):** `make PERF=1` adds cycle counters and a 30x20 stress map with 60 zombies. Script: `test/perf_horde.txt` + `test/perf_report.py`. Writeup: `docs/tech/PERF.md`.
   Changes: scoped occupancy grid (`occ_begin`/`occ_end`, map.c), packed x|y BFS queues with no idivmod, and `act()` scanning only the move box against a prey list.
   mGBA cycles for one 60-zombie horde turn, before -> after:
@@ -32,7 +34,7 @@ Waiting for "hardening merged" and the producer's go. Part Two mechanics come ne
 - gpSP numbers through emu-lab `lrun`.
 
 ## Blockers
-- Existing `deadwars/src` files are locked until "hardening merged". Note: my two pushes above were made before I saw the charter, and they edit locked files (see `team/inbox/producer/20261018-0230-engineer-hook-edits.md`).
+- none
 
 ## Inbox done
 <!-- `<inbox filename>` -> outcome (commit / branch) -->

@@ -534,14 +534,14 @@ static void sound_test(void)
 
 void options_screen(int x, int y)
 {
-	char l[3][16];
+	char l[3][20];
 	const char *items[5] = { l[0], l[1], l[2], "Sound Test", "Done" };
 	int sel = 0;
 	for (;;) {
-		strcpy(l[0], profile.anim_speed ? "Speed  Normal" : "Speed  Fast");
-		strcpy(l[1], sound_music_on() ? "Music  On" : "Music  Off");
-		strcpy(l[2], sound_sfx_on() ? "SFX    On" : "SFX    Off");
-		sel = text_menu(x, y, 16, items, NULL, 5, sel);
+		strcpy(l[0], profile.anim_speed ? "Unit speed Normal" : "Unit speed Fast");
+		strcpy(l[1], sound_music_on() ? "Music      On" : "Music      Off");
+		strcpy(l[2], sound_sfx_on() ? "SFX        On" : "SFX        Off");
+		sel = text_menu(x, y, 20, items, NULL, 5, sel);
 		if (sel < 0 || sel == 4)
 			break;
 		if (sel == 3)

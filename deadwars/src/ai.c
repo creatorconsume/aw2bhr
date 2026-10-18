@@ -130,6 +130,31 @@ static int attack_score(int z, int t, int x, int y)
 	return value;
 }
 
+// AW2 pacing at Normal speed: point the cursor at each visible actor and hold
+// a beat. Fast speed or holding B skips the beats.
+static bool paced(void)
+{
+	return profile.anim_speed && !(keys_held & KEY_B);
+}
+
+static void beat(int frames)
+{
+	while (frames-- > 0 && paced())
+		frame();
+}
+
+static void point_at(int x, int y, int frames)
+{
+	if (!paced())
+		return;
+	gs.cur_x = x;
+	gs.cur_y = y;
+	camera_follow(x, y, true);
+	spr.cursor_show = 1;
+	beat(frames);
+	spr.cursor_show = 0;
+}
+
 static void act(int z)
 {
 	Unit *zu = &gs.units[z];
@@ -195,11 +220,18 @@ static void act(int z)
 	}
 	u16 path[64];
 	int len = build_path(prev, zu->x, zu->y, bx, by, path);
+	bool seen = !gs.fog[zu->y][zu->x] || !gs.fog[by][bx];
+	if (seen)
+		point_at(zu->x, zu->y, 20);
 	unit_move_anim(z, path, len);
+	if (seen && len)
+		beat(8);
 	if (bt >= 0) {
+		point_at(gs.units[bt].x, gs.units[bt].y, 16);
 		camera_follow(gs.units[bt].x, gs.units[bt].y, false);
 		attack(z, bt);
 		fog_update();
+		beat(12);
 	} else if (capturable(zu->x, zu->y)) {
 		int need = zu->capture - DISP_HP(zu->hp);
 		if (need <= 0) {
@@ -220,6 +252,7 @@ void horde_turn(void)
 	const Mission *m = &missions[gs.mission];
 	start_side_turn(SIDE_HORDE);
 	PERF_TURN_START();
+	int cx = gs.cur_x, cy = gs.cur_y;
 	text_clear();
 	banner("The Horde", gs.night ? "They hunt in the dark." : "The dead are moving...", 45);
 
@@ -268,4 +301,6 @@ void horde_turn(void)
 	for (int i = 0; i < MAX_UNITS; i++)
 		if (gs.units[i].side == SIDE_HORDE)
 			gs.units[i].moved = 0;
+	gs.cur_x = cx;
+	gs.cur_y = cy;
 }

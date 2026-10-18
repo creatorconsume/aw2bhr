@@ -522,6 +522,17 @@ enum { ACT_FIRE, ACT_CAPTURE, ACT_SEARCH, ACT_LOAD, ACT_DROP, ACT_EVAC, ACT_WAIT
 static const char *const act_names[ACT_COUNT] = { "Fire", "Secure", "Search", "Board", "Drop", "Evac", "Wait" };
 
 // After moving: pick an action. Returns false if the player backed out (undo move).
+static bool move_locked; // the move revealed fog: no undo
+
+static int fogged_tiles(void)
+{
+	int n = 0;
+	for (int y = 0; y < gs.h; y++)
+		for (int x = 0; x < gs.w; x++)
+			n += gs.fog[y][x];
+	return n;
+}
+
 static bool action_menu(int ui, bool moved_this_turn)
 {
 	Unit *u = &gs.units[ui];
@@ -556,6 +567,11 @@ static bool action_menu(int ui, bool moved_this_turn)
 			items[i] = (ids[i] == ACT_CAPTURE && tt == TT_NEST) ? "Burn" : act_names[ids[i]];
 		int sx = u->x - gs.cam_x;
 		int choice = text_menu(sx < 8 ? 20 : 1, 3, 9, items, NULL, n, 0);
+		if (choice < 0 && move_locked) {
+			sfx(SFX_BUZZ);
+			banner("No going back", "The move revealed the dark.", 50);
+			continue;
+		}
 		if (choice < 0)
 			return false;
 		switch (ids[choice]) {
@@ -807,8 +823,10 @@ static bool player_turn(void)
 					}
 				}
 				spr.cursor_show = 0;
+				int fog0 = fogged_tiles();
 				unit_move_anim(ui, path, len);
 				fog_update();
+				move_locked = fogged_tiles() < fog0;
 				if (ambushed) {
 					sfx(SFX_AMBUSH);
 					banner("Ambush!", "Zombies in the dark!", 60);
@@ -816,7 +834,9 @@ static bool player_turn(void)
 					spr.cursor_show = 1;
 					break;
 				}
-				if (!action_menu(ui, len > 0)) {
+				bool acted = action_menu(ui, len > 0);
+				move_locked = false;
+				if (!acted) {
 					// undo the move
 					u->x = ox;
 					u->y = oy;
