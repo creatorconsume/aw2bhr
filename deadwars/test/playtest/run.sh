@@ -1,7 +1,8 @@
 #!/bin/sh
 # Dead Wars playtest regression suite on Onion-like cores (QA).
 # usage: deadwars/test/playtest/run.sh [TEST ...]     (default: every *.txt here)
-# env:   ROM=path (default deadwars/deadwars.gba, built first)  CORES="mgba gpsp-onion"
+# env:   ROM=path (default deadwars/deadwars.gba, built first)  MAP=its ld map (default deadwars/build/deadwars.map)
+#        CORES="mgba gpsp-onion"
 #        OUT=dir (default deadwars/build/playtest)
 # Each test is an lrun script (tools/emu-lab/lrun.c). Every test runs on each core with a fresh
 # save dir; "# needs-sram: OTHER" starts from OTHER's .srm on the same core. A test fails on an
@@ -21,6 +22,7 @@ if [ -z "${ROM:-}" ]; then
 	ROM=$DW/deadwars.gba
 fi
 make -s -C "$LAB" all >/dev/null || exit 1
+MAP=${MAP:-$DW/build/deadwars.map}
 
 [ $# -gt 0 ] || set -- "$HERE"/*.txt
 fails=0
@@ -36,7 +38,7 @@ for t in "$@"; do
 		mkdir -p "$d/save"
 		[ -n "$need" ] && cp "$OUT/$need/$core/save/"*.srm "$d/save/" 2>/dev/null
 		"$LAB/lrun" --core "$LAB/cores/${core}_libretro.so" --rom "$ROM" --opts "$LAB/profiles/$opts.opt" \
-			--bios-dir "$d/nobios" --save-dir "$d/save" --out "$d" --map "$DW/build/deadwars.map" \
+			--bios-dir "$d/nobios" --save-dir "$d/save" --out "$d" --map "$MAP" \
 			--script "$t" > "$d/log.txt" 2>&1
 		rc=$?
 		res=$(sed -n 's/^RESULT: //p' "$d/log.txt")
