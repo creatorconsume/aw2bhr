@@ -12,8 +12,9 @@ of truth for who owns what. Each role's onboarding brief is in `team/roles/<role
    `docs/remix/`) builds it from the owner's own ROM. The ROM is never committed. Only the producer works on this.
 3. **Miyoo Mini Plus / Onion OS compatibility**: `docs/miyoo/`, `tools/emu-lab/`.
 
-**Target device:** Miyoo Mini Plus running Onion OS, with the GBA cores **mGBA** (the default) and **gpSP**. Every
-build must boot and run at full speed on both cores. gpSP is the weaker of the two, so it sets the CPU budget.
+**Target device:** Miyoo Mini Plus running Onion OS, with the GBA cores **mGBA** and **gpSP**. mGBA is the default
+in Onion 4.3.x. QA found that 4.4 beta switches the default to gpSP (see `docs/miyoo/EMU_LAB.md` on `claude/onion-lab`).
+Every build must boot and run at full speed on both cores. gpSP is the weaker of the two, so it sets the CPU budget.
 
 ## Team
 
