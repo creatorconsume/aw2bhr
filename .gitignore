@@ -162,3 +162,6 @@ dkms.conf
 
 # Python bytecode
 __pycache__/
+
+# Exports of the original game maps (regenerate with tools/remix/export_map.py from your own ROM)
+tools/remix/maps/orig/

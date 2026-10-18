@@ -1,0 +1,55 @@
+# Regression: moving a unit that is mid-Secure and then undoing with B must keep its
+# capture progress (unit_move_anim resets capture=20 and undo never restores it).
+# Stock ROM, fresh SRAM. gs address: arm-none-eabi-nm build/deadwars.elf | grep -w gs (0x02002c88 at time of writing)
+# Unit 1 (Survivor) is units[1]; Unit struct is 12 bytes at gs+2416, capture is byte 6.
+# EXPECT out-cap_before.bin and out-cap_after.bin: units[1].capture == 10 in both (bug: 20 after undo).
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press A 3
+wait 60
+press A 3
+wait 5
+press T 3
+wait 10
+press A 3
+wait 30
+# Survivor at (1,3) -> house (0,4), Secure (half done: capture 10)
+press D 3
+wait 5
+press D 3
+wait 5
+press < 3
+wait 5
+press A 3
+wait 10
+press < 3
+wait 5
+press D 3
+wait 5
+press A 3
+wait 30
+press A 3
+wait 60
+dump 2002c88 3580 cap_before
+# select it again (it is moved this turn; End Day first)
+press T 3
+wait 10
+press A 3
+hold B
+wait 700
+release
+wait 80
+# cursor is back on (0,4); select, step right, open action menu, undo
+press A 3
+wait 10
+press > 3
+wait 5
+press A 3
+wait 30
+press B 3
+wait 10
+shot undone
+dump 2002c88 3580 cap_after

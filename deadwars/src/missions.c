@@ -23,9 +23,11 @@ static const char *const m1_rows[] = {
 static const UnitPlacement m1_units[] = {
 	{ UT_SURVIVOR, 2, 1, S, 0, 0 }, { UT_SURVIVOR, 1, 3, S, 0, 0 }, { UT_HEAVY, 3, 3, S, 0, 0 },
 	{ UT_SURVIVOR, 0, 5, S, 70, 0 },
-	{ UT_WALKER, 8, 3, Z, 0, 1 }, { UT_WALKER, 11, 1, Z, 0, 1 }, { UT_WALKER, 13, 6, Z, 0, 1 },
-	{ UT_WALKER, 9, 8, Z, 0, 1 }, { UT_WALKER, 14, 5, Z, 0, 0 }, { UT_WALKER, 14, 1, Z, 0, 0 },
-	{ UT_RUNNER, 13, 9, Z, 0, 1 }, { UT_WALKER, 6, 9, Z, 60, 1 },
+	{ UT_WALKER, 8, 3, Z, 0, 0 }, { UT_WALKER, 11, 1, Z, 0, 0 }, { UT_WALKER, 13, 6, Z, 0, 0 },
+	{ UT_WALKER, 9, 8, Z, 0, 0 }, { UT_WALKER, 14, 5, Z, 0, 0 }, { UT_WALKER, 14, 1, Z, 0, 0 },
+	{ UT_RUNNER, 13, 9, Z, 0, 0 }, { UT_WALKER, 6, 9, Z, 60, 0 },
+	{ UT_WALKER, 6, 0, Z, 0, 0 }, { UT_WALKER, 6, 5, Z, 0, 0 }, { UT_WALKER, 5, 8, Z, 0, 0 },
+	{ UT_RUNNER, 9, 6, Z, 0, 0 }, { UT_SPITTER, 7, 3, Z, 0, 0 }, { UT_BRUTE, 9, 4, Z, 0, 0 },
 	END
 };
 static const Line m1_intro[] = {
@@ -180,13 +182,13 @@ static const char *const m5_rows[] = {
 	"n...h..f..f...h..n",
 };
 static const UnitPlacement m5_units[] = {
-	{ UT_SURVIVOR, 7, 4, S, 0, 0 }, { UT_HEAVY, 8, 3, S, 0, 0 }, { UT_HEAVY, 9, 6, S, 0, 0 },
-	{ UT_SNIPER, 9, 3, S, 0, 0 }, { UT_MEDIC, 8, 7, S, 0, 0 }, { UT_ARMOR, 7, 5, S, 0, 0 },
+	{ UT_SURVIVOR, 7, 4, S, 0, 0 }, { UT_HEAVY, 8, 3, S, 0, 0 },
+	{ UT_SNIPER, 9, 3, S, 0, 0 }, { UT_MEDIC, 8, 7, S, 0, 0 },
 	{ UT_SURVIVOR, 10, 4, S, 0, 0 },
 	{ UT_WALKER, 1, 1, Z, 0, 0 }, { UT_WALKER, 16, 1, Z, 0, 0 }, { UT_WALKER, 1, 10, Z, 0, 0 },
-	{ UT_WALKER, 16, 10, Z, 0, 0 }, { UT_RUNNER, 3, 5, Z, 0, 1 }, { UT_RUNNER, 14, 5, Z, 0, 1 },
-	{ UT_BRUTE, 0, 5, Z, 0, 1 }, { UT_SPITTER, 17, 4, Z, 0, 1 }, { UT_BLOATER, 12, 9, Z, 0, 1 },
-	{ UT_WALKER, 4, 9, Z, 0, 1 }, { UT_WALKER, 13, 2, Z, 0, 1 },
+	{ UT_WALKER, 16, 10, Z, 0, 0 }, { UT_RUNNER, 3, 5, Z, 0, 0 }, { UT_RUNNER, 14, 5, Z, 0, 0 },
+	{ UT_BRUTE, 0, 5, Z, 0, 0 }, { UT_SPITTER, 17, 4, Z, 0, 0 }, { UT_BLOATER, 12, 9, Z, 0, 0 },
+	{ UT_WALKER, 4, 9, Z, 0, 0 }, { UT_WALKER, 13, 2, Z, 0, 0 },
 	END
 };
 static const Line m5_intro[] = {
@@ -211,7 +213,7 @@ static const Line m5_outro[] = {
 
 const Mission missions[] = {
 	{ "First Night", "Survive until Day 5.", MAP(m1_rows), m1_units,
-	  0, 100, GOAL_SURVIVE, 4, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
+	  0, 30, GOAL_SURVIVE, 6, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
 	{ "Supply Run", "Burn both zombie nests.", MAP(m2_rows), m2_units,
 	  3000, 100, GOAL_NESTS, 0, 0, 3, 1, 1, 5, 2, m2_intro, m2_outro },
 	{ "Bridge Out", "Evac 3 units by Day 8.", MAP(m3_rows), m3_units,
@@ -219,6 +221,6 @@ const Mission missions[] = {
 	{ "St. Agnes", "Destroy all zombies and nests.", MAP(m4_rows), m4_units,
 	  5000, 100, GOAL_ROUT, 0, 0, 3, 2, 1, 6, 2, m4_intro, m4_outro },
 	{ "The Long Night", "Survive until Day 8.", MAP(m5_rows), m5_units,
-	  4000, 100, GOAL_SURVIVE, 7, 0, 2, 1, 2, 5, 3, m5_intro, m5_outro },
+	  2000, 20, GOAL_SURVIVE, 7, 0, 2, 1, 2, 5, 3, m5_intro, m5_outro },
 };
 const int mission_count = sizeof(missions) / sizeof(missions[0]);

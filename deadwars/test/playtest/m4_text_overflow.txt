@@ -1,0 +1,36 @@
+# Regression (text layout): mission 4 intro line 3 (Doc) must show "...I have his files."
+# and the mission banner must fit inside a framed window.
+# NEEDS mission 4 unlocked: scratch build with profile.unlocked = 5 in save.c (never commit).
+# EXPECT out-doc_files.ppm: last row ends with "files." (bug: text cut after "I have his").
+# EXPECT out-m4banner.ppm: banner with visible left/right borders (bug: 34-wide window, x=-2).
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press U 3
+wait 5
+press A 3
+wait 10
+press A 3
+wait 5
+press A 3
+wait 10
+press A 3
+wait 5
+press A 3
+wait 10
+press A 3
+wait 5
+shot doc_files
+press A 3
+wait 5
+press A 3
+wait 5
+press A 3
+wait 5
+press A 3
+wait 5
+press T 3
+wait 5
+shot m4banner
