@@ -21,7 +21,7 @@ Channel text (case sensitive):
   lN              default length
   @NAME           instrument (not on the noise channel, where each letter is a drum)
   vN              volume override 0-15 for following notes (v- clears it)
-  [ ... ]N        repeat N times (nests)
+  [ ... ]N        repeat N times (nests; no N = once, handy for grouping)
   L               loop point: playback jumps here at the end. All channels of a song
                   must reach L at the same time and have the same length (seamless loops).
                   A song without L plays once and stops (jingles).
@@ -80,7 +80,7 @@ def expand_repeats(toks):
 			stack.append([])
 		elif t.startswith("]"):
 			body = stack.pop()
-			stack[-1].extend(body * int(t[1:] or 2))
+			stack[-1].extend(body * int(t[1:] or 1))
 		else:
 			stack[-1].append(t)
 	if len(stack) != 1:

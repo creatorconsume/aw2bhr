@@ -51,6 +51,7 @@ static Track trk[CH_COUNT], saved[CH_COUNT];
 static Voice vox[CH_COUNT];
 static s8 cur_song = -1, saved_song = -1, forced = MUS_AUTO, wave_loaded = -1;
 static u8 last_day, last_night, last_visible;
+static u8 in_dialogue, battle_live, jingle_started, boss_seen;
 
 // ---------------------------------------------------------------- hardware
 
@@ -213,15 +214,63 @@ void music_play(int id)
 	forced = id;
 }
 
+void sound_dialogue(bool on)
+{
+	in_dialogue = on;
+}
+
+static bool song_done(void)
+{
+	for (int ch = 0; ch < CH_COUNT; ch++)
+		if (trk[ch].pos)
+			return false;
+	return true;
+}
+
+// Is a boss (Patient Zero) on the map? Engine support arrives with UF_BOSS.
+static bool boss_alive(void)
+{
+#ifdef UF_BOSS
+	for (int i = 0; i < MAX_UNITS; i++) {
+		const Unit *u = &gs.units[i];
+		if (u->alive && u->side == SIDE_HORDE && (unit_info[u->type].flags & UF_BOSS))
+			return true;
+	}
+#endif
+	return false;
+}
+
 // Pick the song from the game state, so gameplay code never has to ask for music.
 static int director(void)
 {
-	if (!spr.map_visible)
-		return MUS_TITLE;
-	if (gs.over)
-		return gs.over == 1 ? MUS_VICTORY : MUS_DEFEAT;
+	if (!spr.map_visible) {
+		battle_live = jingle_started = 0;
+		return in_dialogue ? MUS_BRIEFING : MUS_TITLE;
+	}
+	if (gs.over) {
+		// jingle once, then the briefing bed under the outro (or silence)
+		int j = gs.over == 1 ? MUS_VICTORY : MUS_DEFEAT;
+		if (!jingle_started) {
+			jingle_started = 1;
+			return j;
+		}
+		if (cur_song == j && !song_done())
+			return j;
+		return in_dialogue || cur_song == MUS_BRIEFING ? MUS_BRIEFING : -1;
+	}
+	jingle_started = 0;
+	if (in_dialogue && !battle_live)
+		return MUS_BRIEFING; // mission intro
+	battle_live = 1;
+	if (!(frame_count & 15))
+		boss_seen = boss_alive();
+	if (boss_seen)
+		return MUS_ZERO;
 	if (gs.side == SIDE_HORDE)
 		return MUS_HORDE;
+	const Mission *m = &missions[gs.mission];
+	if (m->goal == GOAL_SURVIVE && m->goal_days && gs.day + 1 >= m->goal_days)
+		return MUS_LASTSTAND;
 	return gs.night ? MUS_NIGHT : MUS_DAY;
 }
 
@@ -275,6 +324,27 @@ static const SfxStep s_build_t[] = { SQ(12, 1, 0, HZ(392)), SQ(5, 1, ENV(9, 0, 1
 #define CHOP NOISE(4, ENV(12, 0, 1), NZ(5, 0, 4))
 static const SfxStep s_evac_n[] = { CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, CHOP, END };
 static const SfxStep s_evac_t[] = { { 48, DUTY(2), ENV(6, 0, 7), 0, HZ(110), 2 }, END };
+static const SfxStep s_heal[] = {
+	SQ(3, 2, ENV(6, 0, 1), HZ(659)), SQ(3, 2, ENV(6, 0, 1), HZ(831)), SQ(3, 2, ENV(6, 0, 1), HZ(988)),
+	SQ(10, 2, ENV(6, 0, 2), HZ(1319)), END };
+static const SfxStep s_burst_n[] = { NOISE(3, ENV(15, 0, 1), NZ(2, 0, 3)), NOISE(22, ENV(13, 0, 3), NZ(5, 0, 6)), END };
+static const SfxStep s_burst_t[] = { { 16, DUTY(2), ENV(11, 0, 2), SWEEP(1, 1, 3), HZ(220), 0 }, END };
+static const SfxStep s_acid_n[] = { NOISE(24, ENV(9, 0, 3), NZ(1, 0, 4)), END };
+static const SfxStep s_acid_t[] = { { 12, DUTY(3), ENV(7, 0, 2), 0, HZ(300), 12 }, END };
+static const SfxStep s_wave_t[] = {
+	SQ(8, 2, ENV(10, 0, 0), HZ(587)), SQ(8, 2, ENV(10, 0, 0), HZ(440)), SQ(8, 2, ENV(10, 0, 0), HZ(587)),
+	SQ(8, 2, ENV(10, 0, 0), HZ(440)), SQ(8, 2, ENV(10, 0, 0), HZ(587)), SQ(16, 2, ENV(10, 0, 3), HZ(440)), END };
+static const SfxStep s_wave_n[] = { NOISE(56, ENV(10, 0, 7), NZ(6, 0, 5)), END };
+static const SfxStep s_buzz[] = { SQ(8, 3, ENV(6, 0, 1), HZ(110)), END };
+static const SfxStep s_blip[] = { NOISE(1, ENV(3, 0, 1), NZ(2, 1, 3)), END };
+static const SfxStep s_call_a[] = { { 44, DUTY(2), ENV(4, 1, 4), 0, HZ(147), 3 }, END };
+static const SfxStep s_call_b[] = { { 44, DUTY(2), ENV(3, 1, 4), 0, HZ(208), 4 }, END };
+static const SfxStep s_call_n[] = { NOISE(44, ENV(3, 1, 6), NZ(6, 0, 4)), END };
+static const SfxStep s_link_n[] = { NOISE(6, ENV(15, 0, 2), NZ(4, 0, 1)), NOISE(70, ENV(15, 0, 7), NZ(6, 0, 4)), END };
+static const SfxStep s_link_a[] = { { 70, DUTY(2), ENV(13, 0, 7), SWEEP(7, 1, 1), HZ(440), 0 }, END };
+static const SfxStep s_link_b[] = { { 70, DUTY(2), ENV(10, 0, 7), 0, HZ(466), -2 }, END };
+static const SfxStep s_roar_n[] = { NOISE(32, ENV(14, 0, 4), NZ(5, 0, 2)), END };
+static const SfxStep s_roar_t[] = { { 32, DUTY(3), ENV(12, 0, 4), 0, HZ(98), -2 }, END };
 
 typedef struct {
 	u8 prio;
@@ -303,6 +373,15 @@ static const SfxDef sfx_tab[SFX_COUNT] = {
 	[SFX_DAWN] = { 3, { { CH_SQ1, s_dawn } } },
 	[SFX_BUILD] = { 2, { { CH_NOISE, s_build_n }, { CH_SQ1, s_build_t } } },
 	[SFX_EVAC] = { 3, { { CH_NOISE, s_evac_n }, { CH_SQ1, s_evac_t } } },
+	[SFX_HEAL] = { 1, { { CH_SQ2, s_heal } } },
+	[SFX_BURST] = { 2, { { CH_NOISE, s_burst_n }, { CH_SQ1, s_burst_t } } },
+	[SFX_ACID] = { 2, { { CH_NOISE, s_acid_n }, { CH_SQ2, s_acid_t } } },
+	[SFX_WAVE] = { 3, { { CH_SQ1, s_wave_t }, { CH_NOISE, s_wave_n } } },
+	[SFX_BUZZ] = { 1, { { CH_SQ2, s_buzz } } },
+	[SFX_BLIP] = { 0, { { CH_NOISE, s_blip } } },
+	[SFX_CALL] = { 3, { { CH_SQ1, s_call_a }, { CH_SQ2, s_call_b }, { CH_NOISE, s_call_n } } },
+	[SFX_LINK] = { 3, { { CH_NOISE, s_link_n }, { CH_SQ1, s_link_a }, { CH_SQ2, s_link_b } } },
+	[SFX_ROAR] = { 3, { { CH_NOISE, s_roar_n }, { CH_SQ1, s_roar_t } } },
 };
 
 void sfx(int id)
@@ -414,10 +493,12 @@ void sound_set(bool music, bool effects)
 			}
 }
 
-static const char *const sfx_names[SFX_COUNT] = {
+static const char *const sfx_names[] = {
 	"Cursor", "Confirm", "Cancel", "Menu", "Step", "Shuffle", "Shot", "Bite", "Destroy", "Infect",
 	"Secure", "Overrun", "Burn", "Found", "Empty", "Ambush", "Nightfall", "Dawn", "Build", "Evac",
+	"Heal", "Burst", "Acid", "Wave", "Buzz", "Blip", "Call", "Link", "Roar",
 };
+_Static_assert(sizeof sfx_names / sizeof sfx_names[0] == SFX_COUNT, "one Sound Test name per SFX");
 
 // Left/Right picks a song or effect, A plays it, B leaves.
 static void sound_test(void)

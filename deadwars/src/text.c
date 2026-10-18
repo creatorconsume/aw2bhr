@@ -84,6 +84,8 @@ int text_menu(int x, int y, int w, const char *const *items, const u8 *enabled, 
 			sfx(SFX_CONFIRM);
 			break;
 		}
+		if (keys_down & KEY_A)
+			sfx(SFX_BUZZ);
 		if (keys_down & KEY_B) {
 			sfx(SFX_CANCEL);
 			sel = -1;
@@ -101,6 +103,7 @@ static const char *const speaker_names[PORTRAIT_COUNT] = { "Mara", "Doc", "June"
 void dialogue(const Line *lines)
 {
 	const int bx = 0, by = 12, bw = 30, bh = 8;
+	sound_dialogue(true);
 	for (; lines && lines->text; lines++) {
 		text_window(bx, by, bw, bh);
 		int tx = bx + 1, tw = bw - 2;
@@ -152,6 +155,8 @@ void dialogue(const Line *lines)
 				tmp[c] = out[r][c];
 				text_put(tx, by + 2 + r, tmp, BGPAL_UI);
 				if (!skip) {
+					if (!(c & 1) && out[r][c] != ' ')
+						sfx(SFX_BLIP);
 					frame();
 					if (keys_down & (KEY_A | KEY_B))
 						skip = true;
@@ -168,6 +173,7 @@ void dialogue(const Line *lines)
 	}
 	spr.portrait = -1;
 	text_clear_rect(bx, by, bw, bh);
+	sound_dialogue(false);
 }
 
 void banner(const char *l1, const char *l2, int frames)

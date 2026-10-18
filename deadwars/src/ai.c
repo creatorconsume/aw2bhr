@@ -207,6 +207,7 @@ void horde_turn(void)
 		spawn_at_nests(1 + (gs.night ? m->spawn_night_extra : 0), gs.night);
 	if (m->day_wave && gs.day == m->day_wave) {
 		spawn_at_nests(m->wave_size, gs.night);
+		sfx(SFX_WAVE);
 		banner("A huge wave!", "The nests are boiling over.", 60);
 	}
 	fog_update();

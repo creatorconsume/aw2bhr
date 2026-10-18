@@ -19,13 +19,20 @@ asks for music:
 
 | Song | Plays when | Length | Notes |
 |---|---|---|---|
-| `title` | `spr.map_visible == 0` (title, mission select, help, options) | 16 bars, loops | D minor, slow, heartbeat drums |
+| `title` | `spr.map_visible == 0` (title, mission select, options) | 16 bars, loops | D minor, slow, heartbeat drums |
+| `briefing` | a `dialogue()` on the title (How to Play), before a battle starts (mission intro), or after the victory jingle (outro) | 8 bars, loops | quiet pad and music box, no drums (the noise channel is left for text blips) |
 | `day` | battle, survivors' turn, `!gs.night` | 16 bars, loops | A minor, driving 16th arpeggios |
 | `night` | battle, survivors' turn, `gs.night` | 16 bars, loops | music box with an echo, E phrygian |
+| `laststand` | survivors' turn of the last 2 days of a `GOAL_SURVIVE` mission (`day + 1 >= goal_days`) | 8 bars, loops | E minor, fast |
 | `horde` | `gs.side == SIDE_HORDE` | 1-bar tritone sting, then an 8-bar loop | grinding C phrygian ostinato |
-| `victory` | `gs.over == 1` | 3 bars, once | then silence |
+| `zero` | a living horde unit with `UF_BOSS` (Patient Zero, M10), both turns | 16 bars, loops | D phrygian, tritone stabs. Switches on by itself once the engine defines `UF_BOSS` |
+| `victory` | `gs.over == 1` | 3 bars, once | then `briefing` under the outro |
 | `defeat` | `gs.over == 2` | 3 bars, once | then silence |
+| `credits` | only via `music_play(MUS_CREDITS)` (no credits screen yet) | 16 bars, loops | C major, hopeful |
 
+- Mid-battle dialogue (for example a boss line) keeps the battle music. `dialogue()` brackets itself with
+  `sound_dialogue(true/false)`, which is how the director knows a dialogue is open.
+- The boss check scans the units every 16 frames, which keeps the per-frame cost flat.
 - When the horde's turn ends, `day`/`night` resume from where they left off. If day and night swapped
   (a new day started), the new theme starts from the top.
 - `music_play(id)` forces a song (the Sound Test uses it). `music_play(MUS_AUTO)` hands control back to
@@ -51,6 +58,13 @@ asks for music:
 | `NIGHTFALL` / `DAWN` | automatically, when a new day flips `gs.night` (in `sound_update`) | sq1 (+ sq2) |
 | `BUILD` | recruiting at a Workshop (`build_menu`) | noise + sq1 |
 | `EVAC` | a unit evacuates at a helipad | noise + sq1 |
+| `HEAL` | start of the survivors' turn, a hurt unit heals on an owned building (`start_side_turn`) | sq2 |
+| `BURST` | a Bloater bursts (`kill_unit`) | noise + sq1 |
+| `ACID` | a Spitter hits (`hit`) | noise + sq2 |
+| `WAVE` | "A huge wave!" (`ai.c` horde_turn) | sq1 + noise |
+| `BUZZ` | A on a disabled menu item (`text_menu`) | sq2 |
+| `BLIP` | dialogue typewriter, every other letter (`dialogue`) | noise, very quiet |
+| `CALL` / `LINK` / `ROAR` | Patient Zero: summons at night / dies ("The link is broken.") / attacks or frenzies. **Not hooked yet**: they wait for the engine's boss code (requested in `team/inbox/engineer/`) | sq1 + sq2 + noise |
 
 Priorities are 0 (cursor/steps), 1 (UI), 2 (combat), 3 (stings). A new SFX takes a channel unless a
 higher-priority one is playing there. When an SFX ends, the channel goes back to the music, which
@@ -80,12 +94,12 @@ or noise NR43, duty, envelope, sweep) held for N frames, with an optional per-fr
 record each one on its own. Build with `make CC="arm-none-eabi-gcc -DSOUND_PROFILE"` to count the
 CPU cycles spent in `sound_update` (`snd_prof_total`, `snd_prof_max`).
 
-Measured on build 4425753+, 4,030 frames of title, battle and horde turns, Onion option profiles:
+Measured over 4,030 frames of title, battle and horde turns with the Onion option profiles (10 songs, 29 SFX build):
 
 | Core | Avg cycles/frame | Max | Share of a frame (avg / max) |
 |---|---|---|---|
-| gpSP (Onion rev 6250979) | 1,293 | 4,928 | 0.46% / 1.75% |
-| mGBA 0.10.2 | 946 | 4,648 | 0.34% / 1.65% |
+| gpSP (Onion rev 6250979) | 1,292 | 4,981 | 0.46% / 1.77% |
+| mGBA 0.10.2 | 1,113 | 4,760 | 0.40% / 1.69% |
 
-Peak levels: songs reach 71% of full scale at most, SFX 57%, and nothing clips.
-The cursor tick peaks at 5%.
+Peak levels: songs reach 72% of full scale at most, SFX 74% (the Link death sting), and nothing clips.
+The cursor tick peaks at 4%.

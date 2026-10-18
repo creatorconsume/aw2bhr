@@ -168,6 +168,7 @@ void kill_unit(int i, int killer)
 	}
 	// bloaters burst, hurting everything adjacent (never below 1HP)
 	if (unit_info[type].flags & UF_EXPLODES) {
+		sfx(SFX_BURST);
 		for (int k = 0; k < 4; k++) {
 			int o = unit_at(x + dirx[k], y + diry[k]);
 			if (o >= 0)
@@ -181,7 +182,7 @@ static void hit(int a, int d, int dmg)
 {
 	Unit *du = &gs.units[d];
 	spr.flash_unit = d;
-	sfx(gs.units[a].side == SIDE_HORDE ? SFX_BITE : SFX_SHOT);
+	sfx(gs.units[a].type == UT_SPITTER ? SFX_ACID : gs.units[a].side == SIDE_HORDE ? SFX_BITE : SFX_SHOT);
 	popup(du->x, du->y, (dmg + 9) / 10);
 	wait_frames((keys_held & KEY_B) && gs.side == SIDE_HORDE ? 4 : profile.anim_speed ? 24 : 12);
 	spr.flash_unit = -1;
@@ -664,8 +665,11 @@ void start_side_turn(int side)
 		int tt = gs.terrain[u->y][u->x];
 		bool inf = unit_info[u->type].flags & UF_INFANTRY;
 		if (gs.owner[u->y][u->x] == SIDE_SURVIVOR &&
-		    ((inf && tt != TT_WORKSHOP) || (!inf && tt == TT_WORKSHOP)))
+		    ((inf && tt != TT_WORKSHOP) || (!inf && tt == TT_WORKSHOP))) {
+			if (u->hp < 100)
+				sfx(SFX_HEAL);
 			u->hp = MIN(100, u->hp + (tt == TT_HOSPITAL ? 30 : 20));
+		}
 		if (unit_info[u->type].flags & UF_HEALER)
 			for (int k = 0; k < 4; k++) {
 				int o = unit_at(u->x + dirx[k], u->y + diry[k]);
