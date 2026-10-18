@@ -5,6 +5,12 @@ like a small game dev team. Each role has its own session, its own branch and it
 The producer integrates the role branches and ships builds to the owner. This file is the source
 of truth for who owns what. Each role's onboarding brief is in `team/roles/<role>.md`.
 
+
+> **Token-saving mode (owner's request):** no ultracode or workflows, and no subagents unless
+> unavoidable. Read files in targeted ranges and keep screenshots few. Each role finishes its current task,
+> commits, pushes, updates its status, then **waits for the producer's message** before starting new work.
+> Keep cross-session messages short.
+
 ## Projects
 
 1. **Dead Wars**: an original GBA homebrew zombie tactics game, in `deadwars/`.
@@ -21,9 +27,9 @@ Every build must boot and run at full speed on both cores. gpSP is the weaker of
 | Role | Session | Branch | Owns |
 |---|---|---|---|
 | Producer | `session_014pHjTzEiGzuPW7Jjwu4h7N` | `claude/dreamy-fermi-yhrz7u` (integration) | `team/README.md`, `team/roles/*`, merges, releases, `tools/remix/**`, `docs/remix/**`, `docs/miyoo/ONION_GBA_FIX.md`, and any path not listed in this table |
-| Gameplay engineer | TBD - see status | `claude/dw-engine` | `deadwars/src/**` except `missions.c`, `data.c`, `sound.c`, `sound.h`; plus `deadwars/Makefile`, `deadwars/gba.ld`, `deadwars/tools/gbafix.py`, `deadwars/test/gbarun.c` |
-| Game designer | TBD - see status | `claude/dw-design` | `deadwars/src/missions.c`, `deadwars/src/data.c`, `deadwars/test/sim/**`, `deadwars/docs/design/**` |
-| Artist | TBD - see status | `claude/dw-art` | `deadwars/art/**`, `deadwars/tools/gfx.py`, `deadwars/docs/ASSET_SPEC.md` |
+| Gameplay engineer | `session_015DZi6jVQ2xFUzNXuKVCjVu` | `claude/dw-engine` | `deadwars/src/**` except `missions.c`, `data.c`, `sound.c`, `sound.h`; plus `deadwars/Makefile`, `deadwars/gba.ld`, `deadwars/tools/gbafix.py`, `deadwars/test/gbarun.c` |
+| Game designer | `session_01R2Q28QSoCUf9Nr8ujQSnSk` | `claude/dw-design` | `deadwars/src/missions.c`, `deadwars/src/data.c`, `deadwars/test/sim/**`, `deadwars/docs/design/**` |
+| Artist | `session_01YDdSYUkiJH2qD5sNiJiBop` | `claude/dw-art` | `deadwars/art/**`, `deadwars/tools/gfx.py`, `deadwars/docs/ASSET_SPEC.md`, `deadwars/boxart/**` |
 | Audio | `session_0168cF2mwktk5orSxuVfkrjt` | `claude/deadwars-dev` | `deadwars/src/sound.c`, `deadwars/src/sound.h`, `deadwars/audio/**`, `deadwars/tools/*audio*` and `*music*` scripts |
 | QA & platform | `session_01N4mmbhZhKTnaSCQXTpVved` | `claude/onion-lab` | `tools/emu-lab/**`, `deadwars/test/playtest/**`, `deadwars/test/smoke.sh`, `docs/qa/**`, `docs/miyoo/**` except `ONION_GBA_FIX.md` |
 
