@@ -53,6 +53,8 @@ per song and per SFX, clipping, silence gaps, and loop seams. For gpSP CPU cost,
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/audio.md`. It is yours to keep current.
+
 1. **Land your work.** After **hardening merged**, merge integration into your branch. Resolve the conflicts in
    `battle.c`/`video.c` with care, because the map animation and hardening changes also touch them. Keep only hook lines,
    then push and drop a note in `team/inbox/producer/`.

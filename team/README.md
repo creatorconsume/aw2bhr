@@ -5,6 +5,12 @@ like a small game dev team. Each role has its own session, its own branch and it
 The producer integrates the role branches and ships builds to the owner. This file is the source
 of truth for who owns what. Each role's onboarding brief is in `team/roles/<role>.md`.
 
+
+> **Token-saving mode (owner's request):** no ultracode or workflows, and no subagents unless
+> unavoidable. Read files in targeted ranges and keep screenshots few. Each role finishes its current task,
+> commits, pushes, updates its status, then **waits for the producer's message** before starting new work.
+> Keep cross-session messages short.
+
 ## Projects
 
 1. **Dead Wars**: an original GBA homebrew zombie tactics game, in `deadwars/`.
@@ -12,17 +18,18 @@ of truth for who owns what. Each role's onboarding brief is in `team/roles/<role
    `docs/remix/`) builds it from the owner's own ROM. The ROM is never committed. Only the producer works on this.
 3. **Miyoo Mini Plus / Onion OS compatibility**: `docs/miyoo/`, `tools/emu-lab/`.
 
-**Target device:** Miyoo Mini Plus running Onion OS, with the GBA cores **mGBA** (the default) and **gpSP**. Every
-build must boot and run at full speed on both cores. gpSP is the weaker of the two, so it sets the CPU budget.
+**Target device:** Miyoo Mini Plus running Onion OS, with the GBA cores **mGBA** and **gpSP**. mGBA is the default
+in Onion 4.3.x. QA found that 4.4 beta switches the default to gpSP (see `docs/miyoo/EMU_LAB.md` on `claude/onion-lab`).
+Every build must boot and run at full speed on both cores. gpSP is the weaker of the two, so it sets the CPU budget.
 
 ## Team
 
 | Role | Session | Branch | Owns |
 |---|---|---|---|
 | Producer | `session_014pHjTzEiGzuPW7Jjwu4h7N` | `claude/dreamy-fermi-yhrz7u` (integration) | `team/README.md`, `team/roles/*`, merges, releases, `tools/remix/**`, `docs/remix/**`, `docs/miyoo/ONION_GBA_FIX.md`, and any path not listed in this table |
-| Gameplay engineer | TBD - see status | `claude/dw-engine` | `deadwars/src/**` except `missions.c`, `data.c`, `sound.c`, `sound.h`; plus `deadwars/Makefile`, `deadwars/gba.ld`, `deadwars/tools/gbafix.py`, `deadwars/test/gbarun.c` |
-| Game designer | TBD - see status | `claude/dw-design` | `deadwars/src/missions.c`, `deadwars/src/data.c`, `deadwars/test/sim/**`, `deadwars/docs/design/**` |
-| Artist | TBD - see status | `claude/dw-art` | `deadwars/art/**`, `deadwars/tools/gfx.py`, `deadwars/docs/ASSET_SPEC.md` |
+| Gameplay engineer | `session_015DZi6jVQ2xFUzNXuKVCjVu` | `claude/dw-engine` | `deadwars/src/**` except `missions.c`, `data.c`, `sound.c`, `sound.h`; plus `deadwars/Makefile`, `deadwars/gba.ld`, `deadwars/tools/gbafix.py`, `deadwars/test/gbarun.c` |
+| Game designer | `session_01R2Q28QSoCUf9Nr8ujQSnSk` | `claude/dw-design` | `deadwars/src/missions.c`, `deadwars/src/data.c`, `deadwars/test/sim/**`, `deadwars/docs/design/**` |
+| Artist | `session_01YDdSYUkiJH2qD5sNiJiBop` | `claude/dw-art` | `deadwars/art/**`, `deadwars/tools/gfx.py`, `deadwars/docs/ASSET_SPEC.md`, `deadwars/boxart/**` |
 | Audio | `session_0168cF2mwktk5orSxuVfkrjt` | `claude/deadwars-dev` | `deadwars/src/sound.c`, `deadwars/src/sound.h`, `deadwars/audio/**`, `deadwars/tools/*audio*` and `*music*` scripts |
 | QA & platform | `session_01N4mmbhZhKTnaSCQXTpVved` | `claude/onion-lab` | `tools/emu-lab/**`, `deadwars/test/playtest/**`, `deadwars/test/smoke.sh`, `docs/qa/**`, `docs/miyoo/**` except `ONION_GBA_FIX.md` |
 
@@ -44,7 +51,7 @@ add new files to any inbox.
 | `team/README.md` | producer | This charter |
 | `team/roles/<role>.md` | producer | Onboarding brief for a fresh session in that role |
 | `team/status/<role>.md` | that role only | Session id, branch head, current focus, last done, next, blockers, inbox done. Update it with every push |
-| `team/backlog/<role>.md` | that role only | Prioritized checklist. On your first day, create it from the "First tasks" in your brief |
+| `team/backlog/<role>.md` | that role only | Prioritized checklist (P0/P1/P2). The producer seeds it, then that role owns it and keeps it current |
 | `team/inbox/<role>/` | anyone, append-only | Requests to that role, one new file per request |
 
 ## Inbox protocol (no merge conflicts)
@@ -94,7 +101,8 @@ The designer then pings the engineer's session with `send_message`. When the wor
   fails because of the network, retry up to 4 times, waiting 2s, 4s, 8s and 16s between tries.
 - Before you start each task, and at least every 30-45 minutes, merge the integration branch:
   `git fetch origin claude/dreamy-fermi-yhrz7u && git merge --no-edit origin/claude/dreamy-fermi-yhrz7u`.
-  Resolve any conflicts in your own files. For conflicts in someone else's files, keep their version and send them a note.
+  Resolve conflicts in your own files yourself. In someone else's files, take the integration version, put back only your
+  own hook lines, and send the owner a note.
 - Never rewrite published history. No force pushes, no rebasing pushed commits.
 - Merge only the integration branch into yours. If you need another role's unmerged work, ask the
   producer to merge that branch into integration first.
@@ -125,8 +133,14 @@ Until `team/status/producer.md` says **hardening merged**:
    `make -C deadwars 2>&1 | grep -E 'warning|error'`.
 2. `deadwars/test/smoke.sh` exits 0. It builds the ROM, boots it headless to mission 1, and checks the screens
    and the game state in RAM. Screenshots go to `deadwars/build/smoke/shot-*.png`. QA owns the script. If
-   your checkout doesn't have it yet, merge integration. If integration doesn't have it either, run the
-   interim check from your role brief.
+   your checkout doesn't have it yet, merge integration. If integration doesn't have it either, run this interim check.
+   `check_maps.py` must print no `BAD`, `OUT OF MAP` or `OVERLAP` lines, and the screenshots must show the title, then the
+   map of mission 1:
+   ```sh
+   python3 -I deadwars/test/check_maps.py deadwars/src/missions.c
+   printf 'wait 30\nshot title\npress T 3\nwait 10\npress A 3\nwait 10\npress A 3\nwait 200\npress T 3\nwait 20\npress A 3\nwait 40\nshot map\n' > /tmp/boot.txt
+   /tmp/gbarun deadwars/deadwars.gba /tmp/boot.txt /tmp/boot && python3 -I -c "import sys; from PIL import Image; [Image.open(f).save(f[:-3]+'png') for f in sys.argv[1:]]" /tmp/boot-*.ppm
+   ```
 3. Docs for what you changed are updated, and so is your `team/status/<role>.md`, with the new branch head.
 4. Nothing generated or copyrighted is committed. That means no ROMs (`*.gba`), BIOS, saves (`*.sav`, `*.srm`), save states,
    or `build/`, `cores/` and `out/` folders.

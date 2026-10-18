@@ -24,7 +24,7 @@
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
 #define NO_PATH 255
 #define NTILES (MAP_MAX_W * MAP_MAX_H)
-#define DAY_CAP 30            // a mission still running on this day counts as a timeout
+static int DAY_CAP = 30;      // a mission still running on this day counts as a timeout (-d)
 #define FRAME_CAP 400000      // per horde turn; more means the AI is stuck
 
 extern u32 sim_frames;
@@ -832,6 +832,8 @@ int main(int argc, char **argv)
 			only = atoi(argv[++i]) - 1;
 		else if (!strcmp(argv[i], "-n") && i + 1 < argc)
 			seeds = atoi(argv[++i]);
+		else if (!strcmp(argv[i], "-d") && i + 1 < argc)
+			DAY_CAP = atoi(argv[++i]);
 		else if (!strcmp(argv[i], "-s") && i + 1 < argc)
 			first = atoi(argv[++i]);
 		else if (!strncmp(argv[i], "-W", 2) && strchr(argv[i], '=')) {
@@ -845,7 +847,7 @@ int main(int argc, char **argv)
 		} else if (!strcmp(argv[i], "-v"))
 			sim_verbose++;
 		else {
-			fprintf(stderr, "usage: %s [-m mission 1..%d] [-n seeds] [-s first_seed] [-v[-v]] [-Wknob=N]\n", argv[0], mission_count);
+			fprintf(stderr, "usage: %s [-m mission 1..%d] [-n seeds] [-s first_seed] [-d day_cap] [-v[-v[-v]]] [-Wknob=N]\n", argv[0], mission_count);
 			return 1;
 		}
 	}
