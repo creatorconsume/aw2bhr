@@ -159,3 +159,6 @@ dkms.conf
 ###################
 
 *.sym
+
+# Python bytecode
+__pycache__/
