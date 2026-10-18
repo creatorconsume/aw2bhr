@@ -1,0 +1,125 @@
+# Dead Wars palettes.  Each line: <char> <RRGGBB> [comment]; line order = palette index.
+# The char is what the pixel grids in the other art files use for that index.
+
+# BG bank 0 -- font + windows.  Index meanings fixed by docs/ASSET_SPEC.md.
+palette ui
+. 000000  0 transparent
+W f8f8f0  1 text white
+K 101018  2 text shadow / darkest
+f 283058  3 window fill (dark slate blue)
+L 98a8d0  4 window border light
+D 0c0c1c  5 window border dark
+Y f8d848  6 highlight / selection yellow
+R f85848  7 red text
+B 70b0ff  8 blue text
+m 485890  9 fill highlight (free)
+g 808898 10 grey text (free)
+G 58d060 11 green text (free)
+. 000000 12
+. 000000 13
+. 000000 14
+. 000000 15
+end
+
+# BG bank 1 -- terrain.  Index 0 never drawn. 13/14/15 = team light/mid/dark
+# (warm neutral greys here; the engine swaps them per owner).
+palette terrain
+_ ff00ff  0 unused
+K 181420  1 outline
+g 2c6430  2 dark green / shade
+G 50a03c  3 grass
+l 90d058  4 light grass
+d 6c4a30  5 dark brown / rust / wood
+D b08858  6 tan / sandbag / wood light
+a 4c4c58  7 asphalt / dark grey
+c 8c8c98  8 concrete grey
+w e4e4dc  9 near white
+n 2c4ca0 10 deep water
+u 5c94e0 11 water
+r c83434 12 red (cross, gore, warning lights)
+X dcd4c4 13 TEAM light
+Y a49c8c 14 TEAM mid
+Z 64605a 15 TEAM dark
+end
+
+# BG bank 7 -- move / attack highlight (alpha blended by the engine)
+palette overlay
+. 000000  0 transparent
+b 3070f8  1 move fill
+B b0d8ff  2 move border (lighter)
+r f02828  3 attack fill
+R ffb0a0  4 attack border (lighter)
+f 383848  5 fog dark (unused)
+F 585868  6 fog light (unused)
+end
+
+# OBJ bank 0 -- survivors (team blue)
+palette survivor
+. 000000  0 transparent
+K 141428  1 outline
+s b86c44  2 skin shade
+S f4c08c  3 skin
+b 1c3090  4 blue dark
+B 3464e0  5 blue
+c 80b8ff  6 blue light
+n 5c4028  7 brown dark (boots, pants, wood)
+N a88050  8 khaki
+g 484858  9 gunmetal / tyres
+G a0a0b0 10 steel light
+W f8f8f8 11 white
+R e02c2c 12 red
+Y f8d040 13 yellow (lights)
+h 3c2a20 14 hair
+O f08030 15 orange (hazard)
+end
+
+# OBJ bank 1 -- the horde (sickly green skin, ragged clothes, red accents)
+palette horde
+. 000000  0 transparent
+K 1a1018  1 outline
+z 50684c  2 skin dark
+Z 8ca878  3 skin
+L c8dcaa  4 skin light
+p 3a2e44  5 rags dark
+P 6a5c70  6 rags
+q a69aa4  7 rags light
+r 8a1420  8 blood dark
+R e03030  9 red
+W ece4c0 10 bone / teeth / eyes
+n 5a4030 11 trousers dark
+N 8c6c4c 12 trousers
+A b4f030 13 acid green
+v 7c4c8c 14 bloat purple
+V d494b8 15 bloat pink
+end
+
+# OBJ bank 3 -- cursor, HP digits, menu pointer
+palette cursor
+. 000000  0 transparent
+K 101018  1 outline
+W f8f8f8  2 white
+Y f8d840  3 yellow
+O d08818  4 dark yellow
+R f04040  5 red
+end
+
+# title screen BG (loaded into bank 0 while the title shows; 1/2 = white/black so
+# font_tiles can print "PRESS START" etc. on top of it)
+palette title
+_ 000000  0 unused
+w f8f8f8  1 white (font text)
+K 08060c  2 black (font shadow, logo outline, silhouettes)
+A 0a0a1e  3 sky top
+B 16163a  4 sky
+C 2a2050  5 sky low
+D 4a2a52  6 horizon glow
+E 221a2e  7 far skyline / street
+F 120c18  8 near skyline
+M f0e8cc  9 moon / stars
+m a8a090 10 moon shade
+y f8c848 11 lit window
+R e02424 12 logo red
+r 90121a 13 logo dark red / blood
+h ff9a88 14 logo highlight
+k 4c0810 15 logo deep shadow
+end

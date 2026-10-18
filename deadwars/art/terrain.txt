@@ -1,0 +1,333 @@
+# Dead Wars terrain metatiles (16x16, palette 'terrain', see palettes.txt)
+#   K outline  g/G/l greens  d/D browns  a/c/w greys  n/u water  r red
+#   X/Y/Z team colour light/mid/dark (recoloured per owner by the engine)
+# Light comes from the top-left.
+
+sprite MT_PLAIN 16x16 terrain
+GGGGGGGGGGGGGGGG
+GGGGGGGGGGGGGlGG
+GGlGGGGGGGGGGgGG
+GGgGGGGGGGGGGGGG
+GGGGGGGGGGGGGGGG
+GGGGGGGlGGGGGGGG
+GGGGGGlgGGGGGGGG
+GGGGGGGGGGGGGGGG
+GGGGGGGGGGGGGGGG
+GGGGGGGGGGGGGlGG
+GlGGGGGGGGGGlgGG
+GgGGGGGGGGGGGGGG
+GGGGGGGGGGGGGGGG
+GGGGGlGGGGGGGGGG
+GGGGGgGGGGGGGGGG
+GGGGGGGGGGGGGGGG
+
+# --- one tree (stamped 3x for the forest) ---
+sprite tree 9x10 terrain
+...KKK...
+.KKlllKK.
+KlllGGGgK
+KllGGGGgK
+KlGGGGggK
+KGGGGgggK
+.KgGgggK.
+..KKKKK..
+...KdK...
+..gKKKg..
+
+compose MT_FOREST 16x16 terrain
+base MT_PLAIN
+stamp tree 0 0
+stamp tree 7 1
+stamp tree 3 6
+end
+
+# --- rubble hill: earth mound with concrete slabs & rebar ---
+sprite MT_HILL 16x16 terrain
+GGGGGGGGGGGGGGGG
+GGGGGGGKKKGGGGGG
+GGGGGGKDDdKGGGGG
+GGGGGKDDDddKGGGG
+GGGGKwcDDdddKGGG
+GGGKccaDDddddKGG
+GGGKDDDDDdKKdKGG
+GGKDDDDDddKcKdKG
+GGKDwcDDdddKdddK
+GKDcaDDDdddddddK
+GKDDDDDdddcwKddK
+KDDDDDddddcaKddK
+KDDDDdddddddddKG
+gKKdddddddddKKgG
+GggKKKKKKKKKggGG
+GGGGgggggggggGGG
+
+sprite MT_WATER 16x16 terrain
+uuuuuuuuuuuuuuuu
+uuuuuuuuuuuuuuuu
+uuwwuuuuuuuuuuuu
+unuunnuuuuuuuuuu
+uuuuuuuuuuuuuuuu
+uuuuuuuuuuwwuuuu
+uuuuuuuuunuunnuu
+uuuuuuuuuuuuuuuu
+uuuuuuuuuuuuuuuu
+uuuuuuuuuuuuuuuu
+uuuuwwuuuuuuuuuu
+uuunuunnuuuuuuuu
+uuuuuuuuuuuuwwuu
+uuuuuuuuuuunuunn
+uuuuuuuuuuuuuuuu
+uuuuuuuuuuuuuuuu
+
+sprite MT_BRIDGE_H 16x16 terrain
+uuuuuuuuuuuuuuuu
+uuwwuuuuuuuuwwuu
+KKKKKKKKKKKKKKKK
+wwcwwwcwwwcwwwcw
+cccccccccccccccc
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aDDDDaaaaDDDDaaa
+aDDDDaaaaDDDDaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+cccccccccccccccc
+wwcwwwcwwwcwwwcw
+KKKKKKKKKKKKKKKK
+nnnnnnnnnnnnnnnn
+uuuuuuuuuuuuuuuu
+
+derive MT_BRIDGE_V MT_BRIDGE_H transpose
+
+# --- collapsed building ---
+sprite MT_RUINS 16x16 terrain
+GGGGGGGGGGGGGGGG
+GKKKGGGGGGGGGGGG
+GKwcKKGGGGGGGGGG
+GKwcccKGGGGGGGGG
+GKwcccaKKGGGGGGG
+GKwKKccccKGGGGGG
+GKwKKccKKcKGGGGG
+GKwccccKKccKGGGG
+GKwccccccccaKGGG
+GKwKKccKKcccKGGG
+GKwKKccKKccKKKGG
+GKwccccccKKwcaKG
+GKwccccKKcwKKdKG
+KKKKcKKcaKcaKdDK
+gKdaKdcKKdKKdddK
+GgKKKKKKgKKKKKKg
+
+# --- sandbag barricade with barbed wire (tiles seamlessly left/right) ---
+sprite sandbag 8x4 terrain
+_KKKKKK_
+KDDDDDdK
+KdDDDddK
+_KKKKKK_
+
+sprite barbwire 16x4 terrain
+_KK__KK__KK__KK_
+K_cKK_cKK_cKK_cK
+KK__KK__KK__KK__
+_K___K___K___K__
+
+compose MT_WALL 16x16 terrain
+base MT_PLAIN
+stamp barbwire 0 1
+stamp sandbag 0 11
+stamp sandbag 8 11
+stamp sandbag -4 8
+stamp sandbag 4 8
+stamp sandbag 12 8
+stamp sandbag 0 5
+stamp sandbag 8 5
+end
+
+# --- abandoned, smashed car ---
+sprite MT_WRECK 16x16 terrain
+GGGGGGGGGGGGGGGG
+GGGGGGGGGGGGGlGG
+GGlGGGGGGGGGGgGG
+GGgGGGGGGGGGGGGG
+GGGGKKKKKKKKGGGG
+GGGKcKwaKwcaKGGG
+GGKcKaKKKawKaKGG
+GKwwwcccccccccKG
+KwcccdcccrrcccaK
+KccddcccccrcccaK
+KaKKKaaaaaaKKKaK
+KKaKaKKKKKKaKaKK
+gKKcKgggggKKcKgg
+GgKKKggGGggKKKgG
+GGgggGGGGGGgggGG
+GGGGGGGGGGGGGGGG
+
+# --- intact suburban house (roof = team colour) ---
+sprite MT_HOUSE 16x16 terrain
+GGGGGGGGGGGKKGGG
+GGGGKKKKKKKKcKGG
+GGGKXXXXXXXKaKGG
+GGKXXXYYYYYYKKGG
+GKXYYYYYYYYYYKGG
+KXYYYYYYYYYYYYKG
+KZZZZZZZZZZZZZZK
+GKKKKKKKKKKKKKKG
+GKDDDDDDDDDDDdKG
+GKDKKKDKKKKKKdKG
+GKDKuKDKddKuKdKG
+GKDKKKDKdDKKKdKG
+GKDDDDDKddKddDKG
+GKdddddKdDKdddKG
+GKKKKKKKKKKKKKKG
+GggggggggggggggG
+
+# --- same house, ransacked: boarded windows, open door, roof hole, junk ---
+sprite MT_HOUSE_LOOTED 16x16 terrain
+GGGGGGGGGGGKKGGG
+GGGGKKKKKKKKcKGG
+GGGKXXXXXKKKaKGG
+GGKXXXYYKaKYKKGG
+GKXYYYYYYKYYYKGG
+KXYYYYYYYYYYYYKG
+KZZZZZZZZZZZZZZK
+GKKKKKKKKKKKKKKG
+GKDDDDDDDDDDDdKG
+GKDKKKDKKKKKKdKG
+GKDdDdDKKKKKdKKG
+GKDKDKDKKKKdKdKG
+GKDdDdDKKKKKdDKG
+GKddddcKKKKKddKG
+GKKKKKKKKKKKKKKG
+GgcggggggdgwgggG
+
+# --- workshop / garage: builds vehicles + units ---
+sprite MT_WORKSHOP 16x16 terrain
+GGGGGGGGGGGGGGGG
+GGlGGGGGGGGGGlGG
+GGgGGGGGGGGGGgGG
+GGGKKGGGGKKGGGKG
+GGKXuGGGKXuGGKXK
+GKXXuGGKXXuGKXXK
+KXYYuGKXYYuKXYYK
+KKKKKKKKKKKKKKKK
+KwcKKKKKKKKKKcaK
+KwcKaaaaaaaaKcaK
+KwcKccccccccKcaK
+KwcKaaaaaaaaKcaK
+KwcKccccccccKcaK
+KwcKKKKKKKKKKcaK
+KKKKKKKKKKKKKKKK
+gggggggggggggggg
+
+# --- safehouse: fortified HQ with a flag ---
+sprite MT_SAFEHOUSE 16x16 terrain
+GGGKcKKKKKKKGGGG
+GGGKcXXXXXXXKGGG
+GGGKcYYYYYYYYKGG
+GGGKcZZZZZZKKGGG
+GGGKcKKKKKKGGGGG
+GKKKKKKKKKKKKKKG
+GKXXXXXXXXXXXXKG
+GKZZZZZZZZZZZZKG
+GKwcKKKccKKKcaKG
+GKwccccKKcccaaKG
+GKwcccKddKccaaKG
+KDDDDKddddKDDDDK
+KDDdDKddddKDdDdK
+KddddKddKdKddddK
+gKKKKKKKKKKKKKKg
+GgggGGGGGGGGgggG
+
+# --- hospital: white walls, red cross ---
+sprite MT_HOSPITAL 16x16 terrain
+GGGGGGGGGGGGGGGG
+GKKKKKKKKKKKKKKG
+KXXXXXXXXXXXXXXK
+KYYYYYYYYYYYYYYK
+KZZZZZZZZZZZZZZK
+KwwwwwwwwwwwwwcK
+KwKKwwwrrwwwKKcK
+KwKuwwwrrwwwKucK
+KwwwwrrrrrrwwwcK
+KwKKwrrrrrrwKKcK
+KwKuwwwrrwwwKucK
+KwwwwwwrrwwwwwcK
+KwcccKKKKKKcccaK
+KwcccKucucKcccaK
+KKKKKKKKKKKKKKKK
+gggggggggggggggg
+
+# --- zombie nest: gore sinkhole with pulsing tendrils ---
+sprite MT_NEST 16x16 terrain
+GGGGGGGGGGGGGGGG
+GGGGgdGGGGGdgGGG
+GGgddDdKKKdDddgG
+GgdDdKKrrrKKdDdG
+GdDKKrrZZZrrKKdG
+gdKrrZZKKKZYrrKd
+dKrrZKKKKKKKYrKd
+dKrYKKKKKKKKKrrK
+dKrYKKKKKKKKKYrK
+dKrrYKKKKKKKYrKd
+gdKrrYYKKKYYrKdg
+GdwKKrrrrrrrKwdG
+GgddKKKKKKKKKddG
+GGgdwdDdddDwdgGG
+GGGggddgddggGGGG
+GGGGGGGGGGGGGGGG
+
+# --- radio tower ---
+sprite MT_RADIO 16x16 terrain
+GGGGGKrKGGGGGGGG
+GGGGGGKGGGGGGGGG
+GGGGGKcKGGGGGGGG
+GGGGGKcKGGGGGGGG
+GGGGKcKcKGGGGGGG
+GGGGKKcKKGGGGGGG
+GGGGKcKcKGGGGGGG
+GGGKcKKKcKGGGGGG
+GGGKKcKcKKKKKKGG
+GGGKcKKKcKXXXXKG
+GGKcKcKcKXYYYYYK
+GGKKKKKKKZZZZZZK
+GKcKGGGKcKwwaKKG
+GKKKggGKKKwwacKG
+GGgggGGGgKKKKKKG
+GGGGGGGGGggggggG
+
+# --- helipad: evac point ---
+sprite MT_HELIPAD 16x16 terrain
+GGGGGGGGGGGGGGGG
+GKKKKKKKKKKKKKKG
+GKXccccccccccXKG
+GKccaawwwwaaccKG
+GKcawwaaaawwacKG
+GKcawaXaaXawacKG
+GKcwaaXaaXaawcKG
+GKcwaaXXXXaawcKG
+GKcwaaXaaXaawcKG
+GKcwaaXaaXaawcKG
+GKcawaaaaaawacKG
+GKcawwaaaawwacKG
+GKccaawwwwaaccKG
+GKXccccccccccXKG
+GKKKKKKKKKKKKKKG
+GggggggggggggggG
+
+# --- cracked asphalt texture used for every road autotile (edges/dashes added by gfx.py) ---
+sprite road_tex 16x16 terrain
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaacaaaaaaaaaaa
+aaaaaKaaaaaaaaaa
+aaaaaaKKaaaaacaa
+aaaaaaaaKaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaKaaaa
+aacaaaaaaaKaKaaa
+aaaaaaaaaKaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaa

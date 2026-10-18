@@ -1,0 +1,76 @@
+# Dead Wars UI art.
+# window: 24x24 on 'ui', cut into the 3x3 nine-slice set (TL,T,TR,L,C,R,BL,B,BR)
+#   D dark border, L light border, f fill
+sprite window 24x24 ui
+..DDDDDDDDDDDDDDDDDDDD..
+.DLLLLLLLLLLLLLLLLLLLLD.
+DLLDDDDDDDDDDDDDDDDDDLLD
+DLDmmmmmmmmmmmmmmmmmmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmffffffffffffffffmDLD
+DLDmmmmmmmmmmmmmmmmmmDLD
+DLLDDDDDDDDDDDDDDDDDDLLD
+.DLLLLLLLLLLLLLLLLLLLLD.
+..DDDDDDDDDDDDDDDDDDDD..
+
+# map cursor, 2 pulse frames (frame 1 squeezes 1px inward)
+sprite cursor0 16x16 cursor
+KKKKKKK..KKKKKKK
+KWWWWWK..KWWWWWK
+KWYYYYK..KYYYYWK
+KWYKKKK..KKKKYWK
+KWYK........KYWK
+KWYK........KYWK
+KKKK........KKKK
+................
+................
+KKKK........KKKK
+KWYK........KYWK
+KWYK........KYWK
+KWYKKKK..KKKKYWK
+KWYYYYK..KYYYYWK
+KWWWWWK..KWWWWWK
+KKKKKKK..KKKKKKK
+
+sprite cursor1 16x16 cursor
+................
+.KKKKKK..KKKKKK.
+.KWWWWK..KWWWWK.
+.KWYYYK..KYYYWK.
+.KWYKKK..KKKYWK.
+.KWYK......KYWK.
+.KKKK......KKKK.
+................
+................
+.KKKK......KKKK.
+.KWYK......KYWK.
+.KWYKKK..KKKYWK.
+.KWYYYK..KYYYWK.
+.KWWWWK..KWWWWK.
+.KKKKKK..KKKKKK.
+................
+
+# menu pointer (points right)
+sprite pointer 8x8 cursor
+KK......
+KWKK....
+KWWWKK..
+KWWWWYK.
+KWWYYK..
+KWKK....
+KK......
+........
