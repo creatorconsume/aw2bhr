@@ -364,4 +364,46 @@ Recommendation: put remix data at `0x620000+`. t1 used `0x620000` for the recomp
 - AI behaviour byte semantics (unit record byte 9).
 - Where power-star charge, the global power defence bonus and HP-restoring effects live.
 - Full semantics of the CO setup in `sub_080364F4`, which handles 0xFF = "player chooses".
-- How the campaign chooses the next map ID (flow table not located). Campaign records are indexed `(id-0x8A)` for IDs 0x8A..0xB3.
+- How the campaign chooses the next node after a mission (the node table itself is now known, see §9). Campaign records are indexed `(id-0x8A)` for IDs 0x8A..0xB3.
+
+## 9. Campaign flow table and test hooks
+
+These were found while building `tools/remix/build_remix.py`. Details are in BUILD.md.
+
+### 9.1 Flow table: `0x615194` (`gUnknown_08615194`), 42 nodes × 0x30 — VERIFIED
+
+Node *i* plays map 138+*i*:
+
+| nodes | maps | campaign |
+|---|---|---|
+| 0–33 | 138–171 | normal |
+| 34–41 | 172–179 | Advance (hard) |
+
+How the map ID is set (VERIFIED by write watchpoint, `pc 0x08077FB8`):
+
+- `sub_08077F30` and `sub_08077F9C` read the node index from `gUnknown_0202FDFC+0xC`.
+- They copy node +0x00 (u16 map ID) to `0x03003FC2`.
+- This happens when the world-map A press selects the mission.
+
+Node fields:
+
+| off | field | conf |
+|---|---|---|
+| +0x06 / +0x08 | world-map x/y | VERIFIED: a node with other coordinates moves the flag away from the cursor |
+| +0x0C | pointer to a world-map struct | GUESS |
+| +0x10 | per-mission index | GUESS |
+| +0x14 | per-mission pointer | GUESS |
+| +0x24 / +0x28 | normal / hard pointers, used by a few final missions | GUESS |
+
+Hard nodes 34–41 copy the world-map position and +0x0C of nodes 0–7. The Advance Campaign therefore plays 172 in Cleanup's slot, 173 in Border Skirmish's slot, and so on.
+
+**Test hook (VERIFIED for 138–142 and 172).** Copy node N over node 0, keeping node 0's +0x06..+0x0F. Campaign > New then starts mission N with its real map ID and its own intro.
+
+### 9.2 RAM used by the boot driver
+
+| address | content |
+|---|---|
+| `0x030033E4` / `0x030033E6` | u16 map cursor X / Y (VERIFIED) |
+| `*0x03003F68` | decompressed map buffer (`0x02003010`) |
+
+The boot driver detects player control by checking whether Right/Left move the cursor.

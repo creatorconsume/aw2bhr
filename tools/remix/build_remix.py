@@ -137,8 +137,13 @@ def apply_balance(rom, alloc, log):
         log.append("balance: tools/remix/balance.py not found, skipped")
         return
     import importlib
-    balance = importlib.import_module("balance")
-    lines = balance.apply(rom, alloc)
+    try:
+        balance = importlib.import_module("balance")
+        lines = balance.apply(rom, alloc)
+    except BuildError:
+        raise
+    except Exception as e:  # noqa: BLE001 - surface any balance.py failure as a clean build error
+        raise BuildError("balance.py failed: %s: %s" % (type(e).__name__, e))
     log.extend(lines or [])
     if hasattr(balance, "verify"):
         problems = balance.verify(rom)
@@ -179,6 +184,10 @@ def load_map_specs(maps_dir, only):
         if spec.map_id != fid:
             raise BuildError("%s: header says map %d but the file name says %d" % (path, spec.map_id, fid))
         specs.append(spec)
+    if only:
+        missing = sorted(only - {s.map_id for s in specs})
+        if missing:
+            print("WARNING: --only-maps: no map file for %s in %s" % (", ".join(map(str, missing)), maps_dir))
     seen = {}
     for s in specs:
         k = (s.map_id, s.variant)

@@ -148,6 +148,12 @@ def test_validate(base, tiler, mdir):
                  "", "size change")
     expect_error(base, tiler, txt.replace("T  T  ~  ~  r", "T  T  ~  ~  Q", 1), "unknown terrain symbol", "bad symbol")
     expect_error(base, tiler, txt.replace("H2 c2", "H2 c3", 1), "players", "property owner beyond player count")
+    spec = mapfile.parse_text(txt, "139_size.txt")
+    spec.width += 1
+    spec.symbols = [row + ["."] for row in spec.symbols]
+    spec.tiles = [row + [1] for row in spec.tiles]
+    R = mapfile.resolve(spec, base, base, tiler)
+    check(any("differs from the original" in e for e in R.errors), "consistent 16x10 grid rejected (original is 15x10)")
     ok_txt = txt.replace("P1    Tank          2   7", "P1    Tank          5   7").replace(
         "par_days", "events_checked yes\npar_days")
     spec = mapfile.parse_text(ok_txt, "139_ok.txt")
