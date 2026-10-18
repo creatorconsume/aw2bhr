@@ -1,0 +1,13 @@
+# Generic boot check for any GBA ROM (used by matrix.sh): logos, title, past START.
+wait 300
+shot 05s
+wait 300
+shot 10s
+press T 4
+wait 180
+shot start
+press A 4
+wait 180
+shot start-a
+# state for the cross-core / stale auto-state cases
+savestate run.state

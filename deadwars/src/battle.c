@@ -101,7 +101,10 @@ void unit_move_anim(int ui, const u16 *path, int len)
 		bool vis_next = !(u->side == SIDE_HORDE && gs.fog[path[i] >> 8][path[i] & 0xFF]);
 		if (visible || vis_next) {
 			// holding B fast-forwards the horde's turn
-			int step = (u->side == SIDE_HORDE && (keys_held & KEY_B)) ? 16 : profile.anim_speed ? 2 : 4;
+			// AW2 pace: a tile every 4 frames (Normal) or 2 (Fast)
+			int step = (u->side == SIDE_HORDE && (keys_held & KEY_B)) ? 16 : profile.anim_speed ? 4 : 8;
+			if (tx != spr.anim_px)
+				spr.anim_face = tx < spr.anim_px ? -1 : 1;
 			while (spr.anim_px != tx || spr.anim_py != ty) {
 				if (spr.anim_px < tx) spr.anim_px += step;
 				if (spr.anim_px > tx) spr.anim_px -= step;
@@ -122,6 +125,7 @@ void unit_move_anim(int ui, const u16 *path, int len)
 		u->capture = 20;
 	}
 	spr.anim_unit = -1;
+	spr.anim_face = 0;
 }
 
 bool in_range(const Unit *u, int x, int y, int fx, int fy)
@@ -143,6 +147,13 @@ void kill_unit(int i, int killer)
 	Unit *u = &gs.units[i];
 	int x = u->x, y = u->y, type = u->type, side = u->side;
 	u->alive = 0;
+	// AW2 map explosion (skipped for units hidden in the fog)
+	if (!(side == SIDE_HORDE && gs.fog[y][x])) {
+		spr.boom_x = x * 16;
+		spr.boom_y = y * 16;
+		spr.boom_timer = BOOM_FRAMES;
+		wait_frames((keys_held & KEY_B) && gs.side == SIDE_HORDE ? 8 : BOOM_FRAMES);
+	}
 	if (u->cargo) {
 		gs.units[u->cargo - 1].alive = 0;
 		if (side == SIDE_SURVIVOR)

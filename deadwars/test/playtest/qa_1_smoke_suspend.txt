@@ -1,0 +1,61 @@
+# Regression (QA smoke): boot, title, mission 1, move a unit, End Day, Day 2, Suspend to SRAM.
+# Machine checks: gs.day == 2 after the horde turn, profile.has_suspend == 1 after Suspend.
+wait 120
+count frame_count
+shot 01-title
+press T 4
+wait 30
+shot 02-menu
+# Campaign
+press A 4
+wait 30
+shot 03-missions
+# 1 First Night
+press A 4
+wait 120
+shot 04-briefing
+# START skips the whole briefing
+press T 4
+wait 120
+shot 05-map
+# SELECT: cursor to the next ready unit, A: select it, move 2 right, A: go there, A: Wait
+press S 4
+wait 30
+press A 4
+wait 20
+shot 06-range
+press > 4
+wait 10
+press > 4
+wait 20
+press A 4
+wait 90
+shot 07-action
+press A 4
+wait 60
+shot 08-moved
+# START menu: End Day
+press T 4
+wait 30
+shot 09-menu
+press A 4
+# horde turn; hold B to speed it up
+hold B
+wait 1200
+release
+wait 60
+shot 10-day2
+expect gs+7 02
+count frame_count
+# START menu: Suspend (4th item) writes the battle to SRAM
+press T 4
+wait 30
+press D 4
+press D 4
+press D 4
+wait 10
+shot 11-suspend
+press A 4
+wait 180
+shot 12-after-suspend
+expect profile+6 01

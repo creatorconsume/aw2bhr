@@ -1,0 +1,52 @@
+# Regression (QA): Mission 1 "First Night" (GOAL_SURVIVE) is won when the day passes goal_days,
+# and the results window then waits for A. Deterministic on every core: instead of playing six
+# days (passive play loses since the balance tuning), poke gs.day to goal_days on Day 1.
+# Current data: goal_days = 6, so victory comes at the start of Day 7. (The objective text still
+# says "Survive until Day 5": reported to design. Update the day bytes here if goal_days changes.)
+# gs: +7 day, +11 over (0 running, 1 won, 2 lost). spr+0 = spr.cursor_show (our turn is live).
+wait 120
+press T 4
+wait 30
+press A 4
+wait 30
+press A 4
+wait 120
+press T 4
+until spr 01 1200
+poke gs+7 06
+wait 10
+press T 4
+wait 20
+press A 4
+hold B
+until gs+11 01 4000
+release
+expect gs+7 07
+expect gs+11 01
+# outro dialogue: START skips the scene once a line has finished typing (it is ignored while
+# typing), and the results window ignores START, so press it a few times. Then the results window
+# must stay up until A (spr+1 = spr.map_visible goes to 0 when battle_run returns to the title).
+press T 4
+wait 40
+press T 4
+wait 40
+press T 4
+wait 40
+press T 4
+wait 40
+press T 4
+wait 40
+press T 4
+wait 40
+shot results
+wait 120
+shot results-still-up
+expect spr+1 01
+press A 4
+wait 60
+expect spr+1 00
+# winning mission 1 unlocks mission 2 (profile+4 = profile.unlocked) and saves it
+expect profile+4 02
+# known bug (engine, main.c:46): the A that closed the results also skips the title's "Press START"
+# (it tests the stale keys_down before frame()), so this shows the menu instead of "Press START".
+shot after-results

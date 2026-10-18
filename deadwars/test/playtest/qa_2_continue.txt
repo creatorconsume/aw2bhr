@@ -1,0 +1,13 @@
+# Regression (QA): a suspended battle survives a reboot through the .srm and Continue resumes it.
+# needs-sram: qa_1_smoke_suspend
+# Machine checks: has_suspend is set at boot, and after Continue we are back on Day 2 of mission 1.
+wait 120
+expect profile+6 01
+press T 4
+wait 30
+shot 01-menu
+press A 4
+wait 120
+shot 02-continued
+expect gs+4 00
+expect gs+7 02
