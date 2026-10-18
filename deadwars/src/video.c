@@ -1,6 +1,7 @@
 // Dead Wars - video setup, palettes, sprite manager, input, frame loop
 #include "game.h"
 #include "video.h"
+#include "sound.h"
 #include <string.h>
 
 u16 keys_down, keys_held, keys_rep;
@@ -254,6 +255,7 @@ void frame(void)
 	build_oam();
 	VBlankIntrWait();
 	copy16(OAM, shadow_oam, sizeof(shadow_oam));
+	sound_update();
 	if (spr.map_visible) {
 		REG_BGHOFS(1) = REG_BGHOFS(2) = cam_px;
 		REG_BGVOFS(1) = REG_BGVOFS(2) = cam_py;

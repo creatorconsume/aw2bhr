@@ -1,6 +1,7 @@
 // Dead Wars - battle flow: player turn, movement, actions, combat, turn cycle
 #include "game.h"
 #include "video.h"
+#include "sound.h"
 #include <string.h>
 
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
@@ -95,6 +96,7 @@ void unit_move_anim(int ui, const u16 *path, int len)
 		int tx = (path[i] & 0xFF) * 16, ty = (path[i] >> 8) * 16;
 		bool vis_next = !(u->side == SIDE_HORDE && gs.fog[path[i] >> 8][path[i] & 0xFF]);
 		if (visible || vis_next) {
+			sfx(u->side == SIDE_HORDE ? SFX_SHUFFLE : SFX_STEP);
 			// holding B fast-forwards the horde's turn
 			int step = (u->side == SIDE_HORDE && (keys_held & KEY_B)) ? 16 : profile.anim_speed ? 2 : 4;
 			while (spr.anim_px != tx || spr.anim_py != ty) {
@@ -138,6 +140,7 @@ void kill_unit(int i, int killer)
 	Unit *u = &gs.units[i];
 	int x = u->x, y = u->y, type = u->type, side = u->side;
 	u->alive = 0;
+	sfx(SFX_DESTROY);
 	if (u->cargo) {
 		gs.units[u->cargo - 1].alive = 0;
 		if (side == SIDE_SURVIVOR)
@@ -151,6 +154,7 @@ void kill_unit(int i, int killer)
 	if (side == SIDE_SURVIVOR && (unit_info[type].flags & UF_INFANTRY) && killer >= 0 &&
 	    gs.units[killer].side == SIDE_HORDE) {
 		int z = spawn_unit(UT_WALKER, SIDE_HORDE, x, y, 80);
+		sfx(SFX_INFECT);
 		if (z >= 0)
 			gs.units[z].moved = 1;
 	}
@@ -177,6 +181,7 @@ static void hit(int a, int d, int dmg)
 {
 	Unit *du = &gs.units[d];
 	spr.flash_unit = d;
+	sfx(gs.units[a].side == SIDE_HORDE ? SFX_BITE : SFX_SHOT);
 	popup(du->x, du->y, (dmg + 9) / 10);
 	wait_frames((keys_held & KEY_B) && gs.side == SIDE_HORDE ? 4 : profile.anim_speed ? 24 : 12);
 	spr.flash_unit = -1;
@@ -383,6 +388,7 @@ static void search_house(int ui)
 	if (r < 55) {
 		int amount = 1000 + (rng_next() % 3) * 500;
 		gs.funds += amount;
+		sfx(SFX_FOUND);
 		text_clear();
 		banner("Supplies found!", amount >= 2000 ? "+$2000" : amount >= 1500 ? "+$1500" : "+$1000", 60);
 	} else if (r < 80) {
@@ -394,6 +400,7 @@ static void search_house(int ui)
 			int n = spawn_unit(UT_SURVIVOR, SIDE_SURVIVOR, x, y, 40 + (rng_next() % 5) * 10);
 			if (n >= 0)
 				gs.units[n].moved = 1;
+			sfx(SFX_FOUND);
 			banner("A survivor joins!", "They were hiding inside.", 60);
 			return;
 		}
@@ -409,11 +416,13 @@ static void search_house(int ui)
 			if (z >= 0) {
 				gs.units[z].moved = 1;
 				fog_update();
+				sfx(SFX_AMBUSH);
 				banner("It's a trap!", "Something was waiting inside...", 60);
 				attack(z, ui);
 				return;
 			}
 		}
+		sfx(SFX_EMPTY);
 		banner("Empty", "Nothing left here.", 45);
 	}
 }
@@ -429,11 +438,13 @@ static void do_capture(int ui)
 			gs.terrain[u->y][u->x] = TT_RUINS;
 			gs.owner[u->y][u->x] = SIDE_NEUTRAL;
 			map_redraw_tile(u->x, u->y);
+			sfx(SFX_BURN);
 			banner("Nest burned!", NULL, 50);
 		} else {
 			gs.owner[u->y][u->x] = SIDE_SURVIVOR;
 			map_redraw_tile(u->x, u->y);
 			fog_update();
+			sfx(SFX_SECURE);
 			banner("Secured!", NULL, 40);
 		}
 	} else {
@@ -553,6 +564,7 @@ static bool action_menu(int ui, bool moved_this_turn)
 			if (u->cargo)
 				gs.units[u->cargo - 1].alive = 0;
 			u->alive = 0;
+			sfx(SFX_EVAC);
 			banner("Evacuated!", NULL, 40);
 			break;
 		}
@@ -595,6 +607,7 @@ static void build_menu(int x, int y)
 	if (i >= 0) {
 		gs.units[i].moved = 1;
 		gs.funds -= unit_info[buildable[c]].cost;
+		sfx(SFX_BUILD);
 		fog_update();
 	}
 }
@@ -619,12 +632,7 @@ static void objective_screen(void)
 
 static void options_menu(void)
 {
-	static const char *const items[2] = { "Speed: Fast", "Speed: Normal" };
-	int c = text_menu(8, 5, 15, items, NULL, 2, profile.anim_speed);
-	if (c >= 0) {
-		profile.anim_speed = c;
-		profile_save();
-	}
+	options_screen(7, 5);
 }
 
 void start_side_turn(int side)
@@ -684,6 +692,7 @@ static bool player_turn(void)
 			int ny = gs.cur_y + ((keys_rep & KEY_DOWN) ? 1 : 0) - ((keys_rep & KEY_UP) ? 1 : 0);
 			gs.cur_x = MAX(0, MIN(nx, gs.w - 1));
 			gs.cur_y = MAX(0, MIN(ny, gs.h - 1));
+			sfx(SFX_CURSOR);
 			camera_follow(gs.cur_x, gs.cur_y, true);
 			info_panel();
 		}
@@ -714,6 +723,7 @@ static bool player_turn(void)
 		if (ui >= 0 && gs.units[ui].side == SIDE_SURVIVOR && !gs.units[ui].moved) {
 			Unit *u = &gs.units[ui];
 			int ox = u->x, oy = u->y;
+			sfx(SFX_CONFIRM);
 			find_paths(ui, dist, prev);
 			text_clear();
 			for (int y = 0; y < gs.h; y++)
@@ -727,9 +737,11 @@ static bool player_turn(void)
 					int ny = gs.cur_y + ((keys_rep & KEY_DOWN) ? 1 : 0) - ((keys_rep & KEY_UP) ? 1 : 0);
 					gs.cur_x = MAX(0, MIN(nx, gs.w - 1));
 					gs.cur_y = MAX(0, MIN(ny, gs.h - 1));
+					sfx(SFX_CURSOR);
 					camera_follow(gs.cur_x, gs.cur_y, true);
 				}
 				if (keys_down & KEY_B) {
+					sfx(SFX_CANCEL);
 					overlay_clear();
 					gs.cur_x = ox;
 					gs.cur_y = oy;
@@ -760,6 +772,7 @@ static bool player_turn(void)
 				unit_move_anim(ui, path, len);
 				fog_update();
 				if (ambushed) {
+					sfx(SFX_AMBUSH);
 					banner("Ambush!", "Zombies in the dark!", 60);
 					u->moved = 1;
 					spr.cursor_show = 1;

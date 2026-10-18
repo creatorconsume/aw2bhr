@@ -1,6 +1,7 @@
 // Dead Wars - entry point, title screen, mission select
 #include "game.h"
 #include "video.h"
+#include "sound.h"
 #include <string.h>
 
 static int mission_select(void)
@@ -38,6 +39,7 @@ int main(void)
 {
 	video_init();
 	profile_load();
+	sound_init();
 	for (;;) {
 		video_show_title();
 		spr.map_visible = 0;
@@ -46,7 +48,7 @@ int main(void)
 		while (!(keys_down & (KEY_START | KEY_A)))
 			frame();
 		text_clear();
-		const char *items[4] = { "Campaign", "Continue", "How to Play", "Speed" };
+		const char *items[4] = { "Campaign", "Continue", "How to Play", "Options" };
 		u8 en[4] = { 1, profile.has_suspend, 1, 1 };
 		int c = text_menu(8, 11, 14, items, en, 4, profile.has_suspend ? 1 : 0);
 		text_clear();
@@ -60,12 +62,7 @@ int main(void)
 		} else if (c == 2) {
 			how_to_play();
 		} else if (c == 3) {
-			static const char *const sp[2] = { "Fast", "Normal" };
-			int s = text_menu(10, 11, 10, sp, NULL, 2, profile.anim_speed);
-			if (s >= 0) {
-				profile.anim_speed = s;
-				profile_save();
-			}
+			options_screen(7, 11);
 		}
 	}
 }

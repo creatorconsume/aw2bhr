@@ -1,6 +1,7 @@
 // Dead Wars - text, windows, menus, dialogue (BG0 = text, BG3 = window frames)
 #include "game.h"
 #include "video.h"
+#include "sound.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -24,7 +25,7 @@ void text_clear_rect(int x, int y, int w, int h)
 				TXT(i, j) = WIN(i, j) = 0;
 }
 
-void text_put(int x, int y, const char *s, int pal)
+__attribute__((noinline)) void text_put(int x, int y, const char *s, int pal)
 {
 	for (; *s && x < 30; s++, x++)
 		if (x >= 0)
@@ -68,17 +69,23 @@ int text_menu(int x, int y, int w, const char *const *items, const u8 *enabled, 
 	for (int i = 0; i < count; i++)
 		text_put(x + 2, y + 1 + i, items[i], (enabled && !enabled[i]) ? BGPAL_TEXT_GREY : BGPAL_UI);
 	spr.pointer_show = 1;
+	sfx(SFX_MENU);
 	for (;;) {
 		spr.pointer_x = x * 8 + 4;
 		spr.pointer_y = (y + 1 + sel) * 8;
 		frame();
+		if (keys_rep & (KEY_UP | KEY_DOWN))
+			sfx(SFX_CURSOR);
 		if (keys_rep & KEY_UP)
 			sel = (sel + count - 1) % count;
 		if (keys_rep & KEY_DOWN)
 			sel = (sel + 1) % count;
-		if ((keys_down & KEY_A) && (!enabled || enabled[sel]))
+		if ((keys_down & KEY_A) && (!enabled || enabled[sel])) {
+			sfx(SFX_CONFIRM);
 			break;
+		}
 		if (keys_down & KEY_B) {
+			sfx(SFX_CANCEL);
 			sel = -1;
 			break;
 		}

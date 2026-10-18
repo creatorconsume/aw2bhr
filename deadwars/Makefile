@@ -17,7 +17,7 @@ CFLAGS  := $(ARCH) -O2 -g -Wall -Wextra -Wno-unused-parameter -std=gnu11 \
 LDFLAGS := $(ARCH) -nostartfiles -T gba.ld -Wl,--gc-sections -Wl,-Map,$(BUILD)/$(TARGET).map -specs=nano.specs
 
 SRCS    := $(wildcard src/*.c)
-OBJS    := $(BUILD)/crt0.o $(GEN)/assets.o $(SRCS:src/%.c=$(BUILD)/%.o)
+OBJS    := $(BUILD)/crt0.o $(GEN)/assets.o $(GEN)/music.o $(SRCS:src/%.c=$(BUILD)/%.o)
 ART     := $(wildcard art/*.txt) tools/gfx.py
 
 all: $(TARGET).gba
@@ -32,6 +32,12 @@ $(BUILD)/$(TARGET).elf: $(OBJS) gba.ld
 $(GEN)/assets.c $(GEN)/assets.h: $(ART)
 	python3 -I tools/gfx.py .
 
+$(GEN)/music.c $(GEN)/music.h: audio/music.txt tools/music.py
+	python3 -I tools/music.py .
+
+$(GEN)/music.o: $(GEN)/music.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(BUILD)/crt0.o: src/crt0.s
 	@mkdir -p $(BUILD)
 	$(CC) $(ARCH) -c $< -o $@
@@ -39,7 +45,7 @@ $(BUILD)/crt0.o: src/crt0.s
 $(GEN)/assets.o: $(GEN)/assets.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD)/%.o: src/%.c $(GEN)/assets.h $(wildcard src/*.h)
+$(BUILD)/%.o: src/%.c $(GEN)/assets.h $(GEN)/music.h $(wildcard src/*.h)
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
