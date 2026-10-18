@@ -8,7 +8,7 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-Owner design interview → `deadwars/docs/design/LAST_BOAT.md` (design v2, DRAFT until owner approval). Team briefed. No code until it's approved.
+**WIP, DO NOT MERGE claude/dw-engine yet.** The owner approved LAST_BOAT.md. The Last Boat demo is being built by role agents in this session. `56bf3d4` holds the contracts and hooks only and does not link until the integration commit lands. I'll message the producer when the branch is green again.
 
 ## Last done
 - **Battle scene uses the artist's art** (contract in ASSET_SPEC "Battle scene").
