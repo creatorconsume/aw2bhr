@@ -1,0 +1,51 @@
+# Advance Wars 2 - Remix map file (format v1). Spec: docs/remix/MAP_FORMAT.md
+# REMIX v0.2 (very hard): Orange Star gets a Mech pair and an Artillery; Black Hole holds the river line:
+# REMIX v0.2 (very hard): mountains over the ford, three enemy cities (heal + 3 stars), Artillery on the bridge road, a Recon flanker.
+# REMIX v0.2 (very hard): Player start units and positions are unchanged (tutorial events).
+format     1
+map        138
+variant    normal
+name       Cleanup
+size       15x10             # must match the original map
+players    2                 # informational (entry +0x18)
+armies     OS BH             # informational: army per slot (entry +0x40)
+cos        Andy Flak         # CO per slot (entry +0x3C); 'choose' = player picks
+fog        off
+day_limit  0                 # 0 = none (entry +0x24)
+par_days   8                 # speed-rank par (entry +0x20)
+
+[terrain]
+# . plain  T wood  ^ mountain  = road  + bridge  r river  ~ sea  , shoal  % reef
+# Hn HQ  cn city  bn base  an airport  pn port   (n = owner slot, 0 = neutral)
+#  x: 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
+      ~   ~   ~   ~   T   .   .   .   .   .   T   .   .   =   .    # y=0
+      ~   %   ~   r   r   r   r   r   T   .   .   c2  T   =   .    # y=1
+      ~   ~   ~   ~   .   .   .   r   r   T   .   .   H2  =   c2   # y=2
+      ^   T   T   .   .   .   .   .   r   r   r   .   .   =   T    # y=3
+      T   .   .   .   ^   .   .   .   T   .   r   ^   ^   =   c2   # y=4
+      =   =   =   .   ^   T   .   .   .   T   r   r   r   +   r    # y=5
+      ^   .   =   .   .   .   .   .   .   .   T   .   .   =   .    # y=6
+      .   .   =   .   .   .   .   .   .   .   .   .   .   =   T    # y=7
+      =   =   H1  =   =   =   =   =   =   =   =   T   =   =   .    # y=8
+      .   .   .   .   T   .   T   .   T   .   T   T   T   .   T    # y=9
+
+[units]
+# owner type         x   y   hp ammo fuel  ai   (ammo/fuel 99 or max = full)
+  P1    Infantry      1   8  100    0   99   0
+  P1    Infantry      2   9  100    0   99   0
+  P1    Infantry      2   7  100    0   99   0
+  P1    APC           0   5  100    0   70   0
+  P2    Infantry     12   3  100    0   99   4
+  P2    Infantry     11   3  100    0   99   4
+# --- remix additions ---
+  P1    Mech           1   7  100    3   70   0
+  P1    Mech           3   8  100    3   70   0
+  P1    Artillery      3   9  100    9   50   0
+  P2    Infantry      12   4  100    0   99   1
+  P2    Mech          11   4  100    3   70   1
+  P2    Mech          13   3  100    3   70   3
+  P2    Mech          14   3  100    3   70   3
+  P2    Infantry      14   4  100    0   99   1
+  P2    Infantry      11   1  100    0   99   1
+  P2    Artillery     13   2  100    9   50   5
+  P2    Recon         13   1  100    0   80   2

@@ -1,0 +1,58 @@
+# Advance Wars 2 - Remix map file (format v1). Spec: docs/remix/MAP_FORMAT.md
+# REMIX v0.2 (very hard): Fog of war on. Black Hole holds the north bridgehead and a forward city, with Rockets and Artillery covering
+# REMIX v0.2 (very hard): both bridges, Anti-Air against the copters, and Mechs dug in on the hill. Orange Star gets an Anti-Air and a Recon.
+# REMIX v0.2 (very hard): Player start units unchanged.
+format     1
+map        140
+variant    normal
+name       Orange Dawn
+size       15x10             # must match the original map
+players    2                 # informational (entry +0x18)
+armies     OS BH             # informational: army per slot (entry +0x40)
+cos        Max Flak          # CO per slot (entry +0x3C); 'choose' = player picks
+fog        on
+day_limit  0                 # 0 = none (entry +0x24)
+par_days   6                 # speed-rank par (entry +0x20)
+
+[terrain]
+# . plain  T wood  ^ mountain  = road  + bridge  r river  ~ sea  , shoal  % reef
+# Hn HQ  cn city  bn base  an airport  pn port   (n = owner slot, 0 = neutral)
+#  x: 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
+      .   .   .   .   .   T   .   T   .   T   ~   ~   ~   ~   ~    # y=0
+      c2  =   H2  =   c2  =   =   =   =   T   +   +   T   .   ~    # y=1
+      .   .   .   .   .   .   .   .   c2  .   ~   ~   c2  .   ~    # y=2
+      ^   .   .   .   .   .   .   .   ^   ~   ~   ~   +   ~   ~    # y=3
+      ^   T   .   ~   ~   ~   ~   ~   ~   ~   ~   ~   +   ~   ~    # y=4
+      ~   ~   ~   ~   ~   .   .   .   .   ~   ~   T   T   c1  ~    # y=5
+      ~   ~   ~   ~   .   .   .   .   .   .   T   T   T   .   ~    # y=6
+      ~   T   .   .   .   .   .   .   .   .   .   .   .   .   ~    # y=7
+      ~   ^   .   .   .   .   .   .   .   .   .   .   .   ^   ~    # y=8
+      ~   ^   ^   T   .   .   H1  .   .   .   .   .   ^   ^   ~    # y=9
+
+[units]
+# owner type         x   y   hp ammo fuel  ai   (ammo/fuel 99 or max = full)
+  P1    BCopter       7   8  100    6   99   0
+  P1    BCopter       8   7  100    6   99   0
+  P1    TCopter       8   8  100    0   99   0
+  P1    Infantry      9   8  100    0   99   0
+  P1    Tank         11   9  100    9   70   0
+  P1    Tank         11   8  100    9   70   0
+  P1    MdTank       11   7  100    8   50   0
+  P1    Artillery    12   8  100    9   50   0
+  P2    MdTank        0   1  100    8   50   4
+  P2    MdTank        1   1  100    8   50   4
+  P2    Tank          1   0  100    9   70   4
+  P2    Tank          2   1  100    9   70   4
+  P2    Infantry      3   2  100    0   99   3
+  P2    Infantry      4   2  100    0   99   3
+  P2    BCopter       6   3  100    6   99   0
+# --- remix additions ---
+  P1    AntiAir       10   8  100    9   60   0
+  P1    Recon          9   7  100    0   80   0
+  P2    Rockets        9   2  100    6   50   5
+  P2    Artillery      8   1  100    9   50   5
+  P2    AntiAir        6   2  100    9   60   4
+  P2    Mech          12   2  100    3   70   1
+  P2    Mech           9   1  100    3   70   1
+  P2    Mech           8   3  100    3   70   1
+  P2    MdTank         8   2  100    8   50   4

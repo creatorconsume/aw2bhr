@@ -1,0 +1,54 @@
+# Advance Wars 2 - Remix map file (format v1). Spec: docs/remix/MAP_FORMAT.md
+# REMIX v0.2 (very hard): Fog of war on. Black Hole fortifies the bridge exit (mountains, wood, two extra cities) and covers the bridge
+# REMIX v0.2 (very hard): with Artillery and Rockets; Orange Star gets a Md Tank, Rockets and a Recon. Player start units unchanged.
+format     1
+map        139
+variant    normal
+name       Border Skirmish
+size       15x10             # must match the original map
+players    2                 # informational (entry +0x18)
+armies     OS BH             # informational: army per slot (entry +0x40)
+cos        Sami Flak         # CO per slot (entry +0x3C); 'choose' = player picks
+fog        on
+day_limit  0                 # 0 = none (entry +0x24)
+par_days   8                 # speed-rank par (entry +0x20)
+
+[terrain]
+# . plain  T wood  ^ mountain  = road  + bridge  r river  ~ sea  , shoal  % reef
+# Hn HQ  cn city  bn base  an airport  pn port   (n = owner slot, 0 = neutral)
+#  x: 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
+      T   T   ~   ~   r   ~   ~   ~   T   ^   ^   .   .   .   T    # y=0
+      T   T   .   .   r   ^   T   .   .   T   T   H2  c2  =   =    # y=1
+      .   .   .   .   r   T   .   .   .   T   c2  .   .   .   .    # y=2
+      .   .   .   .   r   .   .   .   .   ^   T   ^   .   .   .    # y=3
+      .   T   .   T   r   r   r   r   ^   T   .   c2  ^   .   .    # y=4
+      T   =   =   =   =   =   c1  +   .   .   .   .   ^   .   .    # y=5
+      .   =   .   T   .   .   .   r   r   r   r   T   T   T   T    # y=6
+      T   =   .   .   .   .   c0  .   .   .   r   .   ^   ^   T    # y=7
+      =   H1  .   .   .   .   .   .   .   .   r   T   ^   ^   T    # y=8
+      .   .   .   .   .   .   .   .   .   T   r   T   T   ^   T    # y=9
+
+[units]
+# owner type         x   y   hp ammo fuel  ai   (ammo/fuel 99 or max = full)
+  P1    APC           2   9  100    0   70   0
+  P1    Artillery     2   8  100    9   50   0
+  P1    Tank          2   7  100    9   70   0
+  P1    Mech          3   8  100    3   70   0
+  P1    Infantry      3   7  100    0   99   0
+  P2    Tank          3   5  100    9   70   0
+  P2    Infantry     12   3  100    0   99   3
+  P2    Infantry     13   4  100    0   99   3
+  P2    APC          14   2  100    0   70   2
+  P2    Tank         14   3  100    9   70   4
+  P2    Tank         14   4  100    9   70   4
+# --- remix additions ---
+  P1    MdTank         3   9  100    8   50   0
+  P1    Rockets        1   9  100    6   50   0
+  P1    Recon          1   7  100    0   80   0
+  P2    Mech           8   4  100    3   70   1
+  P2    Mech           9   3  100    3   70   1
+  P2    Artillery      9   4  100    9   50   5
+  P2    Rockets       10   3  100    6   50   5
+  P2    Infantry      11   4  100    0   99   1
+  P2    Infantry      10   2  100    0   99   1
+  P2    MdTank        12   2  100    8   50   4

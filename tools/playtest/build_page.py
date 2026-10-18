@@ -27,10 +27,11 @@ DW_CHECKS = [
     "Tell us if a mission feels unfair or too easy, and on which day.",
 ]
 AW_CHECKS = [
-    "New save: Options should show battle animations off.",
-    "Units should slide across the map about twice as fast as the original.",
-    "Try Sturm, Grit, Kanbei, Hawke or Colin in War Room or Versus to feel the toned-down powers.",
-    "Compare with the Original button: same ROM, no patch.",
+    "Start a new campaign: the first five Orange Star missions are remade to be very hard.",
+    "Cleanup: 10 enemy units hold the river ford. Does the tutorial still play through?",
+    "Border Skirmish and Orange Dawn now have fog of war and fortified bridges.",
+    "Lash Out keeps its 7-day limit. Tell us if it is impossible or just brutal.",
+    "Battle animations start off, and units move about twice as fast.",
 ]
 
 

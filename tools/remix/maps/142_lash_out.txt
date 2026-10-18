@@ -1,0 +1,67 @@
+# Advance Wars 2 - Remix map file (format v1). Spec: docs/remix/MAP_FORMAT.md
+# REMIX v0.2 (very hard): Black Hole shells the landing beaches (2 Artillery + Rockets behind the HQ), garrisons the NE island cities,
+# REMIX v0.2 (very hard): adds a Cruiser, a Sub and a Md Tank on the west island. 7-day limit unchanged. Player start units unchanged.
+format     1
+map        142
+variant    normal
+name       Lash Out
+size       15x15             # must match the original map
+players    2                 # informational (entry +0x18)
+armies     OS BH             # informational: army per slot (entry +0x40)
+cos        Sami Lash         # CO per slot (entry +0x3C); 'choose' = player picks
+fog        off
+day_limit  7                 # 0 = none (entry +0x24)
+par_days   7                 # speed-rank par (entry +0x20)
+
+[terrain]
+# . plain  T wood  ^ mountain  = road  + bridge  r river  ~ sea  , shoal  % reef
+# Hn HQ  cn city  bn base  an airport  pn port   (n = owner slot, 0 = neutral)
+#  x: 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
+      ~   ~   ~   ~   ~   ~   ~   T   .   T   ~   ~   .   T   ~    # y=0
+      ~   .   b0  T   +   +   +   .   H2  .   +   +   c2  .   ~    # y=1
+      ~   .   T   ~   ~   ~   ~   T   .   T   ~   ~   ~   +   ~    # y=2
+      ~   +   ~   ~   ~   ~   ~   ,   ,   ,   ~   .   T   .   c2   # y=3
+      ~   +   ~   ~   ~   ~   ~   ~   ~   ~   ~   .   =   =   c2   # y=4
+      ~   =   .   T   .   ~   ~   ~   ~   ~   ~   =   =   ,   ,    # y=5
+      T   =   .   .   T   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~    # y=6
+      T   =   =   =   =   =   =   =   T   T   ,   ~   ~   ~   ~    # y=7
+      ^   ^   ^   =   ^   ^   T   ^   T   T   ,   ~   ~   ~   ~    # y=8
+      ^   ^   T   =   ^   T   T   ^   .   .   ,   ~   ~   ~   ~    # y=9
+      .   c1  .   =   c1  .   c1  .   T   T   ,   ~   ~   ~   ~    # y=10
+      .   =   =   H1  =   =   .   .   T   T   ,   ~   ~   ~   ~    # y=11
+      .   =   ~   ,   ,   ,   ,   ,   ,   ~   ~   ~   ~   ~   ~    # y=12
+      .   =   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~    # y=13
+      .   =   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~    # y=14
+
+[units]
+# owner type         x   y   hp ammo fuel  ai   (ammo/fuel 99 or max = full)
+  P1    Rockets       2  11  100    6   50   0
+  P1    Artillery     4  11  100    9   50   0
+  P1    APC           6  11  100    0   70   0
+  P1    Mech          7  11  100    3   70   0
+  P1    Tank          8  11  100    9   70   0
+  P1    Tank          8  10  100    9   70   0
+  P1    Mech          4   8  100    3   70   0
+  P1    Mech          2   8  100    3   70   0
+  P1    Battleship   11  11  100    9   99   0
+  P1    Sub          12  11  100    6   60   0
+  P1    Cruiser      12  10  100    9   99   0
+  P1    TCopter      12   4  100    0   99   0
+  P1    Lander        8  12  100    0   99   0
+  P2    Cruiser      13   6  100    9   99   0
+  P2    Sub           9   6  100    6   60   0
+  P2    Rockets      11   5  100    6   50   5
+  P2    AntiAir      11   4  100    9   60   1
+  P2    AntiAir      11   3  100    9   60   1
+  P2    Infantry      8   2  100    0   99   0
+  P2    Infantry      5   1  100    0   99   0
+# --- remix additions ---
+  P2    Artillery      7   1  100    9   50   5
+  P2    Artillery      9   1  100    9   50   5
+  P2    Rockets        8   0  100    6   50   5
+  P2    Infantry       9   2  100    0   99   1
+  P2    Mech          14   3  100    3   70   1
+  P2    Mech          14   4  100    3   70   1
+  P2    Cruiser       10   2  100    9   99   4
+  P2    Sub           12   6  100    6   60   4
+  P2    MdTank         1   2  100    8   50   4

@@ -1,0 +1,65 @@
+# Advance Wars 2 - Remix map file (format v1). Spec: docs/remix/MAP_FORMAT.md
+# REMIX v0.2 (very hard): Bigger air armada (extra Fighter and Bomber), Artillery and Rockets covering the north bridge, an enemy outpost
+# REMIX v0.2 (very hard): on the bridge-head city, and a Mech/Artillery garrison around the enemy HQ. Orange Star gets an Anti-Air and a Fighter.
+# REMIX v0.2 (very hard): Player start units unchanged.
+format     1
+map        141
+variant    normal
+name       Flak Attack
+size       15x10             # must match the original map
+players    2                 # informational (entry +0x18)
+armies     OS BH             # informational: army per slot (entry +0x40)
+cos        Max Flak          # CO per slot (entry +0x3C); 'choose' = player picks
+fog        off
+day_limit  0                 # 0 = none (entry +0x24)
+par_days   8                 # speed-rank par (entry +0x20)
+
+[terrain]
+# . plain  T wood  ^ mountain  = road  + bridge  r river  ~ sea  , shoal  % reef
+# Hn HQ  cn city  bn base  an airport  pn port   (n = owner slot, 0 = neutral)
+#  x: 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14
+      ^   .   +   +   +   +   +   +   +   +   c2  .   c2  T   T    # y=0
+      .   H2  ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   T   T    # y=1
+      ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   +   ~    # y=2
+      ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   +   ~    # y=3
+      ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   +   ~    # y=4
+      ~   ~   ~   ~   ~   ~   ~   ~   ~   .   .   T   T   c2  T    # y=5
+      ~   ~   ~   ~   ~   ~   ~   ~   ~   T   .   .   T   =   T    # y=6
+      ~   ~   ~   ~   .   T   .   T   .   .   .   .   .   =   .    # y=7
+      ~   ~   ~   T   .   .   .   .   .   .   .   .   .   =   .    # y=8
+      ~   ~   T   .   .   .   .   .   .   .   .   .   c1  H1  c1   # y=9
+
+[units]
+# owner type         x   y   hp ammo fuel  ai   (ammo/fuel 99 or max = full)
+  P1    BCopter       9   2  100    6   99   0
+  P1    AntiAir       9   7  100    9   60   0
+  P1    AntiAir       8   8  100    9   60   0
+  P1    AntiAir       9   9  100    9   60   0
+  P1    AntiAir      10   8  100    9   60   0
+  P1    Missiles      9   8  100    6   50   0
+  P1    Infantry     12   8  100    0   99   0
+  P1    Mech         13   7  100    3   70   0
+  P1    TCopter      14   8  100    0   99   0
+  P1    Rockets      13   8  100    6   50   0
+  P1    BCopter      13   9  100    6   99   0
+  P2    Bomber        4   1  100    9   99   4
+  P2    Bomber        6   2  100    9   99   4
+  P2    Fighter       8   1  100    9   99   4
+  P2    BCopter       7   2  100    6   99   4
+  P2    BCopter       6   3  100    6   99   4
+  P2    BCopter       5   2  100    6   99   4
+  P2    BCopter       7   6  100    6   99   0
+  P2    Tank         11   0  100    9   70   4
+  P2    Infantry     10   0  100    0   99   3
+# --- remix additions ---
+  P1    AntiAir       10   9  100    9   60   0
+  P1    Fighter       14   7  100    9   99   0
+  P2    Fighter        3   2  100    9   99   4
+  P2    Bomber         5   3  100    9   99   4
+  P2    Artillery     13   0  100    9   50   5
+  P2    Rockets       13   1  100    6   50   5
+  P2    Infantry      13   5  100    0   99   1
+  P2    AntiAir       12   0  100    9   60   4
+  P2    Mech           0   0  100    3   70   1
+  P2    Mech           0   1  100    3   70   1
+  P2    Artillery      1   0  100    9   50   5
