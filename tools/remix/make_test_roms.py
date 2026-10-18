@@ -7,7 +7,10 @@ Produces in OUTDIR:
   t2_fog.gba     Cleanup with fog flag (entry +0x17) set
   t3_visual.gba  new-save default Visual = "No Visual" (0x016A6A: 01 22 -> 00 22)
   t4_speed.gba   map move speed 8 px/frame in MAPSPRITE_TABLE (+0x18 of every entry)
+  t5_co.gba      Andy day-to-day foot slot -> modifier entry 0x5D3C10 (+1 move)
+  t6_move.gba    Infantry move 3 -> 6 (unit table +0x0A)
   boot_cleanup.txt  gbadbg script: power-on -> new campaign -> Cleanup map, shots 'map' and 'options'
+  boot_select.txt   same boot, then selects the Infantry at (2,7): shot 'select' shows its move range
 Run e.g.:  gbadbg OUTDIR/t1_map.gba OUTDIR/boot_cleanup.txt OUTDIR/t1   (writes t1-map.ppm, t1-options.ppm)
 """
 import hashlib
@@ -19,12 +22,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from aw2lib import *  # noqa: E402,F403
 
 
-def boot_script():
+def boot_script(tail="options"):
     L = ["wait 600", "press T 4", "wait 200", "press A 4", "wait 100", "press A 4", "wait 200",
          "press A 4", "wait 200"]
     for _ in range(16 * 8 + 15 * 6):       # prologue + Cleanup intro dialogue
         L += ["press A 4", "wait 40"]
-    L += ["press B 4", "wait 60", "shot map",
+    L += ["press B 4", "wait 60", "shot map"]
+    if tail == "select":
+        return "\n".join(L + ["press U 4", "wait 10", "press A 4", "wait 30", "shot select"]) + "\n"
+    L += [
           # cursor right, A on empty tile -> map menu, Options, show Visual setting
           "press > 4", "wait 20", "press A 4", "wait 30", "press D 4", "wait 10", "press D 4", "wait 10",
           "press A 4", "wait 40", "shot options"]
@@ -77,7 +83,18 @@ def main():
         struct.pack_into("<h", rom, MAPSPRITE_TABLE + 36 * t + 0x18, 8)
     open(os.path.join(outdir, "t4_speed.gba"), "wb").write(rom)
 
+    rom = bytearray(base)
+    co = CO_TABLE + 1 * CO_ENTRY_SIZE           # Andy
+    assert u32(rom, co + 0x38 + 0x24) == 0x085D3BF0
+    struct.pack_into("<I", rom, co + 0x38 + 0x24, 0x085D3C10)
+    open(os.path.join(outdir, "t5_co.gba"), "wb").write(rom)
+
+    rom = bytearray(base)
+    rom[UNIT_TABLE + 1 * UNIT_ENTRY_SIZE + 0x0A] = 6
+    open(os.path.join(outdir, "t6_move.gba"), "wb").write(rom)
+
     open(os.path.join(outdir, "boot_cleanup.txt"), "w").write(boot_script())
+    open(os.path.join(outdir, "boot_select.txt"), "w").write(boot_script("select"))
     print("wrote test ROMs to", outdir)
 
 
