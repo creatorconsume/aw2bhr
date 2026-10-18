@@ -1,0 +1,8 @@
+lrun
+cores/
+out/
+*.gba
+*.bin
+*.srm
+*.sav
+*.state*

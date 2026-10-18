@@ -1,0 +1,9 @@
+# Second boot after deadwars-smoke.txt: the .srm must bring back the suspended battle.
+wait 120
+press T 4
+wait 30
+# "Continue" is enabled and preselected only if the profile in SRAM says a battle is suspended
+shot 01-menu
+press A 4
+wait 120
+shot 02-continued
