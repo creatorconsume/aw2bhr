@@ -27,7 +27,7 @@ static const UnitPlacement m1_units[] = {
 	{ UT_WALKER, 9, 8, Z, 0, 0 }, { UT_WALKER, 14, 5, Z, 0, 0 }, { UT_WALKER, 14, 1, Z, 0, 0 },
 	{ UT_RUNNER, 13, 9, Z, 0, 0 }, { UT_WALKER, 6, 9, Z, 60, 0 },
 	{ UT_WALKER, 6, 0, Z, 0, 0 }, { UT_WALKER, 6, 5, Z, 0, 0 }, { UT_WALKER, 5, 8, Z, 0, 0 },
-	{ UT_RUNNER, 9, 6, Z, 0, 0 },
+	{ UT_RUNNER, 9, 6, Z, 0, 0 }, { UT_SPITTER, 7, 3, Z, 0, 0 }, { UT_BRUTE, 9, 4, Z, 0, 0 },
 	END
 };
 static const Line m1_intro[] = {
@@ -213,7 +213,7 @@ static const Line m5_outro[] = {
 
 const Mission missions[] = {
 	{ "First Night", "Survive until Day 5.", MAP(m1_rows), m1_units,
-	  0, 100, GOAL_SURVIVE, 4, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
+	  0, 40, GOAL_SURVIVE, 6, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
 	{ "Supply Run", "Burn both zombie nests.", MAP(m2_rows), m2_units,
 	  3000, 100, GOAL_NESTS, 0, 0, 3, 1, 1, 5, 2, m2_intro, m2_outro },
 	{ "Bridge Out", "Evac 3 units by Day 8.", MAP(m3_rows), m3_units,
