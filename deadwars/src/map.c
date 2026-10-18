@@ -153,7 +153,7 @@ static bool roadlike(int x, int y)
 	return x >= 0 && y >= 0 && x < gs.w && y < gs.h && (t == TT_ROAD || t == TT_BRIDGE);
 }
 
-static int metatile_for(int x, int y)
+int metatile_for(int x, int y)
 {
 	switch (gs.terrain[y][x]) {
 	case TT_FOREST: return MT_FOREST;

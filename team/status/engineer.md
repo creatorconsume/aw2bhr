@@ -8,9 +8,16 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-Producer request 2: AW2-style battle scene ("Battle anims" setting).
+Waiting for the producer's next message. The battle scene art will be wired in once the artist pushes `battle_gfx`.
 
 ## Last done
+- **AW2 battle scene (producer request 2), new `src/scene.c`:**
+  - A full-screen split: survivors on the left, the horde on the right, N figures = displayed HP (placeholder: map sprites at 2x, affine), and a ground strip from each unit's terrain.
+  - Sequence: lunge and flash, then the HP bar counts down, then the counter, then "Destroyed" or the "Rises again..." beat. A skips.
+  - Setting "Battle anims On/Off" (`Profile.battle_off`, which reuses the old pad byte, so saves stay compatible; default On).
+  - Off, during hold-B in the horde turn, or in the sim: the map hit, as before.
+  - New `can_counter()` is shared by attack(), the scene and the forecast.
+  - Artist contract: `team/inbox/artist/20261018-0320-engineer-battle-scene-contract.md`.
 - **Paced horde turn (producer request 1).** At Normal speed (now the default for new profiles), each visible zombie gets the cursor, a 20-frame beat, its walk, an 8-frame beat, then the cursor on its target for 16 frames, the attack and a 12-frame beat. Fast speed and holding B skip the beats. Zombies hidden in fog still move unseen. Options label: "Unit speed".
 - **Fog-cancel exploit (producer request 3).** If a move un-fogs any tile, B in the action menu buzzes and shows "No going back" instead of undoing the move.
 - **Perf (d68ceeb):** `make PERF=1` adds cycle counters and a 30x20 stress map with 60 zombies. Script: `test/perf_horde.txt` + `test/perf_report.py`. Writeup: `docs/tech/PERF.md`.

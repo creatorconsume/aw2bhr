@@ -59,6 +59,12 @@ extern SpriteState spr;
 
 void video_load_game_gfx(void);
 void oam_add(u16 a0, u16 a1, u16 a2);
+void oam_affine(int n, s16 pa, s16 pb, s16 pc, s16 pd);
+int  metatile_for(int x, int y); // map.c
+
+// scene.c
+extern bool scene_on;
+void scene_oam(void);
 
 // ui.c
 void path_arrow_load_gfx(void);

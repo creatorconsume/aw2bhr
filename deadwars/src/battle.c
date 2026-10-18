@@ -212,15 +212,27 @@ static void hit(int a, int d, int dmg)
 	}
 }
 
+// Does defender d strike back at attacker a? Adjacent, direct, and able to hurt it.
+bool can_counter(const Unit *a, const Unit *d)
+{
+	return ABS(a->x - d->x) + ABS(a->y - d->y) == 1 && !(unit_info[d->type].flags & UF_INDIRECT) &&
+	       unit_info[d->type].maxrange >= 1 && base_damage[d->type][a->type];
+}
+
 void attack(int a, int d)
 {
 	Unit *au = &gs.units[a], *du = &gs.units[d];
+#ifndef HOST_SIM
+	if (scene_wanted(a, d)) {
+		battle_scene(a, d);
+		au->moved = 1;
+		return;
+	}
+#endif
 	int dmg = damage_estimate(au, du, true);
 	hit(a, d, dmg);
 	// counterattack: defender alive, direct, adjacent
-	if (du->alive && ABS(au->x - du->x) + ABS(au->y - du->y) == 1 &&
-	    !(unit_info[du->type].flags & UF_INDIRECT) && unit_info[du->type].maxrange >= 1 &&
-	    base_damage[du->type][au->type]) {
+	if (du->alive && can_counter(au, du)) {
 		dmg = damage_estimate(du, au, true);
 		hit(d, a, dmg);
 	}

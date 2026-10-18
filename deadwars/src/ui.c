@@ -140,9 +140,7 @@ void forecast_draw(int a, int d)
 	text_window(px, 1, 12, 5);
 	text_put(px + 1, 2, unit_info[du->type].name, BGPAL_TEXT_RED);
 	text_printf(px + 1, 3, BGPAL_TEXT_YEL, "Hit %d-%d%%", MIN(lo, 100), MIN(hi, 100));
-	bool counters = ABS(au->x - du->x) + ABS(au->y - du->y) == 1 &&
-	                !(unit_info[du->type].flags & UF_INDIRECT) && unit_info[du->type].maxrange >= 1 &&
-	                base_damage[du->type][au->type];
+	bool counters = can_counter(au, du);
 	if (lo >= du->hp) {
 		text_put(px + 1, 4, "Destroys", BGPAL_TEXT_BLUE);
 	} else if (!counters) {

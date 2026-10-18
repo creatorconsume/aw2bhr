@@ -534,22 +534,25 @@ static void sound_test(void)
 
 void options_screen(int x, int y)
 {
-	char l[3][20];
-	const char *items[5] = { l[0], l[1], l[2], "Sound Test", "Done" };
+	char l[4][20];
+	const char *items[6] = { l[0], l[3], l[1], l[2], "Sound Test", "Done" };
 	int sel = 0;
 	for (;;) {
 		strcpy(l[0], profile.anim_speed ? "Unit speed Normal" : "Unit speed Fast");
 		strcpy(l[1], sound_music_on() ? "Music      On" : "Music      Off");
 		strcpy(l[2], sound_sfx_on() ? "SFX        On" : "SFX        Off");
-		sel = text_menu(x, y, 20, items, NULL, 5, sel);
-		if (sel < 0 || sel == 4)
+		strcpy(l[3], profile.battle_off ? "Battle anims Off" : "Battle anims On");
+		sel = text_menu(x, y, 20, items, NULL, 6, sel);
+		if (sel < 0 || sel == 5)
 			break;
-		if (sel == 3)
+		if (sel == 4)
 			sound_test();
 		else if (sel == 0)
 			profile.anim_speed ^= 1;
+		else if (sel == 1)
+			profile.battle_off ^= 1;
 		else
-			sound_set(sel == 1 ? !sound_music_on() : sound_music_on(), sel == 2 ? !sound_sfx_on() : sound_sfx_on());
+			sound_set(sel == 2 ? !sound_music_on() : sound_music_on(), sel == 3 ? !sound_sfx_on() : sound_sfx_on());
 	}
 	profile_save();
 }

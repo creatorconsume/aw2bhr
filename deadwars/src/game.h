@@ -119,7 +119,7 @@ typedef struct {
 	u8 unlocked;        // missions unlocked (index of highest playable + 1)
 	u8 anim_speed;      // 0 = fast, 1 = normal
 	u8 has_suspend;
-	u8 pad;
+	u8 battle_off;      // 1 = battle scene off (old saves: 0 = on)
 	u16 best_days[16];
 	u8 snd_flags;       // sound.c: music / SFX off bits
 	u8 snd_magic;       // sound.c: set once snd_flags is valid (older saves lack it)
@@ -173,6 +173,7 @@ extern s16 cam_px, cam_py; // camera pixel offset
 void battle_run(int mission);
 int  find_paths(int u, u8 *dist, u8 *prev);
 void attack(int a, int d);
+bool can_counter(const Unit *attacker, const Unit *defender);
 void unit_move_anim(int u, const u16 *path, int len);
 int  build_path(const u8 *prev, int sx, int sy, int tx, int ty, u16 *path);
 int  unit_move_points(const Unit *u);
@@ -186,6 +187,10 @@ void check_victory(void);
 
 // ai.c
 void horde_turn(void);
+
+// scene.c
+bool scene_wanted(int attacker, int defender);
+void battle_scene(int attacker, int defender);
 
 // ui.c
 void info_card(void);

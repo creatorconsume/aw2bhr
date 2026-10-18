@@ -172,6 +172,15 @@ void video_init(void)
 		shadow_oam[i * 4] = ATTR0_HIDE;
 }
 
+// Affine matrix n lives in attribute 3 of OAM entries 4n..4n+3.
+void oam_affine(int n, s16 pa, s16 pb, s16 pc, s16 pd)
+{
+	shadow_oam[(n * 4 + 0) * 4 + 3] = pa;
+	shadow_oam[(n * 4 + 1) * 4 + 3] = pb;
+	shadow_oam[(n * 4 + 2) * 4 + 3] = pc;
+	shadow_oam[(n * 4 + 3) * 4 + 3] = pd;
+}
+
 void oam_add(u16 a0, u16 a1, u16 a2)
 {
 	if (oam_n >= 128)
@@ -198,6 +207,10 @@ static void build_oam(void)
 	if (spr.portrait >= 0)
 		oam_sprite(spr.portrait_x, spr.portrait_y, ATTR1_SIZE32, OBJT_PORTRAIT + spr.portrait * 16,
 		           OBJPAL_PORTRAIT + spr.portrait, 0, spr.portrait_flip);
+	if (scene_on) {
+		scene_oam();
+		goto done;
+	}
 	if (!spr.map_visible)
 		goto done;
 	if (spr.cursor_show)
