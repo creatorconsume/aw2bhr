@@ -1,0 +1,128 @@
+# Advance Wars 2 - Remix box art pieces (original sprites, not Nintendo's).
+# Unit palettes share one index layout so a sprite can be drawn in either army.
+
+palette remix
+B 2c4aa8 blue ray dark
+b 4068d8 blue ray
+R a02a30 red ray dark
+r d84444 red ray
+Y f8e478 sun light
+y f8c040 sun
+G 5aa83a grass
+g 3e7c2e grass dark
+l 9ad85c grass light
+a 50505c asphalt
+W ffffff white
+c d8e0f0 logo light
+C 98a8c8 logo shade
+n 182048 logo extrusion navy
+K 0c0c18 outline
+O f08828 banner orange
+end
+
+palette remix_blue
+. 000000 transparent
+K 101020 outline
+d 183080 team dark
+m 3464dc team
+l 80b0ff team light
+g 404050 gunmetal
+G 9c9cac steel
+W f8f8f8 white
+Y f8d040 yellow
+S f8c898 skin
+s c07848 skin shade
+end
+
+palette remix_red
+. 000000 transparent
+K 200c10 outline
+d 801820 team dark
+m d83434 team
+l ff9a88 team light
+g 404050 gunmetal
+G 9c9cac steel
+W f8f8f8 white
+Y f8d040 yellow
+S f8c898 skin
+s c07848 skin shade
+end
+
+sprite tank_big 24x16 remix_blue
+........................
+.........KKKKKK.........
+........KllllllK........
+.......KlmmmmmmdKKKKKKKK
+.......KlmmWmmmdGGGGGGGK
+......KKmmmmmmmdKKKKKKKK
+....KKKKKKKKKKKKKKK.....
+...KllllllllllllllllK...
+..KlmmmmmmmmmmmmmmmmdK..
+..KmmmmmmmmmmmmmmmmddK..
+.KKKKKKKKKKKKKKKKKKKKKK.
+KggggggggggggggggggggggK
+KgGGKgGGKgGGKgGGKgGGKggK
+KgGGKgGGKgGGKgGGKgGGKggK
+.KggggggggggggggggggggK.
+..KKKKKKKKKKKKKKKKKKKK..
+
+sprite fighter 24x10 remix_blue
+..KK....................
+..KlK...................
+..KmlK.......KKKK.......
+..KmmlKKKKKKKlGGWK......
+.KmmmmlllllllllllllKK...
+KdmmmmmmmmmmmmmmmmmmmKK.
+.KddddddmmmmmmmmmmdKK...
+..KKKKKdddmmmmKKKK......
+......KKdmmmK...........
+.......KKKKK............
+
+sprite trooper 16x16 remix_blue
+................
+.....KKKK.......
+....KmmmmK......
+...KmlmmmmK.....
+...KKKKKKKKK....
+....KSSKSK......
+....KSSSSK......
+.....KKKK.......
+....KmmmmKKKKKKK
+...KmlmmgGGGGGGK
+...KmmmSSKKKKKKK
+...KmmmmmK......
+....KddddK......
+....KdKKdK......
+...KKK.KKK......
+..KKKK.KKKK.....
+
+sprite spark 12x12 remix_blue
+.....KK.....
+.....YY.....
+.K...YY...K.
+..YK.WW.KY..
+...YYWWYY...
+KYYWWWWWWYYK
+KYYWWWWWWYYK
+...YYWWYY...
+..YK.WW.KY..
+.K...YY...K.
+.....YY.....
+.....KK.....
+
+# chunky stencil capitals for the cover lettering
+glyphs block 7x7
+A ..##.. .####. ##..## ##..## ###### ##..## ##..##
+D #####. ##..## ##..## ##..## ##..## ##..## #####.
+V ##..## ##..## ##..## ##..## .####. .####. ..##..
+N ##..## ###.## ###### ##.### ##..## ##..## ##..##
+C .##### ##.... ##.... ##.... ##.... ##.... .#####
+E ###### ##.... ##.... #####. ##.... ##.... ######
+W ##...## ##...## ##.#.## ####### ####### ###.### ##...##
+R #####. ##..## ##..## #####. ##.##. ##..## ##..##
+S .##### ##.... ##.... .####. ....## ....## #####.
+2 .####. ##..## ....## ..###. .##... ##.... ######
+M ##...## ###.### ####### ##.#.## ##...## ##...## ##...##
+I ###### ..##.. ..##.. ..##.. ..##.. ..##.. ######
+X ##..## ##..## .####. ..##.. .####. ##..## ##..##
+end

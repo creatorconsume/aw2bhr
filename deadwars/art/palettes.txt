@@ -78,8 +78,8 @@ palette horde
 . 000000  0 transparent
 K 1a1018  1 outline
 z 50684c  2 skin dark
-Z 8ca878  3 skin
-L c8dcaa  4 skin light
+Z a4b88c  3 skin
+L d8e8bc  4 skin light
 p 3a2e44  5 rags dark
 P 6a5c70  6 rags
 q a69aa4  7 rags light
@@ -101,6 +101,8 @@ W f8f8f8  2 white
 Y f8d840  3 yellow
 O d08818  4 dark yellow
 R f04040  5 red
+g 686878  6 smoke (fx)
+G a8a8b8  7 smoke light (fx)
 end
 
 # title screen BG (loaded into bank 0 while the title shows; 1/2 = white/black so

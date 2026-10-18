@@ -15,7 +15,7 @@ colors are BGR555 `u16`. Palette index 0 is transparent everywhere.
 | `pal_overlay[16]` | BG bank 7: move/attack highlight tiles |
 | `pal_survivor[16]` | OBJ bank 0: survivor units (team blue) |
 | `pal_horde[16]` | OBJ bank 1: zombie units (sickly green/grey skin, red accents) |
-| `pal_cursor[16]` | OBJ bank 3: cursor, HP digits, menu pointer |
+| `pal_cursor[16]` | OBJ bank 3: cursor, HP digits, menu pointer, explosion/fire effects. 6 smoke grey, 7 smoke light (fx) |
 | `pal_portrait[PORTRAIT_COUNT][16]` | OBJ banks 4..: one per portrait |
 | `pal_title[16]` | title screen BG (bank 0 while title shown) |
 
@@ -50,6 +50,16 @@ extern const u8 unit_gfx[UG_COUNT][2][128];  // 4 tiles each, 1D order TL,TR,BL,
 ```
 UG_SURVIVOR..UG_ARMOR use `pal_survivor`, UG_WALKER.. use `pal_horde`.
 
+## Boss units (OBJ, 16x16, 2 frames, facing RIGHT, pal_horde)
+```c
+enum { BOSS_ZERO, BOSS_COUNT };                 // append only
+extern const u8 boss_gfx[BOSS_COUNT][2][128];   // same layout as unit_gfx
+```
+Kept out of `unit_gfx` so `OBJT_CURSOR` (right after the 96 unit tiles) does not
+move. BOSS_ZERO is Patient Zero: pale, upright, cream hospital gown, glowing eyes;
+frame 1 raises his arm with acid wisps. Free OBJ tiles for it: 116..123
+(between the pointer and the portraits) or anywhere after the explosion frames.
+
 ## Cursor / small UI sprites (OBJ, pal_cursor)
 ```c
 extern const u8 cursor_gfx[2][128];   // 16x16, 2 pulse frames, bracket corners
@@ -66,7 +76,7 @@ extern const u8 window_tiles[9][32];  // 9-slice: TL,T,TR,L,C,R,BL,B,BR (fill us
 
 ## Portraits (OBJ 32x32, 16 tiles each in 1D row-major order)
 ```c
-enum { PT_MARA, PT_DOC, PT_JUNE, PT_HOLT, PT_ZERO, PORTRAIT_COUNT };
+enum { PT_MARA, PT_DOC, PT_JUNE, PT_HOLT, PT_ZERO, PT_ZERO_BOSS, PORTRAIT_COUNT };  // append only
 extern const u8 portrait_gfx[PORTRAIT_COUNT][512];
 ```
 - MARA: survivor leader, ex-firefighter captain, 40s, short dark hair, soot, determined.
@@ -74,6 +84,12 @@ extern const u8 portrait_gfx[PORTRAIT_COUNT][512];
 - JUNE: teen mechanic/scavenger, goggles on forehead, ponytail, grin.
 - HOLT: grizzled ex-soldier, beard, beanie, scar.
 - ZERO: "Patient Zero", the horde's eerie first infected, hospital gown, pale, glowing eyes.
+- ZERO_BOSS: Patient Zero unmasked for boss fights: brows down, white-hot eyes, open
+  jaw, spreading veins, acid halo. Speaker name is the same as ZERO.
+
+Portrait palettes go in OBJ banks `4 + PT_*`. With 6 portraits banks 4..9 are full
+(bank 10 is `OBJPAL_HORDE_DONE`), so a 7th portrait needs the engine's bank layout
+to change first.
 
 ## Title screen (BG 240x160 4bpp, pal_title)
 ```c
@@ -81,6 +97,18 @@ extern const u8  title_tiles[];   #define TITLE_TILE_COUNT (<= 512 after dedupe)
 extern const u16 title_map[20][30];   // screen entries (tile | flip bits)
 ```
 Logo "DEAD WARS", ruined city skyline, moon, zombie silhouettes.
+
+## Effects: drawn, export pending (proposal, not yet in assets.h)
+Sprites are in `art/fx.txt`. They get C symbols once the `gfx.py` freeze lifts ("hardening merged")
+and the engineer agrees the names. Every effect is 16x16, 4 tiles per frame, paced like the
+explosion (BOOM_FRAMES 32 = 4 frames x 8):
+| proposed symbol | frames | palette | use |
+|---|---|---|---|
+| `fx_rise_gfx[4][128]` | 4 | pal_horde | a survivor killed by a zombie rises as a Walker (frame 3 = UG_WALKER pose) |
+| `fx_burst_gfx[4][128]` | 4 | pal_horde | Bloater bursts on death |
+| `fx_burn_gfx[4][128]` | 4 | pal_cursor | nest burning: loop 0-2 during Burn, 3 = embers when destroyed |
+| `fx_flag_gfx[2][128]` | 2 | pal_survivor | "secured" flag pop over a captured building |
+| `vip_gfx[32]` | 1 (8x8) | pal_cursor | VIP star drawn at (px+9, py-3), poking above the unit's top-right, clear of HP digits, cargo and capture markers |
 
 ## Extras provided by gfx.py (additive, not required by the engine)
 - `#define UG_FIRST_HORDE UG_WALKER`, `TERRAIN_TEAM_LIGHT/MID/DARK` (13/14/15).

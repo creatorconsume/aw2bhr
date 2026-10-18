@@ -11,6 +11,8 @@ the engineer through the inbox.
 
 ## P0
 
+- [x] **Onion box art** for Dead Wars and AW2 Remix, in `deadwars/boxart/` (a2000d2).
+
 - [ ] **Art audit** (brief, task 1). Use `build/preview/scene_1x.png` plus smoke and gbarun screenshots, with your own
   scripts for night and fog. Check:
   - Walker vs Runner vs Bloater at 1×
@@ -24,7 +26,7 @@ the engineer through the inbox.
   - Check that fogged and visible tiles are clearly different at night, horde units are readable on dark grass and
     roads, and the radio-tower reveal edge shows.
   - If the blend constants need to change, send numbers to `team/inbox/engineer/`.
-- [ ] **Patient Zero map sprite.** Wait for the designer's `BOSS_PATIENT_ZERO.md`, but start concepts now. It's 16×16 with
+- [x] **Patient Zero map sprite.** Done in a47b269 as boss_gfx/BOSS_ZERO plus the PT_ZERO_BOSS portrait. Hookup proposed to the engineer. Original brief: Wait for the designer's `BOSS_PATIENT_ZERO.md`, but start concepts now. It's 16×16 with
   2 frames on `pal_horde`, or ask for its own OBJ palette bank (12-15 are free). Use a hospital gown, glowing eyes and a
   silhouette distinct from the Walker. Append it as a new `UG_` entry after `UG_BLOATER` so indices stay stable. Agree
   the enum and the frame count with the engineer first.
