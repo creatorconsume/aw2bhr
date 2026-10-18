@@ -50,6 +50,16 @@ extern const u8 unit_gfx[UG_COUNT][2][128];  // 4 tiles each, 1D order TL,TR,BL,
 ```
 UG_SURVIVOR..UG_ARMOR use `pal_survivor`, UG_WALKER.. use `pal_horde`.
 
+## Boss units (OBJ, 16x16, 2 frames, facing RIGHT, pal_horde)
+```c
+enum { BOSS_ZERO, BOSS_COUNT };                 // append only
+extern const u8 boss_gfx[BOSS_COUNT][2][128];   // same layout as unit_gfx
+```
+Kept out of `unit_gfx` so `OBJT_CURSOR` (right after the 96 unit tiles) does not
+move. BOSS_ZERO is Patient Zero: pale, upright, cream hospital gown, glowing eyes;
+frame 1 raises his arm with acid wisps. Free OBJ tiles for it: 116..123
+(between the pointer and the portraits) or anywhere after the explosion frames.
+
 ## Cursor / small UI sprites (OBJ, pal_cursor)
 ```c
 extern const u8 cursor_gfx[2][128];   // 16x16, 2 pulse frames, bracket corners
@@ -65,7 +75,7 @@ extern const u8 window_tiles[9][32];  // 9-slice: TL,T,TR,L,C,R,BL,B,BR (fill us
 
 ## Portraits (OBJ 32x32, 16 tiles each in 1D row-major order)
 ```c
-enum { PT_MARA, PT_DOC, PT_JUNE, PT_HOLT, PT_ZERO, PORTRAIT_COUNT };
+enum { PT_MARA, PT_DOC, PT_JUNE, PT_HOLT, PT_ZERO, PT_ZERO_BOSS, PORTRAIT_COUNT };  // append only
 extern const u8 portrait_gfx[PORTRAIT_COUNT][512];
 ```
 - MARA: survivor leader, ex-firefighter captain, 40s, short dark hair, soot, determined.
@@ -73,6 +83,12 @@ extern const u8 portrait_gfx[PORTRAIT_COUNT][512];
 - JUNE: teen mechanic/scavenger, goggles on forehead, ponytail, grin.
 - HOLT: grizzled ex-soldier, beard, beanie, scar.
 - ZERO: "Patient Zero", the horde's eerie first infected, hospital gown, pale, glowing eyes.
+- ZERO_BOSS: Patient Zero unmasked for boss fights: brows down, white-hot eyes, open
+  jaw, spreading veins, acid halo. Speaker name is the same as ZERO.
+
+Portrait palettes go in OBJ banks `4 + PT_*`. With 6 portraits banks 4..9 are full
+(bank 10 is `OBJPAL_HORDE_DONE`), so a 7th portrait needs the engine's bank layout
+to change first.
 
 ## Title screen (BG 240x160 4bpp, pal_title)
 ```c

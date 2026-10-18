@@ -44,6 +44,7 @@ Category conventions (see docs/ASSET_SPEC.md):
   terrain  : sprites/composes named MT_<NAME> 16x16 on palette 'terrain'
              ('road_tex' = 16x16 cracked asphalt used to build the 16 road autotiles)
   units    : UG_<NAME> 16x16 on 'survivor' or 'horde'
+  bosses   : BOSS_<NAME> 16x16 on 'horde' (own array boss_gfx, same frame rules as units)
   ui       : 'window' 24x24 (ui) sliced into the 9-slice set, 'cursor0'/'cursor1'
              16x16 and 'pointer' 8x8 (cursor palette); glyphs 'font' and 'digits'
   portraits: PT_<NAME> 32x32 on palette 'pt_<name>'
@@ -66,7 +67,8 @@ UG = ['SURVIVOR', 'HEAVY', 'MEDIC', 'SNIPER', 'PICKUP', 'BUS', 'ARMOR',
       'WALKER', 'RUNNER', 'BRUTE', 'SPITTER', 'BLOATER']
 UG_HORDE_FIRST = UG.index('WALKER')
 OV = ['NONE', 'MOVE', 'ATTACK', 'FOG_UNUSED']
-PT = ['MARA', 'DOC', 'JUNE', 'HOLT', 'ZERO']
+PT = ['MARA', 'DOC', 'JUNE', 'HOLT', 'ZERO', 'ZERO_BOSS']   # append only
+BOSS = ['ZERO']   # boss_gfx, horde palette; append only
 PAL_SINGLE = ['ui', 'terrain', 'overlay', 'survivor', 'horde', 'cursor', 'title']
 
 N_BIT, E_BIT, S_BIT, W_BIT = 1, 2, 4, 8
@@ -497,12 +499,12 @@ def bob_frame(pix, n):
     return out
 
 
-def build_units(art):
+def build_units(art, prefix='UG_', names=UG, pal_for=None):
     frames = []
-    for k, n in enumerate(UG):
-        name = 'UG_' + n
+    for k, n in enumerate(names):
+        name = prefix + n
         w, h, pal, pix = art.get(name)
-        want = 'survivor' if k < UG_HORDE_FIRST else 'horde'
+        want = pal_for(k) if pal_for else ('survivor' if k < UG_HORDE_FIRST else 'horde')
         if (w, h) != (16, 16) or pal != want:
             raise ArtError('%s must be 16x16 on %s palette' % (name, want))
         if art.has(name + '.f1'):
@@ -835,6 +837,9 @@ def write_c(gen_dir, art, R):
     h.append('enum { ' + ', '.join('UG_' + n for n in UG) + ', UG_COUNT };')
     h.append('#define UG_FIRST_HORDE UG_%s' % UG[UG_HORDE_FIRST])
     h.append('extern const uint8_t unit_gfx[UG_COUNT][2][128];')
+    h.append('\n/* ---- boss units: 16x16 OBJ, 2 frames, same layout as unit_gfx, pal_horde ---- */')
+    h.append('enum { ' + ', '.join('BOSS_' + n for n in BOSS) + ', BOSS_COUNT };')
+    h.append('extern const uint8_t boss_gfx[BOSS_COUNT][2][128];')
     h.append('\n/* ---- cursor / small UI sprites (pal_cursor) ---- */')
     h.append('extern const uint8_t cursor_gfx[2][128];')
     h.append('extern const uint8_t digit_gfx[10][32];')
@@ -880,6 +885,14 @@ def write_c(gen_dir, art, R):
     c.append('const uint8_t unit_gfx[UG_COUNT][2][128] %s = {' % ALIGN)
     for n, (f0, f1) in zip(UG, R['units']):
         c.append('    { /* UG_%s */' % n)
+        for f in (f0, f1):
+            c.append('        {\n%s\n        },' % c_bytes(sprite_tiles_1d(f, 16, 16), '            '))
+        c.append('    },')
+    c.append('};\n')
+
+    c.append('const uint8_t boss_gfx[BOSS_COUNT][2][128] %s = {' % ALIGN)
+    for n, (f0, f1) in zip(BOSS, R['bosses']):
+        c.append('    { /* BOSS_%s */' % n)
         for f in (f0, f1):
             c.append('        {\n%s\n        },' % c_bytes(sprite_tiles_1d(f, 16, 16), '            '))
         c.append('    },')
@@ -1014,23 +1027,23 @@ def write_previews(prev_dir, art, R):
     upal = {'survivor': pal_rgb(art.palette('survivor').colors),
             'horde': pal_rgb(art.palette('horde').colors)}
     plain_meta = meta[0]
-    sheet = Image.new('RGB', (len(UG) * 44 + 8, 2 * 60 + 20), BG)
-    for k, n in enumerate(UG):
-        cols = upal['survivor' if k < UG_HORDE_FIRST else 'horde']
+    allu = [(n, R['units'][k], upal['survivor' if k < UG_HORDE_FIRST else 'horde']) for k, n in enumerate(UG)]
+    allu += [('*' + n, R['bosses'][k], upal['horde']) for k, n in enumerate(BOSS)]
+    sheet = Image.new('RGB', (len(allu) * 44 + 8, 2 * 60 + 20), BG)
+    for k, (n, fr, cols) in enumerate(allu):
         for f in range(2):
             im = Image.new('RGB', (16, 16), (96, 96, 112) if f == 0 else (0, 0, 0))
             blit_meta(im, tt, plain_meta, 0, 0, pal_rgb(tpal), False) if f == 1 else None
-            blit_obj(im, sprite_tiles_1d(R['units'][k][f], 16, 16), 16, 16, 0, 0, cols)
+            blit_obj(im, sprite_tiles_1d(fr[f], 16, 16), 16, 16, 0, 0, cols)
             x, y = 8 + k * 44, 16 + f * 60
             sheet.paste(up(im, 2), (x, y))
         label(sheet, 8 + k * 44, 2, n[:7])
-    # frame 0 vs 1 on grass at 3x on a second row band
-    big = Image.new('RGB', (len(UG) * 52 + 8, 64), BG)
-    for k, n in enumerate(UG):
-        cols = upal['survivor' if k < UG_HORDE_FIRST else 'horde']
+    # frame 0 on grass at 3x on a second row band
+    big = Image.new('RGB', (len(allu) * 52 + 8, 64), BG)
+    for k, (n, fr, cols) in enumerate(allu):
         im = Image.new('RGB', (16, 16))
         blit_meta(im, tt, plain_meta, 0, 0, pal_rgb(tpal), False)
-        blit_obj(im, sprite_tiles_1d(R['units'][k][0], 16, 16), 16, 16, 0, 0, cols)
+        blit_obj(im, sprite_tiles_1d(fr[0], 16, 16), 16, 16, 0, 0, cols)
         big.paste(up(im), (8 + k * 52, 8))
     out = Image.new('RGB', (max(sheet.width, big.width), sheet.height + big.height), BG)
     out.paste(sheet, (0, 0))
@@ -1133,7 +1146,7 @@ SCENE_UNITS = [  # (x, y, unit, hp)
     (2, 3, 'SURVIVOR', 10), (3, 4, 'HEAVY', 7), (5, 1, 'MEDIC', 10), (6, 4, 'SNIPER', 4),
     (1, 6, 'PICKUP', 10), (5, 2, 'BUS', 10), (2, 8, 'ARMOR', 9),
     (8, 4, 'WALKER', 10), (9, 5, 'RUNNER', 6), (12, 4, 'BRUTE', 10), (8, 7, 'SPITTER', 3),
-    (12, 8, 'BLOATER', 10), (13, 5, 'WALKER', 2),
+    (12, 8, 'BLOATER', 10), (13, 5, 'WALKER', 2), (10, 8, 'BOSS_ZERO', 8),
 ]
 MOVE_DEMO = [(2, 3), (1, 3), (2, 2), (1, 2), (3, 2), (1, 4), (2, 4), (1, 5), (4, 2), (2, 5), (3, 3)]
 ATTACK_DEMO = (8, 4)
@@ -1169,9 +1182,12 @@ def write_scene(prev_dir, art, R):
             'horde': pal_rgb(art.palette('horde').colors)}
     cur = pal_rgb(art.palette('cursor').colors)
     for x, y, n, hp in SCENE_UNITS:
-        k = UG.index(n)
+        if n.startswith('BOSS_'):
+            k, f = UG_HORDE_FIRST, R['bosses'][BOSS.index(n[5:])][(x + y) & 1]
+        else:
+            k = UG.index(n)
+            f = R['units'][k][(x + y) & 1]
         cols = upal['survivor' if k < UG_HORDE_FIRST else 'horde']
-        f = R['units'][k][(x + y) & 1]
         if k >= UG_HORDE_FIRST:   # horde faces left on the map
             f = [row[::-1] for row in f]
         blit_obj(im, sprite_tiles_1d(f, 16, 16), 16, 16, x * 16, y * 16, cols)
@@ -1197,6 +1213,7 @@ def main(argv):
         R['terrain_ts'], R['terrain_meta'], R['terrain_pix'] = build_terrain(art)
         R['overlay_ts'], R['overlay_meta'] = build_overlay()
         R['units'] = build_units(art)
+        R['bosses'] = build_units(art, 'BOSS_', BOSS, lambda k: 'horde')
         R['cursor'] = [art.get('cursor0')[3], art.get('cursor1')[3]]
         R['pointer'] = art.get('pointer')[3]
         R['digits'] = build_digits(art)
