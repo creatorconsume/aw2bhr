@@ -4,6 +4,10 @@ Your Advance Wars 2 ROM is a verified good dump (SHA1 `14dd0b22…`, the exact
 No-Intro match) and it boots in mGBA, so the problem is on the device side. Work
 down this list and test the game after each step. Most people are fixed by step 2 or 3.
 
+**Lab result (Oct 2026):** your exact ROM ran fine with no BIOS file on Onion's gpSP build and
+on mGBA with Onion's settings. Only a **corrupt `gba_bios.bin`** broke it: a white screen on mGBA,
+a crash on gpSP. **Check step 3 first.** After that, step 2 (stale save state) is the next suspect.
+
 Paths below are relative to the root of the SD card. Detailed sources are in
 [`ONION_RESEARCH.md`](ONION_RESEARCH.md).
 
