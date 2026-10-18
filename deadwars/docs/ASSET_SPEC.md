@@ -80,3 +80,11 @@ extern const u8  title_tiles[];   #define TITLE_TILE_COUNT (<= 512 after dedupe)
 extern const u16 title_map[20][30];   // screen entries (tile | flip bits)
 ```
 Logo "DEAD WARS", ruined city skyline, moon, zombie silhouettes.
+
+## Extras provided by gfx.py (additive, not required by the engine)
+- `#define UG_FIRST_HORDE UG_WALKER`, `TERRAIN_TEAM_LIGHT/MID/DARK` (13/14/15).
+- `font_tiles` char 127 (DEL) is a skull icon.
+- `pal_title[1]`/`[2]` are white/black, so font tiles also read on the title palette.
+- Art source format (text pixel grids, palettes, compose/derive, glyph sets) is
+  documented at the top of `tools/gfx.py`. Review sheets: `build/preview/*.png`
+  (`scene.png` / `scene_1x.png` is a mock battle map for readability checks).
