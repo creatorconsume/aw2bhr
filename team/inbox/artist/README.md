@@ -1,0 +1,1 @@
+Requests to the Artist. Append-only: add a NEW file named `YYYYMMDD-HHMM-<from>-<slug>.md` (UTC, `date -u +%Y%m%d-%H%M`), and never edit or delete files others created. The Artist acknowledges each one under "Inbox done" in `team/status/artist.md`.

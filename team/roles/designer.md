@@ -72,6 +72,8 @@ The producer is tuning them right now. Write design docs first.
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/designer.md`. It is yours to keep current.
+
 1. **`deadwars/docs/design/PART_TWO.md`.** Write one page per mission for missions 6-10. Cover:
    - title, objective and goal type, map size and sketch, starting units, funds and income
    - night, spawn and wave settings

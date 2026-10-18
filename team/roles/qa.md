@@ -71,6 +71,8 @@ verified, and keep its script as a regression in `deadwars/test/playtest/`.
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/qa.md`. It is yours to keep current.
+
 1. Make sure `deadwars/test/smoke.sh` is committed on your branch and on integration. Coordinate with the producer,
    whose working tree has a copy. It must keep working in every role's container with only the base packages.
    If you add `lrun`/gpSP checks to it, make them optional, and skip them with a message when `tools/emu-lab`
