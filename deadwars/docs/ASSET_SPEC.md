@@ -55,6 +55,7 @@ UG_SURVIVOR..UG_ARMOR use `pal_survivor`, UG_WALKER.. use `pal_horde`.
 extern const u8 cursor_gfx[2][128];   // 16x16, 2 pulse frames, bracket corners
 extern const u8 digit_gfx[10][32];    // 8x8 small HP digits 0-9, drawn bottom-right of units (outlined)
 extern const u8 pointer_gfx[32];      // 8x8 menu hand/arrow pointing right
+extern const u8 explode_gfx[4][128];  // 16x16, 4 frames: map explosion when a unit is destroyed
 ```
 
 ## Font + windows (BG, pal_ui)

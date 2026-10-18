@@ -45,7 +45,8 @@ Category conventions (see docs/ASSET_SPEC.md):
              ('road_tex' = 16x16 cracked asphalt used to build the 16 road autotiles)
   units    : UG_<NAME> 16x16 on 'survivor' or 'horde'
   ui       : 'window' 24x24 (ui) sliced into the 9-slice set, 'cursor0'/'cursor1'
-             16x16 and 'pointer' 8x8 (cursor palette); glyphs 'font' and 'digits'
+             16x16, 'pointer' 8x8 and 'explode0'..'explode3' 16x16 (cursor palette);
+             glyphs 'font' and 'digits'
   portraits: PT_<NAME> 32x32 on palette 'pt_<name>'
   title    : glyphs 'logo', sprites 'moon', 'zombie_*' etc., composed procedurally.
 """
@@ -839,6 +840,7 @@ def write_c(gen_dir, art, R):
     h.append('extern const uint8_t cursor_gfx[2][128];')
     h.append('extern const uint8_t digit_gfx[10][32];')
     h.append('extern const uint8_t pointer_gfx[32];')
+    h.append('extern const uint8_t explode_gfx[4][128];')
     h.append('\n/* ---- font + windows (pal_ui; font: 1 = text, 2 = shadow) ---- */')
     h.append('extern const uint8_t font_tiles[96][32];   /* ASCII 32..127 */')
     h.append('extern const uint8_t window_tiles[9][32];  /* TL,T,TR,L,C,R,BL,B,BR */')
@@ -894,6 +896,10 @@ def write_c(gen_dir, art, R):
         c.append('    { /* %d */\n%s\n    },' % (d, c_bytes(sprite_tiles_1d(t, 8, 8), '        ')))
     c.append('};\n')
     c.append('const uint8_t pointer_gfx[32] %s = {\n%s\n};\n' % (ALIGN, c_bytes(sprite_tiles_1d(R['pointer'], 8, 8))))
+    c.append('const uint8_t explode_gfx[4][128] %s = {' % ALIGN)
+    for f in R['explode']:
+        c.append('    {\n%s\n    },' % c_bytes(sprite_tiles_1d(f, 16, 16), '        '))
+    c.append('};\n')
 
     c.append('const uint8_t font_tiles[96][32] %s = {' % ALIGN)
     for k, t in enumerate(R['font']):
@@ -1199,6 +1205,7 @@ def main(argv):
         R['units'] = build_units(art)
         R['cursor'] = [art.get('cursor0')[3], art.get('cursor1')[3]]
         R['pointer'] = art.get('pointer')[3]
+        R['explode'] = [art.get('explode%d' % f)[3] for f in range(4)]
         R['digits'] = build_digits(art)
         R['font'] = build_font(art)
         R['window'] = build_windows(art)

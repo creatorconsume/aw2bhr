@@ -112,6 +112,7 @@ void video_load_game_gfx(void)
 	copy16(OBJ_VRAM + OBJT_DIGITS * 16, digit_gfx, sizeof(digit_gfx));
 	copy16(OBJ_VRAM + OBJT_POINTER * 16, pointer_gfx, sizeof(pointer_gfx));
 	copy16(OBJ_VRAM + OBJT_PORTRAIT * 16, portrait_gfx, sizeof(portrait_gfx));
+	copy16(OBJ_VRAM + OBJT_EXPLODE * 16, explode_gfx, sizeof(explode_gfx));
 	load_ui_palettes();
 	palettes_apply();
 
@@ -209,15 +210,28 @@ static void build_oam(void)
 			oam_sprite(x, y, ATTR1_SIZE8, OBJT_DIGITS + v, OBJPAL_CURSOR, 0, false);
 		spr.popup_timer--;
 	}
-	int af = (frame_count >> 5) & 1;
+	if (spr.boom_timer > 0) {
+		// map explosion: 4 frames of 8 ticks, drawn over the units
+		int f = (BOOM_FRAMES - spr.boom_timer) / 8;
+		oam_sprite(spr.boom_x - cam_px, spr.boom_y - cam_py, ATTR1_SIZE16, OBJT_EXPLODE + f * 4,
+		           OBJPAL_CURSOR, 1, false);
+		spr.boom_timer--;
+	}
+	// AW2-style idle: every unit steps through its frames in lockstep, about 5 times a second
+	int af = (frame_count / 12) & 1;
 	for (int i = 0; i < MAX_UNITS; i++) {
 		Unit *u = &gs.units[i];
 		if (!u->alive || u->carried || i == spr.hide_unit)
 			continue;
-		int px, py;
+		int px, py, fr = u->dormant ? 0 : af;
+		bool flip = u->side == SIDE_HORDE;
 		if (i == spr.anim_unit) {
+			// walking: quick step cycle, facing the direction of travel
 			px = spr.anim_px;
 			py = spr.anim_py;
+			fr = (frame_count >> 2) & 1;
+			if (spr.anim_face)
+				flip = spr.anim_face < 0;
 		} else {
 			if (u->side == SIDE_HORDE && gs.fog[u->y][u->x])
 				continue;
@@ -231,8 +245,11 @@ static void build_oam(void)
 		int pal = u->side == SIDE_SURVIVOR ? OBJPAL_SURVIVOR : OBJPAL_HORDE;
 		if (u->moved && u->side == gs.side)
 			pal = u->side == SIDE_SURVIVOR ? OBJPAL_SURVIVOR_DONE : OBJPAL_HORDE_DONE;
-		if (i == spr.flash_unit && (frame_count & 4))
-			pal = OBJPAL_FLASH;
+		if (i == spr.flash_unit) {
+			px += (frame_count & 2) ? 1 : -1; // hit shake
+			if (frame_count & 4)
+				pal = OBJPAL_FLASH;
+		}
 		int hp = DISP_HP(u->hp);
 		if (hp < 10)
 			oam_sprite(px + 9, py + 9, ATTR1_SIZE8, OBJT_DIGITS + hp, OBJPAL_CURSOR, 2, false);
@@ -240,9 +257,7 @@ static void build_oam(void)
 			oam_sprite(px, py + 9, ATTR1_SIZE8, OBJT_DIGITS + 1, OBJPAL_CURSOR, 2, false);
 		if (u->capture < 20)
 			oam_sprite(px, py, ATTR1_SIZE8, OBJT_POINTER, OBJPAL_CURSOR, 2, false);
-		int frame = (u->dormant ? 0 : (af ^ (i & 1)));
-		oam_sprite(px, py, ATTR1_SIZE16, OBJT_UNITS + (u->type * 2 + frame) * 4, pal, 2,
-		           u->side == SIDE_HORDE);
+		oam_sprite(px, py, ATTR1_SIZE16, OBJT_UNITS + (u->type * 2 + fr) * 4, pal, 2, flip);
 	}
 done:
 	for (int i = oam_n; i < 128; i++)

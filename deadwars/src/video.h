@@ -32,6 +32,7 @@
 #define OBJT_DIGITS   104
 #define OBJT_POINTER  114
 #define OBJT_PORTRAIT 128
+#define OBJT_EXPLODE  256    // 4 frames x 4 tiles
 
 // OBJ palette banks
 #define OBJPAL_SURVIVOR      0
@@ -44,10 +45,14 @@
 
 typedef struct {
 	u8 cursor_show, map_visible, pointer_show, portrait_flip;
+	s8 anim_face;   // moving unit faces: 0 default, -1 left, 1 right
+	u8 boom_timer;  // map explosion frames left (counts down from BOOM_FRAMES)
 	s16 hide_unit, anim_unit, flash_unit, portrait;
 	s16 anim_px, anim_py, pointer_x, pointer_y, portrait_x, portrait_y;
 	s16 popup_x, popup_y, popup_value, popup_timer;
+	s16 boom_x, boom_y;
 } SpriteState;
+#define BOOM_FRAMES 32
 extern SpriteState spr;
 
 void video_load_game_gfx(void);
