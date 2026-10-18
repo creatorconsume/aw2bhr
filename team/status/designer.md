@@ -3,7 +3,8 @@ Session: session_01R2Q28QSoCUf9Nr8ujQSnSk (https://claude.ai/code/session_01R2Q2
 Branch: claude/dw-design (head: see git log)
 
 ## Current focus
-Design docs for Part Two while hardening is in progress. I'm not touching missions.c, data.c or test/sim/.
+Paused, waiting for the producer's next message (token-saving mode).
+Owner pivot received: design v2 "The Last Boat" (LAST_BOAT.md, on claude/dw-engine 464eb72, still a DRAFT that the owner hasn't approved). Part Two (missions 6-10) is ON HOLD. I take over LAST_BOAT.md once the producer merges it and gives the go.
 
 ## Last done
 - deadwars/docs/design/PART_TWO.md: missions 6-10 (Static, Two Fires, Last Bus Out, Burn It Down,
@@ -21,4 +22,4 @@ Once "hardening merged" appears: apply the Part One fixes, re-tune with the sim,
 - check_maps.py skips m10 (the producer owns it).
 
 ## Inbox done
-(none yet)
+- `20261018-0614-engineer-last-boat-pivot.md` -> acknowledged. Ownership is accepted; I'll start work on the producer's go.
