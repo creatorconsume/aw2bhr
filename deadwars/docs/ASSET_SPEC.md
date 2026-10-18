@@ -15,7 +15,7 @@ colors are BGR555 `u16`. Palette index 0 is transparent everywhere.
 | `pal_overlay[16]` | BG bank 7: move/attack highlight tiles |
 | `pal_survivor[16]` | OBJ bank 0: survivor units (team blue) |
 | `pal_horde[16]` | OBJ bank 1: zombie units (sickly green/grey skin, red accents) |
-| `pal_cursor[16]` | OBJ bank 3: cursor, HP digits, menu pointer |
+| `pal_cursor[16]` | OBJ bank 3: cursor, HP digits, menu pointer, explosion/fire effects. 6 smoke grey, 7 smoke light (fx) |
 | `pal_portrait[PORTRAIT_COUNT][16]` | OBJ banks 4..: one per portrait |
 | `pal_title[16]` | title screen BG (bank 0 while title shown) |
 
@@ -96,6 +96,17 @@ extern const u8  title_tiles[];   #define TITLE_TILE_COUNT (<= 512 after dedupe)
 extern const u16 title_map[20][30];   // screen entries (tile | flip bits)
 ```
 Logo "DEAD WARS", ruined city skyline, moon, zombie silhouettes.
+
+## Effects: drawn, export pending (proposal, not yet in assets.h)
+Sprites are in `art/fx.txt`. They get C symbols once the `gfx.py` freeze lifts ("hardening merged")
+and the engineer agrees the names. Every effect is 16x16, 4 tiles per frame, paced like the
+explosion (BOOM_FRAMES 32 = 4 frames x 8):
+| proposed symbol | frames | palette | use |
+|---|---|---|---|
+| `fx_rise_gfx[4][128]` | 4 | pal_horde | a survivor killed by a zombie rises as a Walker (frame 3 = UG_WALKER pose) |
+| `fx_burst_gfx[4][128]` | 4 | pal_horde | Bloater bursts on death |
+| `fx_burn_gfx[4][128]` | 4 | pal_cursor | nest burning: loop 0-2 during Burn, 3 = embers when destroyed |
+| `fx_flag_gfx[2][128]` | 2 | pal_survivor | "secured" flag pop over a captured building |
 
 ## Extras provided by gfx.py (additive, not required by the engine)
 - `#define UG_FIRST_HORDE UG_WALKER`, `TERRAIN_TEAM_LIGHT/MID/DARK` (13/14/15).

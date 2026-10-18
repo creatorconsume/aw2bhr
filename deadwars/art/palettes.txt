@@ -101,6 +101,8 @@ W f8f8f8  2 white
 Y f8d840  3 yellow
 O d08818  4 dark yellow
 R f04040  5 red
+g 686878  6 smoke (fx)
+G a8a8b8  7 smoke light (fx)
 end
 
 # title screen BG (loaded into bank 0 while the title shows; 1/2 = white/black so
