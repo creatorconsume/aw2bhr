@@ -1,8 +1,8 @@
 # Artist status
 
 - **Session:** session_01YDdSYUkiJH2qD5sNiJiBop
-- **Branch:** claude/dw-art @ (see git log; updated each push)
-- **Current focus:** waiting for "hardening merged" before touching gfx.py / ui.txt; night/HP-digit audit with gbarun screenshots.
+- **Branch:** claude/dw-art @ c4ba564 (plus this status commit)
+- **Current focus:** waiting. Need "hardening merged" to export fx/vip/night preview in gfx.py, and the engineer's pick (boss_gfx vs UG_ZERO).
 
 ## Last done
 - Onion box art: deadwars/boxart/deadwars.png, aw2remix.png (250x360, `python3 -I boxart/boxart.py .` from deadwars/).
