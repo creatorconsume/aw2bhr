@@ -33,13 +33,13 @@ static const UnitPlacement m1_units[] = {
 static const Line m1_intro[] = {
 	{ NONE, "Cedar Falls. Day 1 of the outbreak.\nThe sirens stopped an hour ago." },
 	{ PT_MARA, "Station 9, sound off! ...Okay. Four of us. That's who's left." },
-	{ PT_MARA, "Radio says the National Guard rolls through in four days. We hold this firehouse until then." },
+	{ PT_MARA, "Radio says the National Guard rolls through in six days. We hold this firehouse until then." },
 	{ PT_MARA, "Search the houses for supplies. Anyone they bite gets back up, so nobody fights alone." },
 	{ PT_MARA, "And when the sun goes down... stay close to the light." },
 	{ 0, NULL },
 };
 static const Line m1_outro[] = {
-	{ PT_MARA, "Day five. No Guard. No convoy. Nobody's coming." },
+	{ PT_MARA, "Day seven. No Guard. No convoy. Nobody's coming." },
 	{ PT_MARA, "Then we stop waiting. Pack everything. We move at dawn." },
 	{ 0, NULL },
 };
@@ -110,7 +110,7 @@ static const UnitPlacement m3_units[] = {
 	END
 };
 static const Line m3_intro[] = {
-	{ PT_HOLT, "...anyone receiving, this is Sergeant Holt. Evac bird lands at the Route 9 helipad. Seven days." },
+	{ PT_HOLT, "...anyone receiving, this is Sergeant Holt. Evac bird lands at the Route 9 helipad. Eight days." },
 	{ PT_HOLT, "Pilot won't wait. Three seats. Bring anyone who can still walk." },
 	{ PT_MARA, "Three seats. There's more of us than that." },
 	{ PT_JUNE, "Three get out and tell the world. That's three more than zero. The bus fits two if you load it." },
@@ -193,9 +193,9 @@ static const UnitPlacement m5_units[] = {
 };
 static const Line m5_intro[] = {
 	{ PT_MARA, "We've barricaded the old town square. Workshop, radio, clinic. It's the best spot in Cedar Falls." },
-	{ PT_JUNE, "Radio picked up a military channel. A real convoy, this time. Seven days out." },
+	{ PT_JUNE, "Radio picked up a military channel. A real convoy, this time. Nine days out." },
 	{ PT_DOC, "Every night it'll get worse. He's coming for us. I can feel the horde moving like one thing." },
-	{ PT_HOLT, "Then we make the walls count. Seven days, people. Nobody gets bitten." },
+	{ PT_HOLT, "Then we make the walls count. Nine days, people. Nobody gets bitten." },
 	{ PT_ZERO, "...the... living..." },
 	{ 0, NULL },
 };
@@ -212,15 +212,15 @@ static const Line m5_outro[] = {
 #define MAP(r) 0, (sizeof(r) / sizeof(r[0])), r
 
 const Mission missions[] = {
-	{ "First Night", "Survive until Day 5.", MAP(m1_rows), m1_units,
-	  0, 30, GOAL_SURVIVE, 6, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
+	{ "First Night", "Survive until Day 7.", MAP(m1_rows), m1_units,
+	  0, 35, GOAL_SURVIVE, 6, 0, 2, 1, 1, 4, 2, m1_intro, m1_outro },
 	{ "Supply Run", "Burn both zombie nests.", MAP(m2_rows), m2_units,
 	  5000, 100, GOAL_NESTS, 0, 0, 3, 3, 0, 5, 1, m2_intro, m2_outro },
-	{ "Bridge Out", "Evac 3 units by Day 8.", MAP(m3_rows), m3_units,
-	  2000, 100, GOAL_EVAC, 9, 3, 3, 3, 0, 5, 3, m3_intro, m3_outro },
+	{ "Bridge Out", "Evac 3 units by Day 9.", MAP(m3_rows), m3_units,
+	  3000, 100, GOAL_EVAC, 9, 3, 3, 3, 0, 5, 2, m3_intro, m3_outro },
 	{ "St. Agnes", "Destroy all zombies and nests.", MAP(m4_rows), m4_units,
 	  7000, 100, GOAL_ROUT, 0, 0, 3, 4, 0, 6, 1, m4_intro, m4_outro },
-	{ "The Long Night", "Survive until Day 8.", MAP(m5_rows), m5_units,
+	{ "The Long Night", "Survive until Day 10.", MAP(m5_rows), m5_units,
 	  500, 20, GOAL_SURVIVE, 9, 0, 2, 1, 2, 5, 3, m5_intro, m5_outro },
 };
 const int mission_count = sizeof(missions) / sizeof(missions[0]);
