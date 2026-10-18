@@ -1,6 +1,7 @@
 // Dead Wars - map loading, drawing, fog, camera, combat math
 #include "game.h"
 #include "video.h"
+#include "lb.h"
 #include <string.h>
 
 GameState gs EWRAM_BSS;
@@ -185,6 +186,10 @@ static inline int se_index(int tx, int ty)
 
 void map_redraw_tile(int x, int y)
 {
+#ifndef HOST_SIM
+	if (tac_mode && tac_redraw_tile(x, y))
+		return;
+#endif
 	volatile u16 *sb = SCREENBLOCK(SB_TERRAIN);
 	int mt = metatile_for(x, y);
 	int team = gs.owner[y][x] == SIDE_SURVIVOR ? 1 : gs.owner[y][x] == SIDE_HORDE ? 2 : 0;

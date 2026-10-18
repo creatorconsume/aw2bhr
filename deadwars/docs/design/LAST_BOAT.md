@@ -1,6 +1,6 @@
 # Dead Wars: The Last Boat (design v2)
 
-Status: **DRAFT, waiting for the owner's approval.** No code until it's approved.
+Status: **APPROVED by the owner on 2026-10-18** ("proceed"). Open questions 1, 2 and 4 were taken as recommended; see section 21.
 Written by the engineer from the owner's design interview on 2026-10-18. The designer takes it over from here: tables, numbers and story content are theirs.
 This document replaces the AW2-style direction for everything that comes next. The Part One / Part Two docs stay for reference.
 
@@ -212,7 +212,7 @@ This is what Organ Trail did: several drains at once, choices that pick which on
 
 ### 8.1 Scale and map
 - **1 tile = one person's space.** Houses are **2x2** (4 tiles, 4 people). Shops and hospitals are larger (2x3, 3x3).
-- Maps are about **32x24 to 48x32** tiles (MAP_MAX goes to 48x32). The screen shows 15x10 tiles.
+- Maps are up to **32x32** tiles (MAP_MAX goes from 30x20 to 32x32, the size of the GBA's 512x512 scrolling background; anything larger would need tile streaming, a later option). The screen shows 15x10 tiles.
 - Terrain: road, grass, woods (half cover, hides), fences and walls (cover, block movement), wrecks (half cover), rubble, **water**, bridges, building tiles, nests.
 - **Water**: zombies can't enter deep water, so rivers are defensive lines. People wade in shallows (2 MP per tile, noise 0, and they can't attack). Deep water is impassable except for a few strong swimmers, a later idea.
 
@@ -449,8 +449,8 @@ Always one save slot (ironman): an autosave at each stop and at each turn start.
 - the run save.
 
 Budgets:
-- **SRAM 32 KB**: profile 256 B, run state about 6 KB (roster 24x64, relationships 576, vars, flags 512, caravan, route graph), mission suspend about 10 KB (48x32 maps), Chronicle 4 KB. Two-slot A/B writes for the run, so a power-off can't wipe an ironman save.
-- **CPU**: 48x32 maps are 2.5x today's maximum area. The occupancy grid and division-free BFS keep a zombie's decision under 1 frame; the target is no frame over budget on gpSP. Sight and noise checks use per-zombie radius scans, not whole-map passes.
+- **SRAM 32 KB**: profile 256 B, run state about 6 KB (roster 24x64, relationships 576, vars, flags 512, caravan, route graph), mission suspend about 6 KB (32x32 maps), Chronicle 4 KB. Two-slot A/B writes for the run, so a power-off can't wipe an ironman save.
+- **CPU**: 32x32 maps are 1.7x today's maximum area. The occupancy grid and division-free BFS keep a zombie's decision under 1 frame; the target is no frame over budget on gpSP. Sight and noise checks use per-zombie radius scans, not whole-map passes.
 - **ROM**: text and the storylet bytecode are compressed, so thousands of storylets fit easily.
 
 ## 18. Scope: the first playable (vertical slice)
@@ -504,9 +504,14 @@ Budgets:
 | **Engineer** | Person and zombie model, actions, hit chance, cover, noise and stealth, buildings, objectives, journey, stop, camp and caravan screens, the storylet runtime and compiler (with the designer), the save, perf |
 | **Artist** | Port the godot-office generator approach: the `CAST` table → map sprite, battle figure and portrait per character; 2x2 buildings with roofs and doors; cover edge markers; status icons; the journey map and camp art |
 | **Audio** | Horde-meter music layers, camp and road themes, noise SFX, death stings, a stealth ambience |
-| **QA** | New smoke and playtest scripts for journey → mission → camp; gpSP perf on 48x32 maps; ironman save power-cut tests |
+| **QA** | New smoke and playtest scripts for journey → mission → camp; gpSP perf on 32x32 maps; ironman save power-cut tests |
 
 ## 21. Open questions
+Taken as recommended when the owner approved the doc (2026-10-18). The owner can still overrule any of them:
+- Q1: the AW2-style campaign is retired from the new ROM and kept as a tagged "Part One classic" release. The new game ships under its own title-menu entry while the slice is built; Classic stays reachable until the slice replaces it.
+- Q2: the starting crew is fixed (Mara, Doc, June, Holt).
+- Q4: romance is light: relationship +3 reads "together", nothing explicit.
+
 1. **The old campaign**: keep the AW2-style Part One as a "Classic" mode in the same ROM, or retire it? The recommendation is to tag it as a release and retire it from the new ROM, to save code and VRAM.
 2. Should the starting crew be fixed (Mara, Doc, June, Holt) or a random four from the pool?
 3. Should the journey map show the horde front from Act 1, or should it appear later as a story reveal? It's not in v1 either way.

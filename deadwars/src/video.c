@@ -2,6 +2,7 @@
 #include "game.h"
 #include "video.h"
 #include "perf.h"
+#include "lb.h"
 #include "sound.h"
 #include <string.h>
 
@@ -237,7 +238,7 @@ static void build_oam(void)
 	int af = (frame_count / 12) & 1;
 	for (int i = 0; i < MAX_UNITS; i++) {
 		Unit *u = &gs.units[i];
-		if (!u->alive || u->carried || i == spr.hide_unit)
+		if (!u->alive || u->carried || u->inside || i == spr.hide_unit)
 			continue;
 		int px, py, fr = u->dormant ? 0 : af;
 		bool flip = u->side == SIDE_HORDE;
@@ -266,15 +267,17 @@ static void build_oam(void)
 			if (frame_count & 4)
 				pal = OBJPAL_FLASH;
 		}
-		int hp = DISP_HP(u->hp);
+		int hp = tac_mode ? u->hp : DISP_HP(u->hp); // people: raw HP
 		if (hp < 10)
 			oam_sprite(px + 9, py + 9, ATTR1_SIZE8, OBJT_DIGITS + hp, OBJPAL_CURSOR, 2, false);
 		if (u->cargo)
 			oam_sprite(px, py + 9, ATTR1_SIZE8, OBJT_DIGITS + 1, OBJPAL_CURSOR, 2, false);
 		if (u->capture < 20)
 			oam_sprite(px, py, ATTR1_SIZE8, OBJT_POINTER, OBJPAL_CURSOR, 2, false);
-		oam_sprite(px, py, ATTR1_SIZE16, OBJT_UNITS + (u->type * 2 + fr) * 4, pal, 2, flip);
+		oam_sprite(px, py, ATTR1_SIZE16, tac_mode ? tac_unit_tile(i, fr) : OBJT_UNITS + (u->type * 2 + fr) * 4, pal, 2, flip);
 	}
+	if (tac_mode)
+		tac_oam();
 	path_arrow_oam();
 done:
 	for (int i = oam_n; i < 128; i++)

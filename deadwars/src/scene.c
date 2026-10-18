@@ -255,7 +255,7 @@ void battle_scene(int a, int d)
 bool scene_wanted(int a, int d)
 {
 	const Unit *au = &gs.units[a], *du = &gs.units[d];
-	if (profile.battle_off || (gs.side == SIDE_HORDE && (keys_held & KEY_B)))
+	if (tac_mode || profile.battle_off || (gs.side == SIDE_HORDE && (keys_held & KEY_B)))
 		return false;
 	return !gs.fog[au->y][au->x] || !gs.fog[du->y][du->x];
 }

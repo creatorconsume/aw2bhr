@@ -1,6 +1,7 @@
 // Dead Wars - entry point, title screen, mission select
 #include "game.h"
 #include "video.h"
+#include "lb.h"
 #include "perf.h"
 #include "sound.h"
 #include <string.h>
@@ -54,9 +55,10 @@ int main(void)
 			frame();
 		while (!(keys_down & (KEY_START | KEY_A)));
 		text_clear();
-		const char *items[4] = { "Campaign", "Continue", "How to Play", "Options" };
-		u8 en[4] = { 1, profile.has_suspend, 1, 1 };
-		int c = text_menu(8, 11, 14, items, en, 4, profile.has_suspend ? 1 : 0);
+		// "The Last Boat" (design v2 demo) sits last so the classic menu paths stay as they were
+		const char *items[5] = { "Campaign", "Continue", "How to Play", "Options", "The Last Boat" };
+		u8 en[5] = { 1, profile.has_suspend, 1, 1, 1 };
+		int c = text_menu(7, 11, 17, items, en, 5, profile.has_suspend ? 1 : 0);
 		text_clear();
 		if (c == 0) {
 			int m = mission_select();
@@ -69,6 +71,8 @@ int main(void)
 			how_to_play();
 		} else if (c == 3) {
 			options_screen(7, 11);
+		} else if (c == 4) {
+			lb_main();
 		}
 	}
 }

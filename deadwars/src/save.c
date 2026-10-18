@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define PROFILE_MAGIC 0x44575031 // "DWP1"
-#define SUSPEND_MAGIC 0x44575331 // "DWS1"
+#define SUSPEND_MAGIC 0x44575332 // "DWS2": GameState grew to 32x32 maps
 #define SUSPEND_OFFSET 256
 
 // emulators look for this string to pick the save type

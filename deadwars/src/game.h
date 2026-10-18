@@ -4,8 +4,8 @@
 #include "gba.h"
 #include "assets.h"
 
-#define MAP_MAX_W 30
-#define MAP_MAX_H 20
+#define MAP_MAX_W 32   // 512x512 px scrolling BG
+#define MAP_MAX_H 32
 #define MAX_UNITS 96
 #define SCREEN_TW 15   // visible metatiles
 #define SCREEN_TH 10
@@ -61,7 +61,7 @@ typedef struct {
 	u8 carried;     // 1 if inside a transport (not on map)
 	u8 dormant;     // zombie asleep until survivors come near
 	u8 alive;
-	u8 pad;
+	u8 inside;      // The Last Boat: hidden under a roof (not drawn)
 } Unit;
 
 // ---- mission definitions ----
@@ -113,6 +113,7 @@ typedef struct {
 	u16 kills, losses;
 } GameState;
 extern GameState gs;
+extern bool tac_mode;   // The Last Boat tactical mission is running (tac.c)
 
 typedef struct {
 	u32 magic;

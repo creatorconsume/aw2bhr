@@ -22,7 +22,8 @@ CFLAGS  := $(ARCH) -O2 -g -Wall -Wextra -Wno-unused-parameter -std=gnu11 \
 LDFLAGS := $(ARCH) -nostartfiles -T gba.ld -Wl,--gc-sections -Wl,-Map,$(BUILD)/$(TARGET).map -specs=nano.specs
 
 SRCS    := $(wildcard src/*.c)
-OBJS    := $(BUILD)/crt0.o $(GEN)/assets.o $(GEN)/music.o $(SRCS:src/%.c=$(BUILD)/%.o)
+OBJS    := $(BUILD)/crt0.o $(GEN)/assets.o $(GEN)/music.o $(GEN)/lbart.o $(GEN)/story_data.o $(SRCS:src/%.c=$(BUILD)/%.o)
+STORY   := $(wildcard data/story/*.tsv) tools/storyc.py
 ART     := $(wildcard art/*.txt) tools/gfx.py
 
 all: $(TARGET).gba
@@ -40,6 +41,19 @@ $(GEN)/assets.c $(GEN)/assets.h: $(ART)
 $(GEN)/music.c $(GEN)/music.h: audio/music.txt tools/music.py
 	python3 -I tools/music.py .
 
+# The Last Boat: generated art (tools/lbart.py) and storylets (tools/storyc.py, integrity-checked)
+$(GEN)/lbart.c: art/lb.txt tools/lbart.py src/lbart.h
+	python3 -I tools/lbart.py art/lb.txt $(GEN)
+
+$(GEN)/story_data.c $(GEN)/story_data.h: $(STORY)
+	python3 -I tools/storyc.py data/story $(GEN)
+
+$(GEN)/lbart.o: $(GEN)/lbart.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(GEN)/story_data.o: $(GEN)/story_data.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(GEN)/music.o: $(GEN)/music.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -50,7 +64,7 @@ $(BUILD)/crt0.o: src/crt0.s
 $(GEN)/assets.o: $(GEN)/assets.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD)/%.o: src/%.c $(GEN)/assets.h $(GEN)/music.h $(wildcard src/*.h)
+$(BUILD)/%.o: src/%.c $(GEN)/assets.h $(GEN)/music.h $(GEN)/story_data.h $(wildcard src/*.h)
 	@mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
