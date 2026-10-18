@@ -20,11 +20,11 @@ GBAJS_FILES = ["util.js", "core.js", "arm.js", "thumb.js", "mmu.js", "io.js", "a
                "video/software.js", "irq.js", "keypad.js", "sio.js", "savedata.js", "gpio.js", "gba.js"]
 
 DW_CHECKS = [
-    "Mission 1: move, attack, Search a house, then End Day.",
-    "Survive to the first night: fog, ambushes, and zombies moving one tile further.",
-    "Recruit at a Workshop (mission 2) and Board/Drop with the Bus (mission 3).",
-    "Suspend from the START menu, then Continue from the title.",
-    "Tell us if a mission feels unfair or too easy, and on which day.",
+    "Title menu: pick The Last Boat (last entry). Reach Haven Bay before the boat leaves on Day 10.",
+    "On the road: choose routes, handle road events, and decide who goes into each stop (up to 4).",
+    "In missions: watch the hit %, flanking and cover markers. Gunfire is loud and fills the Horde meter.",
+    "At night, give each survivor a camp job. Deaths are permanent, and bites turn in a few days.",
+    "Classic (the AW2-style Part One) is still on the title menu for comparison.",
 ]
 AW_CHECKS = [
     "Start a new campaign: the first five Orange Star missions are remade to be very hard.",
