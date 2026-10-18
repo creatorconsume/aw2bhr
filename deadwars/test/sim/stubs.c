@@ -33,6 +33,7 @@ void video_load_game_gfx(void) {}
 void video_show_title(void) {}
 void palettes_apply(void) {}
 void sprites_draw(int hide_index) {}
+void oam_add(u16 a0, u16 a1, u16 a2) {}
 
 void text_clear(void) {}
 void text_put(int x, int y, const char *s, int pal) {}

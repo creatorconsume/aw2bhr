@@ -307,6 +307,13 @@ void camera_follow(int x, int y, bool smooth)
 // AW-style damage: base * attacker HP/10 * (100 - stars*defender HP)/100, plus small luck.
 int damage_estimate(const Unit *a, const Unit *d, bool luck)
 {
+	if (!base_damage[a->type][d->type])
+		return 0;
+	return damage_calc(a, d, luck ? rng_next() % 10 : 0);
+}
+
+int damage_calc(const Unit *a, const Unit *d, int luck)
+{
 	int base = base_damage[a->type][d->type];
 	if (!base)
 		return 0;
@@ -317,9 +324,7 @@ int damage_estimate(const Unit *a, const Unit *d, bool luck)
 	int stars = terrain_info[gs.terrain[d->y][d->x]].defense;
 	if (unit_info[d->type].flags & UF_VEHICLE)
 		stars = stars > 2 ? 2 : stars; // vehicles can't dig into buildings as well
-	int dmg = base * boost / 100;
-	if (luck)
-		dmg += rng_next() % 10;
+	int dmg = base * boost / 100 + luck;
 	dmg = dmg * ahp / 10;
 	dmg = dmg * (100 - stars * dhp) / 100;
 	return MAX(dmg, 0);

@@ -115,6 +115,7 @@ void video_load_game_gfx(void)
 	copy16(OBJ_VRAM + OBJT_PORTRAIT * 16, portrait_gfx, sizeof(portrait_gfx));
 	load_ui_palettes();
 	palettes_apply();
+	path_arrow_load_gfx();
 
 	fill16(SCREENBLOCK(SB_TERRAIN), 0, 4 * 1024);
 	fill16(SCREENBLOCK(SB_OVERLAY), 0, 4 * 1024);
@@ -169,7 +170,7 @@ void video_init(void)
 		shadow_oam[i * 4] = ATTR0_HIDE;
 }
 
-static void oam_add(u16 a0, u16 a1, u16 a2)
+void oam_add(u16 a0, u16 a1, u16 a2)
 {
 	if (oam_n >= 128)
 		return;
@@ -245,6 +246,7 @@ static void build_oam(void)
 		oam_sprite(px, py, ATTR1_SIZE16, OBJT_UNITS + (u->type * 2 + frame) * 4, pal, 2,
 		           u->side == SIDE_HORDE);
 	}
+	path_arrow_oam();
 done:
 	for (int i = oam_n; i < 128; i++)
 		shadow_oam[i * 4] = ATTR0_HIDE;

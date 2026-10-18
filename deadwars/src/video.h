@@ -32,6 +32,7 @@
 #define OBJT_DIGITS   104
 #define OBJT_POINTER  114
 #define OBJT_PORTRAIT 128
+#define OBJT_ARROW    288    // path arrow: 5 pieces x 4 tiles (ui.c)
 
 // OBJ palette banks
 #define OBJPAL_SURVIVOR      0
@@ -41,6 +42,7 @@
 #define OBJPAL_PORTRAIT      4  // .. 4 + PORTRAIT_COUNT - 1
 #define OBJPAL_HORDE_DONE    10
 #define OBJPAL_FLASH         11
+#define OBJPAL_ARROW         12
 
 typedef struct {
 	u8 cursor_show, map_visible, pointer_show, portrait_flip;
@@ -51,6 +53,11 @@ typedef struct {
 extern SpriteState spr;
 
 void video_load_game_gfx(void);
+void oam_add(u16 a0, u16 a1, u16 a2);
+
+// ui.c
+void path_arrow_load_gfx(void);
+void path_arrow_oam(void);
 void video_show_title(void);
 
 #endif

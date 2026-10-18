@@ -8,7 +8,7 @@ OUT     := $(ROOT)/build/sim
 HOSTCC  ?= gcc
 CFLAGS  := -O2 -g -std=gnu11 -Wall -Wno-unused-parameter -Wno-unused-function -fno-strict-aliasing \
            -DHOST_SIM -I $(SRC) -I $(GEN)
-GAME    := $(SRC)/map.c $(SRC)/battle.c $(SRC)/ai.c $(SRC)/data.c $(SRC)/missions.c
+GAME    := $(SRC)/map.c $(SRC)/battle.c $(SRC)/ai.c $(SRC)/data.c $(SRC)/missions.c $(SRC)/ui.c
 SEEDS   ?= 40
 
 all: $(OUT)/sim

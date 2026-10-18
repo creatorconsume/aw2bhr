@@ -159,6 +159,7 @@ int  unit_at(int x, int y);    // index or -1 (ignores carried units)
 void occ_begin(void);          // fast unit_at until occ_end(); nothing may move in between
 void occ_end(void);
 int  damage_estimate(const Unit *att, const Unit *def, bool luck);
+int  damage_calc(const Unit *att, const Unit *def, int luck); // fixed luck 0..9
 u32  rng_next(void);
 
 // units.c
@@ -183,6 +184,16 @@ void check_victory(void);
 
 // ai.c
 void horde_turn(void);
+
+// ui.c
+void info_card(void);
+void forecast_draw(int attacker, int defender);
+void path_arrow_clear(void);
+void path_arrow_update(const u8 *dist, const u8 *prev, int sx, int sy);
+extern u8 turn_risen;
+void summary_mark_horde(void);
+void summary_mark_upkeep(void);
+void summary_show(const char *l1, const char *l2, int frames);
 
 // save.c
 void profile_load(void);
