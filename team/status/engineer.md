@@ -8,7 +8,7 @@ Only the Gameplay Engineer session edits this file. Update it with every push.
 - **Updated:** 2026-10-18 UTC
 
 ## Current focus
-Waiting for the producer's next message.
+Owner design interview → `deadwars/docs/design/LAST_BOAT.md` (design v2, DRAFT until owner approval). Team briefed. No code until it's approved.
 
 ## Last done
 - **Battle scene uses the artist's art** (contract in ASSET_SPEC "Battle scene").
