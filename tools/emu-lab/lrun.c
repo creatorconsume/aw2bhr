@@ -8,7 +8,8 @@
 // "count ADDR" reads a u32 frame counter and prints how many game frames ran since the last count
 // (game frames < emulated frames means the game lags / misses vblanks).
 // KEYS: any of A B L R S(elect) T(start) U D < >   e.g. "press A 4"
-// Exit status: 0 ok, 1 setup/core error, 3 suspected hang (see report).
+// Exit status: 0 ok, 1 setup/core error, 3 suspect: a uniform (black/white) screenshot, no screen
+// change for --hang-secs after an input, or the last input of the script never changed the screen.
 #define _POSIX_C_SOURCE 200809L
 #include "libretro.h"
 #include <dlfcn.h>
@@ -572,6 +573,10 @@ int main(int argc, char** argv) {
 	if (script) run_script(script);
 	else run_frames((long) (10 * fps));
 	shot("last");
+	// the last input never changed the screen: the game is frozen or ignores input
+	if (last_input >= 0 && last_change <= last_input && frame_no - last_input >= 60 && hang_reported != last_input)
+		++hangs, printf("NO-RESPONSE: screen unchanged since frame %ld, last input at frame %ld\n", last_change,
+		                last_input);
 
 	sram_write(srm);
 	for (int i = 0; i < nopts; ++i) {
