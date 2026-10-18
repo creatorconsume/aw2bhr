@@ -1,23 +1,24 @@
-# Status: Game Designer
-
-Only the Game Designer session edits this file. Update it with every push.
-
-- **Session:** TBD
-- **Branch:** `claude/dw-design`
-- **Branch head:** (none yet)
-- **Updated:** 2026-10-18 UTC (seeded by the producer)
+# Designer status
+Session: session_01R2Q28QSoCUf9Nr8ujQSnSk (https://claude.ai/code/session_01R2Q28QSoCUf9Nr8ujQSnSk)
+Branch: claude/dw-design (head: see git log)
 
 ## Current focus
-Onboarding. Brief: `team/roles/designer.md`
+Design docs for Part Two while hardening is in progress. I'm not touching missions.c, data.c or test/sim/.
 
 ## Last done
--
+- deadwars/docs/design/PART_TWO.md: missions 6-10 (Static, Two Fires, Last Bus Out, Burn It Down,
+  Patient Zero), with paste-ready maps, placements, params and dialogue. Maps check OK; dialogue lint OK.
+- deadwars/docs/design/BOSS_PATIENT_ZERO.md, DIFFICULTY.md, PART_ONE_REVIEW.md
+- deadwars/docs/design/tools/check_dialogue.py: a dialogue overflow linter that mirrors text.c. It found the known M4 overflow.
+- Requests: team/inbox/engineer/20261018-0141-designer-part-two-mechanics.md,
+  team/inbox/artist/20261018-0142-designer-patient-zero-art.md
 
 ## Next
-- Read `team/backlog/designer.md` (the producer seeded it; it is yours now) and start on its P0 items.
+Once "hardening merged" appears: apply the Part One fixes, re-tune with the sim, then build M7-M9 (no engine work needed).
 
 ## Blockers
-- `missions.c`, `data.c` and `test/sim/` are locked until `team/status/producer.md` says "hardening merged".
+- M6 and M10 need the engineer's VIP / GOAL_ESCORT / GOAL_BOSS / UT_ZERO.
+- check_maps.py skips m10 (the producer owns it).
 
 ## Inbox done
-<!-- `<inbox filename>` -> outcome (commit / branch) -->
+(none yet)
