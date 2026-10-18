@@ -1,0 +1,827 @@
+================================================================================
+                    DEAD WARS: THE LAST BOAT
+                    Full Design Guide for Designers and Artists
+                    Version 1, 18 October 2026
+================================================================================
+
+Platform:  Game Boy Advance homebrew, played on a Miyoo Mini Plus (Onion OS,
+           mGBA or gpSP core). Screen: 240 x 160 pixels.
+Status:    A playable demo exists. It covers the first stretch of the trip,
+           from Cedar Falls to Miller's Bridge. This guide describes the whole
+           game we are building, marks what the demo already has, and tells
+           you exactly what art to make and how to hand it back.
+
+CONTENTS
+  1.  The pitch
+  2.  What the owner wants (the decisions so far)
+  3.  The world and the story
+  4.  How the story evolves (emergent story + permadeath)
+  5.  The cast (24 characters)
+  6.  The journey (Organ Trail layer)
+  7.  The caravan, resources and the clock
+  8.  Camp
+  9.  Missions (the tactical layer)
+  10. Combat, cover, noise and stealth
+  11. People: attributes, skills, personality, infection
+  12. The zombies (and what comes later)
+  13. Screens and UI
+  14. Difficulty
+  15. Art direction
+  16. ART ASSET LIST: exact specs, ChatGPT prompts, how to hand art back
+  17. Audio direction
+  18. What the demo has today / what's next
+  19. Glossary
+
+
+================================================================================
+1. THE PITCH
+================================================================================
+
+One sentence:
+  You lead a fragile caravan of survivors, people you come to know and lose,
+  across a dying state to catch the last boat out, trading time, food and
+  lives at every stop.
+
+It plays like:
+  Organ Trail  (the journey: a road, a clock, supplies running out, random
+                events, gravestones)
+  + XCOM       (the fights: individual people, hit chances, directional
+                cover, flanking)
+  + Dead of Winter (the people: a big cast of distinct characters with
+                special abilities and personalities, some strong, some weak)
+  + RimWorld   (the story: small scenes that fire based on who is alive, how
+                they feel about each other and what is happening, so every
+                run tells a different story)
+
+The tone is gritty horror with dark humour. It's not a power fantasy: you are
+always short of something.
+
+Pillars (every feature must serve at least one):
+  1. Every person matters. Names, faces, quirks, relationships. A death
+     changes the group and the story.
+  2. Scarcity is the clock. Food, fuel, ammo, meds and days all drain
+     together. Every choice spends one thing to save another.
+  3. Quiet is safety, noise is death. Guns solve a problem now and create a
+     bigger one two turns later.
+  4. Surprise, not puzzles. You don't know what's in the next house. You
+     plan for it; you can't solve it.
+  5. Short, readable fights on a tiny screen: 10-15 minutes each.
+
+
+================================================================================
+2. WHAT THE OWNER WANTS (decision log)
+================================================================================
+
+These were decided by the owner in the design interview. Don't change them
+without asking.
+
+Feel and story
+  - Organ Trail journey, gritty horror. A story that runs across time: the
+    whole cast carries from mission to mission.
+  - A heavier story than Advance Wars. Key characters can die, and the story
+    adapts.
+  - Emergent story built into the game as code and data (no AI inside the
+    game). Hundreds of small scenes ("storylets") checked by a database so
+    they can never contradict the game state.
+  - The Campfire Chronicle: the game keeps a journal of your run.
+
+People
+  - Individuals, not squads. Each person has a background, a personality,
+    attributes, skills and a special ability (Dead of Winter style). Some are
+    overpowered, some are weak; the game balances overall.
+  - Personalities can override your orders (panic, rage, greed).
+  - Experience comes from kills and actions; skills grow from use.
+  - People carry gear, armour and drugs (temporary buffs).
+  - You can recruit and grow the group between missions.
+  - You can rename people (defaults are kept if you don't).
+  - Permadeath, one save. If everyone dies, it's game over.
+
+Fights
+  - Move + 1 action per person per turn.
+  - Attacks can miss, based on who is attacking (their stats).
+  - XCOM-style directional cover. Trees are cover, water matters.
+  - No telegraphed enemy intent: surprise matters.
+  - Ammo is scarce, and gunfire draws zombies. Stealth is optional: people can
+    hide in houses and woods, but getting attacked first is bad.
+  - Houses are 2x2 tiles, so up to 4 people fit. Doors can be barricaded.
+  - Missions have different goals: get through, take a bridge, hold out, and
+    so on. Not just "kill everything".
+  - You can scavenge inside missions.
+  - Retreat is allowed.
+  - Bitten = infected: the person turns into a zombie a few days later
+    unless treated.
+
+Journey
+  - "The Last Boat": reach Haven Bay before the last ship sails.
+  - Food, fuel and resources drain on a clock. Random events happen.
+  - Scavenge between missions too.
+  - At each stop you choose ONE thing to do.
+  - A caravan of several vehicles that you upgrade. Party size = seats.
+  - No vehicles on the tactical map.
+
+Other
+  - Difficulty modes, Normal by default.
+  - Searching houses never backfires by itself.
+  - Story choices are locked in before you see the outcome (a power cut
+    can't undo them).
+  - Later: zombie dogs, bears and bigger, scarier monsters.
+
+
+================================================================================
+3. THE WORLD AND THE STORY
+================================================================================
+
+SETTING
+  Cedar Falls, a small river town in a forgotten corner of the Pacific
+  Northwest, in late autumn. Pine forest, farmland, logging roads, a dead
+  highway and a cold grey coast. It rains a lot. Nights are long and get
+  longer as the trip goes on.
+
+THE OUTBREAK
+  It started at St. Agnes hospital in Cedar Falls. A man was brought in from
+  a logging road with bite marks nobody could explain. He died on the table
+  and got up again. The staff called him Patient Zero. Within a week the town
+  was gone.
+
+  The dead are slow alone and deadly in numbers. They follow noise. They are
+  drawn to the living. Something about Patient Zero is different: the dead
+  near him move together, like one animal. He is somewhere behind you, and
+  the horde is following.
+
+THE GOAL
+  A radio message on a military channel: an evacuation ship, the last one,
+  leaves Haven Bay on the coast. Day 40 is the last day. After that, nobody
+  is coming. Haven Bay is about 12 stops away.
+
+THE GROUP
+  It starts with four: Mara (a firefighter), Doc (an ER doctor from St.
+  Agnes), June (a young radio operator who heard the message) and Holt (an
+  ex-army sergeant). Everyone else is met on the road.
+
+THREE ACTS
+
+  ACT 1: LEAVING CEDAR FALLS (Days 1-12)        [the demo covers this act]
+    Stops: Cedar Falls -> Main Street or the Gas Station -> Hensley Farm or
+    the County Highway -> Miller's Bridge.
+    Theme: panic and first losses. The group learns to scavenge, to be quiet,
+    and that guns are a last resort. Ends crossing the river at Miller's
+    Bridge.
+    Story beats: the first bite in the group; Doc's guilt about Patient Zero
+    ("I signed the transfer papers"); June keeps the radio alive; first
+    recruits (Rosa the mechanic at the gas station, Tess the runaway on Main
+    Street).
+
+  ACT 2: THE DEAD COUNTRY (Days 13-28)
+    Stops: the forest highway, a logging camp, a flooded valley (water
+    missions), a burned-out outpost, Ridgeview (a dead city with a hospital
+    and a pharmacy district), a prison bus, a church refuge.
+    Theme: the group becomes a community, and the road starts to cost people.
+    Trading outposts appear. Other survivors are not always friendly.
+    Story beats: Cole, a stranger who survived a bite, joins (the mystery);
+    a church refuge that wants your people to stay; a decision at Ridgeview
+    hospital (antivirals vs. saving a child); the horde front catches up for
+    the first time (a siege).
+
+  ACT 3: THE COAST (Days 29-40)
+    Stops: the coast road, a lighthouse, the fish cannery, the harbour
+    district of Haven Bay.
+    Theme: the clock. Too few seats, too little fuel, and Patient Zero is
+    close. The boat is real, and it might not wait.
+    Story beats: Cole's secret (he is immune, and Patient Zero is drawn to
+    him); the final run through Haven Bay to the dock; Patient Zero, the
+    boss, at the harbour.
+
+ENDINGS (based on what happened, not chosen from a menu)
+  - The Last Boat: you reach the dock before it sails. The ending lists who
+    made it and who didn't, with their Chronicle epitaphs.
+  - Too Late: the boat sails without you. The survivors watch from the pier.
+    "Nobody is coming."
+  - Alone: one person makes it. A quiet, bitter ending.
+  - Cole's choice (secret): if Cole is alive and trusted, he can stay behind
+    on the pier to draw the horde away from the boat.
+  - Game over: everyone dies. The memorial shows every grave.
+
+PATIENT ZERO (the antagonist)
+  - Seen in flashbacks and at a distance in Act 1. Appears in Act 2 sieges.
+    Fought in Act 3.
+  - Boss rules (designed, not built yet):
+    * the dead near him hit harder and stand firmer;
+    * he summons more dead at night;
+    * he heals while nests survive;
+    * people he kills rise faster;
+    * at half health he goes into a frenzy;
+    * when he dies, every zombie on the map takes heavy damage ("the link is
+      broken").
+
+
+================================================================================
+4. HOW THE STORY EVOLVES
+================================================================================
+
+The story is mostly made by what happens to YOUR group, plus a few fixed
+beats (the boat, Patient Zero, Cole).
+
+STORYLETS
+  Small scenes, 2-6 lines long, often with a choice. They fire at set
+  moments:
+    - at camp (every night)
+    - on the road (between stops)
+    - at a stop (arriving)
+    - before and after missions
+    - when someone dies
+    - when someone is bitten
+
+  Each storylet has conditions, for example: "two living people who trust
+  each other, one of them infected, meds below 2, at night". The game picks
+  one that fits the current state.
+
+  Storylets refer to ROLES, not names: "a Caring person", "someone infected",
+  "Doc (if alive)". The game fills in whoever fits. A dead person can never
+  speak, because they can't fill a role.
+
+  Effects are small and meaningful: supplies +/- 1-3, morale, relationships,
+  a trait gained or lost, rarely an injury or a death.
+
+RELATIONSHIPS
+  Every pair of people has a value from -3 (enemies) to +3 (together).
+  Storylets change it. Bonded friends fight better side by side and grieve
+  hard. Rivals argue at camp.
+
+PERMADEATH
+  Dead is dead. The roster keeps a grave with an epitaph. Later storylets
+  remember the dead ("Mara still sets out five bowls").
+
+THE CAMPFIRE CHRONICLE
+  A journal of the run: who joined, who died and how, bites, amputations,
+  kills, missions, choices. Shown at camp, at game over and at the ending.
+  Later, a web page will read the save file from the SD card and print the
+  run as a story.
+
+WHAT A WRITER DELIVERS
+  - Storylets as rows in tables (see deadwars/docs/tech/STORY.md in the
+    repo).
+  - Lines must fit the dialogue box: about 23 characters x 5 lines with a
+    portrait, 28 x 5 without.
+  - Every name in text is a placeholder like {A.name}, never typed out.
+  - Voice: short, plain, tired, human. Dark humour is welcome; melodrama is
+    not.
+  - Example:
+      A: "You ate my share."
+      B: "I was hungry. We're all hungry."
+      Choice: Let it go (morale -1) / Make them pay it back (food +1,
+      relationship -1).
+
+
+================================================================================
+5. THE CAST (24 characters)
+================================================================================
+
+Each character has: a name, a background, 2 personality traits, 4
+attributes (Grit, Aim, Speed, Nerve, each 1-5), starting skills, a
+special ability, starting gear, and a LOOK (for the artist).
+
+The demo has the first 6 people. The other 18 are designed, not built.
+
+ #  NAME            BACKGROUND        TRAITS             ABILITY (draft)
+ 1  Mara Quinn      Firefighter       Brave, Loyal       Carry: moves with a downed ally; breaks doors silently
+ 2  Elias "Doc"     ER doctor         Weary, Caring      Surgeon: amputation always works; heals +2
+    Ward
+ 3  June Park       Radio operator    Calm, Curious      Scanner: reveals the next stop's mission and dangers
+ 4  Holt Becker     Ex-army sergeant  Hothead, Brave     Overwatch: shoots the first zombie that moves in sight
+ 5  Rosa Delgado    Mechanic          Cynic, Loyal       Field repair: fixes vehicles for half the parts
+ 6  Tess            Teenage runaway   Reckless, Selfish  Ghost: stays hidden in the open if she didn't attack
+ 7  Grady Moss      Hunter            Loner, Calm        Marksman: no long-range penalty; crossbow expert
+ 8  Nina Shah       Nurse             Caring, Paranoid   Triage: two heals per camp
+ 9  Wade Tull       Trucker           Greedy, Optimist   Road hog: the caravan uses 1 less fuel per leg
+ 10 Dana Reyes      Police officer    Brave, Haunted     Suppress: the target loses its next move
+ 11 Abe Collier     Pastor            Devout, Pacifist   Rally: calms panic nearby; never fires guns
+ 12 Lou Barros      Diner cook        Optimist, Glutton  Stretch: half rations without the penalty
+ 13 Bianca Russo    Chemist           Addict, Curious    Brew: makes drugs and molotovs at camp
+ 14 Kit             10-year-old       Brave, Fragile     Little light: raises morale; can't use guns
+ 15 Vic Harlan      Ex-con            Selfish, Loyal     Lockpick: opens locked caches silently
+ 16 Lena Cho        Athlete           Reckless, Optimist Sprint: +2 move once per mission
+ 17 Ham Ostrowski   Farmer            Calm, Stubborn     Forage: more food from camp foraging
+ 18 Iris Kahale     Electrician       Paranoid, Clever   Lure: sets off a car alarm or radio as a decoy
+ 19 Boone           Biker             Hothead, Reckless  Cleave: a melee hit also strikes a second zombie
+ 20 Gail Fenner     Librarian         Calm, Cowardly     Maps: shows an extra route on the journey
+ 21 Ruth & Ray      Retired couple    Loyal, Fragile     Bonded: better aim next to each other; grief apart
+    Abbott          (two people)
+ 22 Sal Vitale      Pawnbroker        Greedy, Cynic      Haggle: better trade prices
+ 23 Okafor          Teacher           Calm, Caring       Mentor: people next to him learn twice as fast
+ 24 Cole            Bite survivor     Haunted, Loner     Immune?: his infection never progresses (story secret)
+
+LOOKS (for the artist; the first 6 are in the demo)
+  Mara:  30s woman, short dark hair or a firefighter helmet, tan/khaki
+         turnout coat with a yellow reflective stripe, machete.
+  Doc:   60s man, grey hair, glasses, white coat over a sweater, a medkit,
+         an old pistol. Tired eyes.
+  June:  20s woman, black ponytail, headset round her neck, blue windbreaker,
+         crossbow.
+  Holt:  50s man, big build, military cap, olive field jacket, hunting rifle.
+         Scarred.
+  Rosa:  40s woman, mechanic overalls, red bandana, wrench in her pocket,
+         baseball bat.
+  Tess:  16, grey hoodie with the hood up, ripped jeans, sneakers, knife.
+         Small and fast.
+  Grady: bearded hunter in a camo cap and an orange vest, crossbow.
+  Nina:  scrubs under a parka, hair in a bun, a medical bag.
+  Wade:  trucker cap, belly, flannel shirt, a tyre iron.
+  Dana:  police uniform, torn; a vest; a pistol and a flashlight.
+  Abe:   black suit and collar, grey beard, a walking stick, no weapon.
+  Lou:   diner apron over a jacket, a cleaver, a big friendly face.
+  Bianca: lab goggles on her head, a stained lab coat, a satchel of bottles.
+  Kit:   small kid in a yellow raincoat, a toy flashlight.
+  Vic:   tattoos, tank top, prison-issue trousers, a crowbar.
+  Lena:  track jacket, ponytail, running shoes, a hockey stick.
+  Ham:   overalls, straw hat, a pitchfork or shotgun.
+  Iris:  tool belt, hard hat, gloves, a radio.
+  Boone: leather vest, bandana, beard, an axe.
+  Gail:  cardigan, round glasses, a backpack full of maps.
+  Ruth & Ray: an old couple in matching windbreakers; she has a cane, he has
+         a revolver.
+  Sal:   gold chain, leather jacket, a pistol and a fanny pack.
+  Okafor: corduroy jacket, glasses, a satchel of books.
+  Cole:  gaunt, a bandaged forearm, a hood, a thousand-yard stare.
+
+UNNAMED SURVIVORS
+  People you rescue or recruit who aren't in the cast get a generated name
+  and look (body, skin, hair, outfit, one or two traits). You can rename
+  them.
+
+
+================================================================================
+6. THE JOURNEY (the Organ Trail layer)
+================================================================================
+
+THE ROUTE MAP
+  A branching road map, like FTL. At each stop you see 2-3 next stops. Each
+  shows its name, its type (town, farm, gas station, outpost, hospital,
+  bridge...), the fuel cost, the days of travel and a one-line rumour.
+
+  The horde front (Patient Zero's horde) follows you on the map and moves
+  forward every day. Resting and detours let it catch up. A stop it reaches
+  becomes a siege.
+
+AT EACH STOP, CHOOSE ONE
+  Scavenge  play the stop's mission. Risk people, gain supplies, open the
+            road.
+  Bypass    pay extra fuel and/or a day; no fight, no loot.
+  Trade /   outposts only: swap supplies, hire people, buy or repair
+  Recruit   vehicles and upgrades.
+  Rest      heal people, raise morale, treat infection. Costs food and a
+            day, risks a night event, and lets the horde catch up.
+
+ROAD EVENTS (between stops)
+  Breakdown, roadblock, a stranger flagging you down, a trade caravan, a
+  horde crossing the road, a gas station, a body with a backpack, an infected
+  hitchhiker, a radio message about the boat, a bandit toll. Each is a
+  storylet with choices, often decided by stats ("Rosa can fix it: Mechanics
+  3 needed").
+
+PACE AND RATIONS
+  Pace:    Careful (slower, safer) / Steady / Hard driving (faster, more
+           breakdowns and exhaustion).
+  Rations: Full / Half (less morale, Grit checks) / None (people starve).
+
+
+================================================================================
+7. THE CARAVAN, RESOURCES AND THE CLOCK
+================================================================================
+
+RESOURCES (all drain together; this is the clock)
+  Food    1 per person per day.
+  Fuel    per vehicle per leg (sedan 2, van 3, bus 5). Run out: abandon a
+          vehicle and anyone who no longer fits.
+  Ammo    shared pool, scarce, spent per shot.
+  Meds    healing, treating infection.
+  Parts   repairs, barricades, upgrades, crafting.
+  Morale  0-10; low morale makes people panic and fight.
+  Days    every leg, rest and mission costs time. The boat leaves on Day 40.
+
+  Demo (Act 1 only) starting supplies on Normal: food 24, fuel 12, ammo 20,
+  meds 4, parts 4. The demo's boat deadline is scaled to the slice: Day 12 /
+  10 / 9 / 8 (Easy / Normal / Hard / Very Hard).
+
+VEHICLES (the caravan)
+  Party size = total seats. Loot beyond the cargo space must be left behind.
+  Sedan     4 seats, 2 cargo, fuel 2
+  Pickup    2 seats, 6 cargo, fuel 2
+  Van       6 seats, 3 cargo, fuel 3
+  School bus 12 seats, 4 cargo, fuel 5
+  Motorbike 1 seat, fuel 1, can scout ahead
+  RV        4 seats, beds (heal at camp), fuel 4
+  Each has a condition (breakdowns get likelier below 50%) and up to 2
+  upgrades: plow plating, roof rack, extra tank, CB radio, sleeping cots.
+  The demo starts with a sedan and a pickup.
+
+
+================================================================================
+8. CAMP (every night)
+================================================================================
+
+Give each person one job:
+  Cook     saves food, raises morale (Survival skill)
+  Guard    prevents or weakens night raids (Nerve)
+  Repair   fixes vehicles (Mechanics)
+  Tend     heals the wounded, treats infection, amputates (Medicine)
+  Forage   a quick, risky scavenge for food, parts or fuel (Scavenging,
+           Stealth)
+  Scout    reveals details of the next stops
+  Rest     heals
+  Craft    molotovs, barricade kits, drugs (Bianca)
+Then storylets play: arguments, confessions, romances, theft, a fever
+breaking, someone who wants to leave.
+
+
+================================================================================
+9. MISSIONS (the tactical layer)
+================================================================================
+
+SCALE
+  One tile = one person (16 x 16 pixels). Maps are up to 32 x 32 tiles; the
+  screen shows 15 x 10 tiles. Houses are 2 x 2 tiles (4 people), shops and
+  hospitals are bigger.
+
+MISSION TYPES
+  Scavenge run       loot what you can, then get out. Noise brings waves.
+  Get through        get at least N people to the far side.
+  Take the bridge    clear the bridge, then hold it for N turns.
+  Hold out           survive N turns, usually at night, in a barricaded
+                     building.
+  Rescue             find hidden survivors in buildings and escort them out;
+                     they join you.
+  Retrieve           get one item (antivirals for a bitten friend, a radio
+                     part, keys), then leave.
+  Defend the caravan keep the dead off the vehicles while they're repaired.
+  Burn the nest      reach and burn a nest.
+  Siege              the horde caught you: break out or hold out.
+  Boss               Patient Zero (Act 3).
+  Missions also have 0-2 optional goals: a cache, a stranded survivor, a
+  vehicle to hot-wire, a fuel truck to drain.
+
+MODIFIERS
+  Night, Rain (quieter, shorter sight), Fog, Dense horde, Sleeping horde,
+  Low on ammo, an infected friend in the team, a panicky person to escort.
+
+DEPLOY, RETREAT, RESULTS
+  Choose who goes (4-6). People standing on the caravan or exit tiles can
+  leave at any time. Anyone left on the map when everyone else leaves is lost.
+  Failing a mission costs what it was for (no bridge = a detour), but never
+  ends the game by itself.
+
+THE DEMO'S THREE MAPS
+  Main Street      (scavenge run, day)  houses, a pharmacy, a shop, a garage,
+                   wrecked cars with trunks to search.
+  Hensley Farm     (get through, night) farmhouse, barn, fences, fields.
+  Miller's Bridge  (take the bridge, day) a river, the bridge, both banks.
+
+
+================================================================================
+10. COMBAT, COVER, NOISE AND STEALTH
+================================================================================
+
+A TURN
+  Each person gets a Move and 1 Action (either order). Actions: attack,
+  search, barricade a door, heal, use an item, overwatch, help a downed
+  friend, leave the map, wait. Then the dead move.
+
+HIT CHANCE (attacks can miss; who attacks matters)
+  Ranged:  50 + 8 x Aim + 5 x Firearms + weapon accuracy
+           - cover - range penalty - night penalty
+           + flank bonus + height bonus
+  Melee:   60 + 6 x Speed + 5 x Melee + weapon accuracy
+           + bonus vs. an unaware target
+  Always between 5% and 95%. The screen shows the hit % and the damage
+  before you commit.
+
+DIRECTIONAL COVER (XCOM style)
+  Cover sits on the edges of a tile: a fence, wall, wreck, tree or building
+  wall next to you. Half cover -20%, full cover -40%, only against attacks
+  from that side. A zombie coming round the side = FLANKED (full damage,
+  +15% to hit). Melee ignores cover, but a barricaded door blocks it both
+  ways.
+
+NOISE AND THE HORDE METER
+  Every action makes noise (knife 1, bat 2, pistol 6, shotgun 9, rifle 10,
+  breaking a door 4, barricading 3). Zombies within range come to look. Noise
+  also fills the mission's Horde meter; at set levels, waves of the dead
+  arrive from the map edges. The meter also rises a little every turn, and
+  faster on harder difficulties.
+
+STEALTH
+  A person in woods or inside a building who hasn't made a loud noise is
+  hidden; the dead don't target them unless they're right next to them.
+  Attacking something that doesn't know you're there = +25% to hit and +1
+  damage. The dead get the same bonus against you (ambushes in dark houses).
+
+BUILDINGS
+  2 x 2 tiles, one person per tile. No interior view: the roof stays drawn,
+  with small portrait badges showing who is inside. Doors can be barricaded
+  (1 action, 1 part). The dead must break the barricade, which takes time
+  and makes noise. Searching each tile is silent and never springs a trap,
+  but sleeping dead can be inside.
+
+WATER
+  The dead can't swim, so rivers are defensive lines. (Wading for people is
+  planned.)
+
+
+================================================================================
+11. PEOPLE: ATTRIBUTES, SKILLS, PERSONALITY, INFECTION
+================================================================================
+
+ATTRIBUTES (1-5)
+  Grit  max HP (6 + Grit), resists infection, hunger and cold
+  Aim   ranged accuracy
+  Speed movement (3-5 tiles) and dodging
+  Nerve resists panic; night penalties
+
+SKILLS (0-5, grow from use)
+  Firearms, Melee, Medicine, Mechanics, Stealth, Scavenging, Survival,
+  Leadership. Shooting trains Firearms, searching trains Scavenging, and so
+  on.
+
+PERSONALITY (2 traits each, about 20 traits)
+  Brave, Cowardly, Hothead, Calm, Loner, Loyal, Caring, Selfish, Greedy,
+  Reckless, Paranoid, Optimist, Cynic, Devout, Addict, Haunted, Stubborn,
+  Curious, Fragile, Glutton, Pacifist, Clever, Weary.
+  Traits give small stat quirks, steer the storylets, and can OVERRIDE your
+  orders after a failed Nerve check (a friend dies, someone is bitten, being
+  surrounded, night, starving):
+    Flee (Cowardly), Freeze (Fragile), Berserk (Hothead/Reckless),
+    Grab loot or drugs (Greedy/Addict), Refuse to leave a friend (Loyal).
+
+GEAR
+  A weapon, armour, and 2 pack slots.
+  Weapons: knife, bat, machete, axe, crossbow, pistol, shotgun, hunting
+  rifle, molotov.
+  Armour: leather jacket (fewer infections), riot gear (far fewer, slower).
+  Drugs (temporary buffs, risk of addiction): adrenaline, painkillers,
+  stims, sedatives, antivirals.
+
+INJURY, BITES AND DEATH
+  0 HP -> downed: bleeding out for 2 turns. A friend can stabilise or carry
+  them; otherwise they die. People killed by the dead rise as zombies.
+  Bitten -> INFECTED: they turn in about 3 days (more with Grit, fewer on
+  Hard). Options at camp: amputate (cured, but a permanent penalty), spend
+  antivirals (buys time), quarantine, or a mercy scene.
+
+
+================================================================================
+12. THE ZOMBIES (and what comes later)
+================================================================================
+
+NOW
+  Walker   slow, common, the backbone of the horde.
+  Runner   fast and fragile; arrives first.
+  Brute    huge and tough; breaks barricades in one hit.
+  Spitter  spits acid from range 2 (acts like a Walker in the demo).
+  Bloater  bursts when killed and hurts everything next to it.
+  One zombie per tile. States: asleep -> alerted by noise or sight ->
+  hunting -> attacking.
+
+LATER
+  Zombie dogs: fast, hunt by smell, ignore hiding.
+  Bears: rare, terrifying, neutral until provoked.
+  Big monsters: giant Brute variants; Patient Zero's "Hive".
+
+
+================================================================================
+13. SCREENS AND UI (all at 240 x 160)
+================================================================================
+
+  Title                 game logo, Press START, menu
+  Journey map           the route, the horde front, the boat date, fuel and
+                        days per option, a status strip with supplies
+  Stop menu             the 4 choices with costs
+  Deploy                pick who goes
+  Mission map           top: Horde meter, turn, objective; bottom: the
+                        selected person (portrait, HP, status icons) or the
+                        tile and its cover
+  Aim forecast          hit %, damage, cover, FLANKED / UNAWARE tags, noise
+  Person sheet (R)      stats, skills, traits, relationships, gear, history
+  Roof list             who is inside a building
+  Camp                  job board with portraits, then storylets
+  Caravan               vehicles, seats, cargo, condition, upgrades
+  Journal (Chronicle)   the run so far
+  Battle scene          a close-up of one attack (person vs zombie)
+  Game over / victory   memorial wall with epitaphs
+
+
+================================================================================
+14. DIFFICULTY
+================================================================================
+
+                        Easy      NORMAL    Hard      Very Hard
+  Boat sails (full)     Day 50    Day 40    Day 36    Day 32
+  Starting supplies     +50%      base      -25%      -40%
+  Horde meter growth    x0.75     x1        x1.25     x1.5
+  Time before a bite    +2 days   base      -1 day    -1 day, fewer
+  turns                                                antivirals
+  Events                soft      standard  harsh     brutal
+  Always one save slot (ironman): it saves at every stop and every story
+  choice.
+
+
+================================================================================
+15. ART DIRECTION
+================================================================================
+
+MOOD
+  Gritty 16-bit horror. Desaturated greens and browns by day, deep blue
+  nights, blood red as the only loud colour. Rain, mud, rust, wet asphalt,
+  pine forests, grey coast. Think "Advance Wars 2 sprites drawn by someone
+  who has seen The Walking Dead": readable and chunky, but grim.
+
+READABILITY RULES (the screen is tiny)
+  - Silhouettes first. Every person must be recognisable at 16 x 16 by shape
+    and one or two colours (Mara's yellow stripe, Doc's white coat, June's
+    blue jacket, Holt's olive and rifle, Rosa's red bandana, Tess's grey
+    hood).
+  - A 1-pixel dark outline round every sprite.
+  - Light from the top-left.
+  - No soft gradients, no anti-aliasing, no transparency effects.
+  - Survivors lean blue/warm, the dead lean sickly green/grey with red.
+
+HARDWARE LIMITS (the GBA)
+  - Each sprite uses ONE palette of 15 colours + transparent. Survivors share
+    3 palettes, zombies share 1, so keep colours consistent across
+    characters.
+  - Backgrounds are built from 8 x 8 tiles; map tiles are 16 x 16.
+  - Portraits: one palette each (15 colours).
+  - Full-screen pictures (title, journey map): one 16-colour palette, at most
+    about 500 unique 8 x 8 tiles (simple, repeating areas help).
+
+
+================================================================================
+16. ART ASSET LIST, CHATGPT PROMPTS, AND HOW TO HAND ART BACK
+================================================================================
+
+HOW TO WORK WITH CHATGPT IMAGES
+  ChatGPT makes large, painterly images. That's fine: use them as CONCEPT
+  ART and REFERENCE. I'll convert them to exact GBA pixel art (the right
+  size, palette and outline), keeping the design. For the best results:
+
+  1. Ask for "pixel art", "limited palette", "flat colours, no
+     anti-aliasing", "plain flat background" (or transparent), "front view"
+     or "side view facing right" as noted below.
+  2. One character or object per image, centred, full body, nothing cropped.
+  3. For sprite sheets, ask for the poses side by side on one sheet.
+  4. Keep the same character's colours across all images (paste the colour
+     notes from section 5 into each prompt).
+  5. Send me the PNGs as they are, and name the files like
+     mara_concept.png, mara_portrait.png, roof_house.png, journey_map.png.
+     Add a line saying what each one is for.
+
+  A base style line to put at the start of every prompt:
+    "16-bit pixel art in the style of Game Boy Advance tactics games
+     (Advance Wars 2), gritty zombie horror, muted palette, dark 1-pixel
+     outlines, light from the top-left, flat colours, no anti-aliasing, no
+     text."
+
+PRIORITY 1: THE DEMO CAST (6 characters)
+  For each of Mara, Doc, June, Holt, Rosa, Tess, make:
+
+  a) Concept sheet (reference)
+     Prompt: "<base style> Character concept sheet for <NAME>, <LOOK from
+     section 5>. Full body, front view and side view facing right, plus a
+     close-up of the face. Plain flat grey background."
+
+  b) Portrait (in game: 32 x 32 pixels, shown in dialogue boxes)
+     Prompt: "<base style> Pixel art portrait, head and shoulders, of <NAME>,
+     <LOOK>. Square image, facing slightly right, simple dark background.
+     Readable at very small size; strong shapes."
+     Final size in game: 32 x 32, 15 colours.
+
+  c) Map sprite (in game: 16 x 16 pixels, 2 frames)
+     Prompt: "<base style> Tiny 16x16 pixel art sprite sheet of <NAME>, side
+     view facing right, full body, 2 frames: standing and walking. Very
+     chunky, readable silhouette. Transparent background."
+
+  d) Battle figure (in game: 32 x 32 pixels, 4 frames)
+     Prompt: "<base style> 32x32 pixel art sprite sheet of <NAME> facing
+     right with <WEAPON>, 4 frames: idle 1, idle 2, wind-up, attack. Same
+     character as the portrait. Transparent background."
+
+PRIORITY 2: THE DEAD (5 types)
+  Walker, Runner, Brute, Spitter, Bloater. Same three outputs as the people:
+  concept sheet, 16x16 map sprite (2 frames, facing right), 32x32 battle
+  figure (4 frames).
+  Prompt: "<base style> Zombie: <TYPE DESCRIPTION>. Sickly green-grey skin,
+  torn clothes, red wounds. Facing right."
+  Type descriptions:
+    Walker:  slumped, arms forward, torn shirt.
+    Runner:  thin, leaning forward mid-sprint, red-stained clothes.
+    Brute:   huge, swollen, hunched, tiny head, broken chains.
+    Spitter: hunched, distended jaw, glowing green acid dripping.
+    Bloater: grotesquely swollen purple body, pustules.
+  Also: Patient Zero (boss): "tall gaunt man in a torn hospital gown, IV
+  tube still in his arm, pale glowing eyes, the dead around him leaning
+  toward him".
+
+PRIORITY 3: BUILDINGS (seen from above, 16 x 16 tiles)
+  Roofs for houses, a shop, a garage, a pharmacy, a hospital, a barn, a
+  church. Buildings are 2 x 2 or 3 x 2 tiles (32 x 32 or 48 x 32 pixels).
+  Prompt: "<base style> Top-down 3/4 view pixel art of a small <BUILDING>
+  roof for a tactics game map, 32x32 pixels (2x2 tiles of 16x16), clear
+  roof edges, a door on the bottom edge, matches a grassy town map.
+  Transparent background."
+  Plus small icons (16 x 16): a door, a barricaded door (planks), a backpack
+  cache, an exit flag, a hidden eye, infected (a drop), downed (a red
+  cross), a noise ring.
+
+PRIORITY 4: MAP TERRAIN (16 x 16 tiles that repeat)
+  Grass, woods, rubble, river, bridge, road (with corners and crossings),
+  fence, wrecked car, ruins, mud, a cornfield, a pier, sand, rocks. Night
+  versions are made automatically.
+  Prompt: "<base style> Seamless tileable 16x16 pixel art terrain tile of
+  <TERRAIN> for a top-down tactics map, gritty and muted."
+
+PRIORITY 5: SCREENS (full screen, 240 x 160 pixels)
+  - Title screen: "Dead Wars: The Last Boat". A ruined Pacific Northwest
+    town at night, a distant ship's light on the sea, a crowd of the dead in
+    silhouette. Leave the bottom 5 rows of text (about 40 px) dark for the
+    menu. I add the logo text myself.
+  - Journey map: a dark, hand-drawn road map from Cedar Falls (left) to Haven
+    Bay (right) across forest, farmland, a river, a dead city, and the coast.
+    Leave the top 16 px and bottom 40 px plain for text.
+  - Battle backdrops: 120 x 104 px panels for plain, woods, ruins, city,
+    nest, farm and coast.
+  - Camp scene: a campfire at night with the vehicles parked around it.
+  Prompt: "<base style> Full-screen 240x160 pixel art illustration of
+  <SCENE>. Limited 16-colour palette, simple large shapes, no text."
+
+PRIORITY 6: LATER
+  The other 18 cast members (section 5), vehicles (for the caravan screen),
+  zombie dogs, bears, big monsters, story illustrations (key moments: the
+  boat, the pier, Patient Zero).
+
+WHAT I DO WITH YOUR IMAGES
+  I resize, re-palette and re-outline each image into the exact GBA format,
+  then put it in the game and send you screenshots and a new build to check
+  on the Miyoo. If an image doesn't survive the shrink (too much detail), I
+  will tell you which parts to simplify.
+
+
+================================================================================
+17. AUDIO DIRECTION
+================================================================================
+
+  - Music in layers that follow the Horde meter: quiet ambience when calm, a
+    pulse at the first threshold, full dread when the waves come.
+  - A fragile, warm camp theme; a lonely road theme.
+  - Sharp noise effects: a gunshot echo, glass, a door splintering, a moan.
+  - A short death sting for each character.
+  - The GBA sound chip is simple: think chiptune with lots of silence.
+
+
+================================================================================
+18. WHAT THE DEMO HAS TODAY / WHAT'S NEXT
+================================================================================
+
+IN THE DEMO (on your Miyoo now, menu entry "The Last Boat")
+  - Act 1: Cedar Falls -> Main Street / Gas Station -> Hensley Farm / County
+    Highway -> Miller's Bridge.
+  - Stops (choose one), deploy, 3 mission types on 3 maps, camp jobs, about
+    50 storylets, the Chronicle, infection, permadeath with one save,
+    difficulty modes.
+  - Combat with hit chances, directional cover, noise, waves, hiding,
+    barricades, searching, retreat.
+  - Placeholder art for people, roofs and icons, made by a generator.
+
+IN PROGRESS (build 2)
+  - Story outcomes locked before they're shown (power-cut safe).
+  - Renaming people.
+  - A balance pass.
+  - A proper boot logo in the cartridge header.
+
+NEXT
+  - Panic and personality overrides in missions; special abilities.
+  - Rosa and Tess join; recruiting; more of the cast.
+  - Roof portrait badges, cover markers on the map.
+  - The 1-on-1 battle scene for people.
+  - Spitters and Bloaters with their own behaviour; water wading.
+  - Saving mid-mission.
+  - Then Act 2 and Act 3, the horde front, outposts and trading, vehicles
+    and upgrades, Patient Zero.
+  - Your art replacing the placeholders, as it arrives.
+
+
+================================================================================
+19. GLOSSARY
+================================================================================
+
+  Storylet       a small story scene with conditions, choices and effects.
+  Chronicle      the run's journal.
+  Horde meter    noise in a mission; when it fills, waves of the dead come.
+  Flanked        attacked from a side with no cover.
+  Unaware        a target that hasn't noticed the attacker (+25% to hit).
+  Downed         at 0 HP, bleeding out for 2 turns.
+  Infected       bitten; turns into a zombie after a few days.
+  Ironman        one save slot; you can't reload a bad outcome.
+  Horde front    Patient Zero's horde chasing you on the route map.
+  Tile           one 16 x 16 square on the map; one person per tile.
+
+================================================================================
+End of guide. Repo copy: deadwars/docs/design/DESIGNER_GUIDE.txt
+================================================================================
