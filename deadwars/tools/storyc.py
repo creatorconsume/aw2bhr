@@ -432,6 +432,7 @@ def builtin_inputs(game):
         'hp_pct': ('role', 'int', 0, 100, 'SI_HP_PCT', None),
         'infected': ('role', 'bool', 0, 1, 'SI_INFECTED', None),
         'amputee': ('role', 'bool', 0, 1, 'SI_AMPUTEE', None),
+        'deployed': ('role', 'bool', 0, 1, 'SI_DEPLOYED', None),  # went on the last mission (run.c)
         'grit': ('role', 'int', 0, 5, 'SI_GRIT', None),
         'aim': ('role', 'int', 0, 5, 'SI_AIM', None),
         'speed': ('role', 'int', 0, 5, 'SI_SPEED', None),
@@ -562,9 +563,10 @@ def parse_text(s, ctx, where, log, what):
             ok = False
     if not ok:
         return None
-    plain = re.sub(r'\{[^{}]*\}', ' ', s)
+    # on the text as shown (\n a line break, a placeholder a space), in any case: "\nMara", "HOLT!"
+    plain = re.sub(r'\x01..', ' ', ''.join(enc), flags=re.S)
     for cid, name in ctx.game.cast_name.items():
-        if re.search(r'\b%s\b' % re.escape(name), plain):
+        if re.search(r'\b%s\b' % re.escape(name), plain, re.I):
             log.err(where, "%s names '%s' directly; bind a role with cast=%s and write {X.name}" % (what, name, cid))
             ok = False
     return (''.join(enc), ''.join(worst)) if ok else None
@@ -654,6 +656,9 @@ def load(data_dir, game, log):
             where = '%s:%d' % (path, line)
             if table == 'var' and row.get('id') in builtins:
                 log.err(where, "var '%s' has the name of a builtin input; pick another name" % row['id'])
+                continue
+            if table == 'var' and row.get('id') == 'count':  # emit() ends the SV_ enum with SV_COUNT
+                log.err(where, "var 'count' clashes with SV_COUNT in the generated C; pick another name")
                 continue
             try:
                 db.execute(sql, [line] + [row[c] for c in cols[1:]])
@@ -1115,7 +1120,8 @@ def none(v):
 
 
 SI_CODES = ['SI_DAY', 'SI_DAYS_LEFT', 'SI_RES', 'SI_MORALE', 'SI_ALIVE', 'SI_VAR', 'SI_CAST', 'SI_TRAIT', 'SI_SKILL',
-            'SI_HP', 'SI_HP_PCT', 'SI_INFECTED', 'SI_AMPUTEE', 'SI_GRIT', 'SI_AIM', 'SI_SPEED', 'SI_NERVE', 'SI_REL']
+            'SI_HP', 'SI_HP_PCT', 'SI_INFECTED', 'SI_AMPUTEE', 'SI_GRIT', 'SI_AIM', 'SI_SPEED', 'SI_NERVE', 'SI_REL',
+            'SI_DEPLOYED']
 SO_CODES = {'=': 'SO_EQ', '!=': 'SO_NE', '<': 'SO_LT', '<=': 'SO_LE', '>': 'SO_GT', '>=': 'SO_GE',
             'has': 'SO_HAS', 'lacks': 'SO_LACKS'}
 SE_CODES = {op: 'SE_' + op.upper() for op in EFFECT_OPS}

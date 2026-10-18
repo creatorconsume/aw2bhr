@@ -729,7 +729,8 @@ static void test_weapons(void)
 	EQ(tac_hit_chance(z, mara, NULL), 95);
 	EQ(tac_weapon(mara, z), -1);            // downed people don't fight
 	tac.actor[mara].down = 0;
-	// walls: no melee through them (either way); a gun fires through a window
+	// walls: no melee through them (either way); a gun fires through a window, point blank: the
+	// wall is the walker's only cover and it faces Doc, so no flank (N3): 50 + 16 = 66, 3 damage
 	put(mara, 2, 1);
 	put(doc, 2, 2);
 	put(z, 3, 1);
@@ -737,15 +738,34 @@ static void test_weapons(void)
 	EQ(tac_hit_chance(z, mara, NULL), 0);
 	put(z, 3, 2);
 	EQ(tac_weapon(doc, z), WP_PISTOL);
-	EQ(tac_hit_chance(doc, z, &cover), 81);
+	EQ(tac_hit_chance(doc, z, &cover), 66);
+	EQ(cover, 0);
+	EQ(tac_flanked(doc, z), false);
+	EQ(tac_damage(doc, z), 3);
 	// the door: zombies bite through it until it's barricaded
 	put(mara, 1, 2);
 	put(z, 1, 3);
 	EQ(tac_hit_chance(z, mara, NULL), 35);
+	EQ(tac_weapon(mara, z), WP_MACHETE);
 	tac.bldg[0].door_hp = 6;
 	EQ(tac_hit_chance(z, mara, NULL), 0);
 	EQ(tac_damage(z, mara), 0);
-	EQ(tac_weapon(mara, z), WP_MACHETE);    // people strike out over their barricade
+	EQ(tac_weapon(mara, z), -1);            // the barricade blocks melee both ways (8.4)
+	EQ(tac_hit_chance(mara, z, NULL), 0);
+	put(mara, 2, 1);
+	put(doc, 1, 2);
+	EQ(tac_weapon(doc, z), WP_PISTOL);      // a gun still fires out over it
+	put(doc, 1, 3);                         // and from outside, at one on the door tile
+	put(z, 1, 2);
+	EQ(tac_weapon(doc, z), WP_PISTOL);
+	run.res[RES_AMMO] = 0;
+	EQ(tac_weapon(doc, z), -1);             // no fists through it either
+	run.res[RES_AMMO] = 20;
+	tac.bldg[0].door_hp = 0;
+	EQ(tac_weapon(doc, z), WP_PISTOL);
+	run.res[RES_AMMO] = 0;
+	EQ(tac_weapon(doc, z), WP_FISTS);
+	run.res[RES_AMMO] = 20;
 	// nonsense pairs
 	EQ(tac_hit_chance(mara, doc, NULL), 0);
 	EQ(tac_hit_chance(z, z, NULL), 0);
@@ -838,6 +858,24 @@ static void test_stats(void)
 	for (int i = 0; i < 40; i++)
 		tac_attack(w, tess);
 	EQ(run.log_count, nlog);
+	// the bite timer by difficulty (LAST_BOAT.md 16: +2 Easy, -1 Hard and Very Hard) is set at the
+	// bite, by person_bitten(), which a storylet's `infect` uses too
+	static const int bite_days[4] = { 2, 0, -1, -1 };
+	for (int d = 0; d < 4; d++) {
+		run.difficulty = d;
+		run.roster[TESS].flags &= ~PF_INFECTED;
+		for (int i = 0; i < 400 && !(run.roster[TESS].flags & PF_INFECTED); i++) {
+			set_hp(tess, 99);
+			tac_attack(w, tess);
+		}
+		CHECK(run.roster[TESS].flags & PF_INFECTED);
+		EQ(run.roster[TESS].turn_in, 3 + 1 + bite_days[d]);
+	}
+	Person p0 = { .grit = 0 };
+	person_bitten(&p0); // Very Hard, Grit 0: 3 - 1
+	EQ(p0.turn_in, 2);
+	EQ(p0.flags, PF_INFECTED);
+	run.difficulty = 1;
 }
 
 static void test_attack_effects(void)
@@ -947,7 +985,7 @@ static void test_noise(void)
 		CHECK(u->x == 0 || u->y == 0 || u->x == gs.w - 1 || u->y == gs.h - 1);
 		CHECK(tac_move_cost(u->x, u->y, true) != IMPASSABLE);
 		CHECK(!tac_in_bldg(u->x, u->y));
-		CHECK(!(tac.zone[u->y][u->x] & ZN_DEPLOY));
+		CHECK(!(tac.zone[u->y][u->x] & (ZN_DEPLOY | ZN_EXIT)));
 		CHECK(abs(u->x - gs.units[mara].x) + abs(u->y - gs.units[mara].y) > 4);
 		CHECK(abs(u->x - gs.units[doc].x) + abs(u->y - gs.units[doc].y) > 4);
 		CHECK(u->type == UT_WALKER || u->type == UT_RUNNER);
@@ -986,7 +1024,8 @@ static void test_noise(void)
 	}
 	CHECK(count_side(SIDE_HORDE) <= 9);
 	check_sync();
-	// a huge wave fills exactly the legal edge tiles: passable, no roof, not the caravan, 5+ from people
+	// a huge wave fills exactly the legal edge tiles: passable, no roof, not the caravan or an exit,
+	// 5+ from people
 	load(&lab_flood, 2, 4);
 	put(slot(MARA), 6, 4);
 	put(slot(DOC), 6, 6);
@@ -999,7 +1038,8 @@ static void test_noise(void)
 			if (x && y && x != gs.w - 1 && y != gs.h - 1)
 				continue;
 			bool legal = tac_move_cost(x, y, true) != IMPASSABLE && !tac_in_bldg(x, y) &&
-			             !(tac.zone[y][x] & ZN_DEPLOY) && abs(x - 6) + abs(y - 4) > 4 && abs(x - 6) + abs(y - 6) > 4;
+			             !(tac.zone[y][x] & (ZN_DEPLOY | ZN_EXIT)) && abs(x - 6) + abs(y - 4) > 4 &&
+			             abs(x - 6) + abs(y - 6) > 4;
 			int u = unit_at(x, y);
 			want += legal;
 			if (legal != (u >= 0 && gs.units[u].side == SIDE_HORDE))
@@ -1264,10 +1304,24 @@ static void test_objectives(void)
 	EQ(tac.loot[RES_MEDS], 1);
 	EQ(tac.result, 0);
 	tac_kill(june, -1);
-	EQ(tac.result, 1);                        // someone made it out
+	EQ(tac.result, 1);                        // loot made it out
 	EQ(tac_survivors_left(), 0);
 	tac_extract(june);                        // dead: nothing
 	EQ(tac.through, 1);
+
+	// Main Street, everyone straight back to the caravan on turn 1: not a win (+1 morale for
+	// nothing, a free way past the stop); with something in a pack it is
+	for (int got = 0; got < 2; got++) {
+		load(&tac_missions[0], 4, 31 + got);
+		EQ(tac_missions[0].objective, OBJ_SCAVENGE);
+		tac.actor[slot(DOC)].carry[RES_MEDS] = got;
+		for (int r = 0; r < 4; r++)
+			tac_extract(slot(r));             // they start on deploy tiles
+		EQ(tac_survivors_left(), 0);
+		EQ(tac.turn, 0);
+		EQ(tac.loot[RES_MEDS], got);
+		EQ(tac.result, got ? 1 : 2);
+	}
 
 	load(&lab, 2, 22);
 	tac_kill(slot(MARA), -1);
@@ -1426,6 +1480,19 @@ static void test_sync(void)
 
 // SLICE_NUMBERS.md: flank only against cover facing elsewhere (N3), +1 Horde a round (N5), the
 // Horde meter scaled by difficulty (LAST_BOAT.md 16), doors facing out by position (R4).
+// Rounds of +1 until Main Street's first wave (12) with no noise at all, Easy..Very Hard
+static int quiet_wave_round(int difficulty)
+{
+	load(&tac_missions[0], 4, 8);
+	run.difficulty = difficulty;
+	for (int r = 1; r <= 40; r++) {
+		tac_end_survivor_phase();
+		if (tac.wave)
+			return r;
+	}
+	return 0;
+}
+
 static const char *const door_rows[] = {
 	"..........",
 	".hH..HhH..",   // door top-left of a 2x2 faces N; top-middle of a 3x2 faces N
@@ -1469,26 +1536,66 @@ static void test_slice_rules(void)
 	EQ(tac_flanked(doc, z), false);
 	EQ(tac_hit_chance(doc, z, &cover), 50 + 16 - 10 - 20);
 	EQ(cover, 20);
+	// point blank from the woods at (5,7): the walker's only cover is the woods edge Doc stands
+	// behind, so no flank (cover is ignored point blank): 66, 3 damage
+	tac_kill(z, -1);
+	z = zombie(UT_WALKER, 6, 7);
+	put(doc, 5, 7);
+	EQ(tac_weapon(doc, z), WP_PISTOL);
+	EQ(tac_flanked(doc, z), false);
+	EQ(tac_hit_chance(doc, z, &cover), 50 + 16);
+	EQ(cover, 0);
+	EQ(tac_damage(doc, z), 3);
+	put(doc, 6, 6);                                    // from the open north side: flanked, 81
+	EQ(tac_flanked(doc, z), true);
+	EQ(tac_hit_chance(doc, z, NULL), 50 + 16 + 15);
+	EQ(tac_damage(doc, z), 4);
 
-	// N5: +1 a round, at least 1 per noise at any difficulty, x1.5 on Very Hard
+	// N5: +1 a round
 	load(&lab_waves, 2, 6);
 	tac_end_survivor_phase();
 	EQ(tac.horde, 1);
 	tac_end_survivor_phase();
 	EQ(tac.horde, 2);
-	run.difficulty = 0;                                // Easy: x0.75, at least 1
-	tac_noise(6, 6, 1);
-	EQ(tac.horde, 3);
-	tac_noise(6, 6, 4);
-	EQ(tac.horde, 6);                                  // 3 + 4 * 3 / 4: wave 1 at 5
+	tac_noise(6, 6, 3);
+	EQ(tac.horde, 5);                                  // Normal: x1; wave 1 at 5
 	EQ(tac.wave, 1);
-	run.difficulty = 3;                                // Very Hard: x1.5
-	tac_noise(6, 6, 4);
-	EQ(tac.horde, 12);
-	EQ(tac.wave, 2);
-	run.difficulty = 1;
-	tac_end_survivor_phase();
-	EQ(tac.horde, 13);
+	// every fill is scaled by difficulty, x0.75 x1 x1.25 x1.5, the quarters carried to the next
+	// fill: the round tick, quiet melee (noise 1-2) and a barricade (3) all scale
+	static const u8 scale4[4] = { 3, 4, 5, 6 };
+	for (int d = 0; d < 4; d++) {
+		load(&lab, 2, 6);
+		run.difficulty = d;
+		for (int r = 0; r < 4; r++)
+			tac_end_survivor_phase();
+		EQ(tac.horde, scale4[d]);                      // 4 rounds
+		for (int k = 0; k < 4; k++)
+			tac_noise(6, 6, 1);
+		EQ(tac.horde, 2 * scale4[d]);                  // 4 knife strikes
+		tac_noise(6, 6, 2);
+		tac_noise(6, 6, 2);
+		EQ(tac.horde, 3 * scale4[d]);                  // 2 machete strikes
+		tac_noise(6, 6, 3);
+		tac_noise(6, 6, 3);
+		tac_noise(6, 6, 3);
+		tac_noise(6, 6, 3);
+		EQ(tac.horde, 6 * scale4[d]);                  // 4 barricades
+	}
+	load(&lab, 2, 6);
+	run.difficulty = 0;
+	tac_noise(6, 6, 1);
+	EQ(tac.horde, 0);                                  // Easy: 0.75 of a point, kept
+	tac_noise(6, 6, 1);
+	EQ(tac.horde, 1);
+	load(&lab, 2, 6);
+	run.difficulty = 2;
+	tac_noise(6, 6, 9);
+	EQ(tac.horde, 11);                                 // Hard: a shotgun, 11.25
+	// a quiet team on Main Street meets wave 1 in round 16 / 12 / 10 / 8 by difficulty
+	EQ(quiet_wave_round(0), 16);
+	EQ(quiet_wave_round(1), 12);
+	EQ(quiet_wave_round(2), 10);
+	EQ(quiet_wave_round(3), 8);
 	// the round tick stops once the mission is decided, and with nobody left
 	load(&lab_waves, 1, 6);
 	tac_extract(slot(MARA));
@@ -1507,6 +1614,71 @@ static void test_slice_rules(void)
 		CHECK(tac_edge_open(b->door_x, b->door_y, b->door_dir, false));
 	}
 	check_sync();
+}
+
+// LAST_BOAT.md 9.1: on a Get through map the waves come from behind (never nearer the exits than
+// the person nearest them) while there is room; no wave lands on an exit.
+static int exit_dist(int x, int y)
+{
+	int d = 999;
+	for (int ey = 0; ey < gs.h; ey++)
+		for (int ex = 0; ex < gs.w; ex++)
+			if (tac.zone[ey][ex] & ZN_EXIT)
+				d = MIN(d, abs(x - ex) + abs(y - ey));
+	return d;
+}
+
+static int wave_check(const u8 (*team)[2], int nteam, u32 seed, bool behind)
+{
+	load(&tac_missions[2], 4, seed);                   // Hensley Farm: exits on the east edge
+	for (int i = 0; i < MAX_UNITS; i++)
+		if (gs.units[i].alive && gs.units[i].side == SIDE_HORDE)
+			tac_kill(i, -1);
+	int lead = 999;
+	for (int i = 0; i < nteam; i++) {
+		put(slot(i), team[i][0], team[i][1]);
+		lead = MIN(lead, exit_dist(team[i][0], team[i][1]));
+	}
+	tac_noise(team[0][0], team[0][1], 10);             // a rifle shot: wave 1
+	EQ(tac.wave, 1);
+	int n = 0;
+	for (int i = 0; i < MAX_UNITS; i++) {
+		const Unit *u = &gs.units[i];
+		if (!u->alive || u->side != SIDE_HORDE)
+			continue;
+		n++;
+		if (tac.zone[u->y][u->x] & ZN_EXIT)
+			FAILF("seed %u: a wave zombie on the exit (%d,%d)", seed, u->x, u->y);
+		else if (behind && exit_dist(u->x, u->y) < lead)
+			FAILF("seed %u: a wave zombie ahead at (%d,%d), %d from the exits, the team %d", seed, u->x,
+			      u->y, exit_dist(u->x, u->y), lead);
+		else
+			checks++;
+	}
+	return n;
+}
+
+static void test_wave_sides(void)
+{
+	test_name = "wave sides";
+	static const u8 mid[4][2] = { { 10, 4 }, { 11, 5 }, { 12, 4 }, { 11, 7 } };
+	static const u8 start[4][2] = { { 0, 4 }, { 1, 1 }, { 1, 8 }, { 0, 5 } };
+	for (u32 seed = 1; seed <= 200; seed++) {
+		EQ(wave_check(mid, 4, seed, true), tac_missions[2].wave_size);
+		// at the start every tile behind them is too close: the wave still comes
+		EQ(wave_check(start, 4, seed, false), tac_missions[2].wave_size);
+	}
+	// other objectives keep waves off the exits too (Main Street's are on the west edge)
+	for (u32 seed = 1; seed <= 50; seed++) {
+		load(&tac_missions[0], 2, seed);
+		put(slot(MARA), 10, 6);
+		put(slot(DOC), 12, 6);
+		tac_noise(10, 6, 12);
+		EQ(tac.wave, 1);
+		for (int i = 0; i < MAX_UNITS; i++)
+			if (gs.units[i].alive && gs.units[i].side == SIDE_HORDE)
+				CHECK(!(tac.zone[gs.units[i].y][gs.units[i].x] & ZN_EXIT));
+	}
 }
 
 int main(void)
@@ -1529,6 +1701,7 @@ int main(void)
 	test_objectives();
 	test_sync();
 	test_slice_rules();
+	test_wave_sides();
 	printf("tac rules: %d checks, %d failed\n", checks, fails);
 	return fails ? 1 : 0;
 }

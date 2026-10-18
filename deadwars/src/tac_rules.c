@@ -478,7 +478,7 @@ int tac_weapon(int a, int d)
 	if (w >= WP_COUNT)
 		w = WP_FISTS;
 	const WeaponInfo *wi = &weapon_info[w];
-	bool reach = dist == 1 && can_reach(a, d, false);
+	bool reach = dist == 1 && can_reach(a, d, true); // a barricade blocks melee both ways (8.4)
 	if (dist >= wi->minr && dist <= wi->maxr && run.res[RES_AMMO] >= wi->ammo &&
 	    (wi->skill == SK_MELEE ? reach : tac_los(gs.units[a].x, gs.units[a].y, gs.units[d].x, gs.units[d].y)))
 		return w;
@@ -510,15 +510,16 @@ static int atk_calc(int a, int d, int *cover_out, int *dmg_out, bool *flank_out)
 			bool ranged = dist > 1 || wi->skill == SK_FIREARMS;
 			bool unaware = ud->dormant || !tac.actor[d].alerted;
 			if (ranged) {
-				if (dist > 1)
-					cover = tac_cover(ud->x, ud->y, ua->x, ua->y);
+				int face = tac_cover(ud->x, ud->y, ua->x, ua->y);
+				if (dist > 1) // point blank ignores cover
+					cover = face;
 				int rp = dist - ((wi->maxr + 1) >> 1);
 				ch = 50 + 8 * p->aim + 5 * p->skill[wi->skill] + wi->acc - cover;
 				if (rp > 0)
 					ch -= 10 * rp;
 				if (gs.night && dist > 2)
 					ch -= 10;
-				flank = !cover && has_cover(ud->x, ud->y); // its cover faces the other way
+				flank = !face && has_cover(ud->x, ud->y); // its cover faces the other way
 				if (flank)
 					ch += 15;
 				if (gs.terrain[ua->y][ua->x] == TT_HILL)
@@ -575,8 +576,7 @@ static void infect(int t, int z)
 	c -= armor_info[p->armor < AR_COUNT ? p->armor : 0].infect_cut + 3 * p->grit;
 	c = MAX(c, 5);
 	if ((int)(rng_next() % 100) < c) {
-		p->flags |= PF_INFECTED;
-		p->turn_in = 3 + (p->grit >> 1);
+		person_bitten(p);
 		chronicle(LOG_BITTEN, tac.actor[t].person, 0);
 	}
 }
@@ -697,11 +697,24 @@ void tac_kill(int i, int killer)
 }
 
 // ---------------------------------------------------------------- noise and waves
+#define MAX_EXITS 16
+
+// Manhattan distance from (x, y) to the nearest of the exit tiles (ex, ey)
+static int exit_dist(int x, int y, const u8 *ex, const u8 *ey, int ne)
+{
+	int d = 255;
+	for (int i = 0; i < ne; i++)
+		d = MIN(d, mdist(x, y, ex[i], ey[i]));
+	return d;
+}
+
+// Waves come from the map edges, 5+ tiles from everyone, never on the caravan or an exit. Get
+// through: from behind (no nearer the exits than the person nearest them), while there is room.
 static void spawn_wave(int nx, int ny)
 {
 	static u16 cand[2 * (MAP_MAX_W + MAP_MAX_H)] EWRAM_BSS;
-	u8 sx[MAX_UNITS], sy[MAX_UNITS];
-	int ns = 0, n = 0;
+	u8 sx[MAX_UNITS], sy[MAX_UNITS], ex[MAX_EXITS], ey[MAX_EXITS];
+	int ns = 0, n = 0, ne = 0;
 	for (int i = 0; i < MAX_UNITS; i++)
 		if (live(i, SIDE_SURVIVOR)) {
 			sx[ns] = gs.units[i].x;
@@ -712,7 +725,7 @@ static void spawn_wave(int nx, int ny)
 		bool row_edge = y == 0 || y == gs.h - 1;
 		for (int x = 0; x < gs.w; x += row_edge || x == gs.w - 1 ? 1 : gs.w - 1) {
 			if (tac_move_cost(x, y, true) == IMPASSABLE || tac.bmap[y][x] ||
-			    (tac.zone[y][x] & ZN_DEPLOY) || unit_at(x, y) >= 0)
+			    (tac.zone[y][x] & (ZN_DEPLOY | ZN_EXIT)) || unit_at(x, y) >= 0)
 				continue;
 			bool far = true;
 			for (int s = 0; s < ns && far; s++)
@@ -722,9 +735,33 @@ static void spawn_wave(int nx, int ny)
 		}
 	}
 	occ_end();
+	int nb = n; // cand[0..nb) are drawn first
+	if (tac.m->objective == OBJ_GET_THROUGH) {
+		for (int y = 0; y < gs.h; y++)
+			for (int x = 0; x < gs.w && ne < MAX_EXITS; x++)
+				if (tac.zone[y][x] & ZN_EXIT) {
+					ex[ne] = x;
+					ey[ne++] = y;
+				}
+		int lead = 255;
+		for (int s = 0; s < ns; s++)
+			lead = MIN(lead, exit_dist(sx[s], sy[s], ex, ey, ne));
+		nb = 0;
+		for (int j = 0; j < n; j++)
+			if (exit_dist(cand[j] & 0xFF, cand[j] >> 8, ex, ey, ne) >= lead) {
+				u16 t = cand[nb];
+				cand[nb++] = cand[j];
+				cand[j] = t;
+			}
+	}
 	for (int k = 0; k < tac.m->wave_size && n > 0; k++) {
-		int j = rng_next() % n, c = cand[j];
-		cand[j] = cand[--n];
+		int j = rng_next() % (nb ? nb : n), c = cand[j];
+		if (j < nb) {
+			cand[j] = cand[--nb];
+			cand[nb] = cand[--n];
+		} else {
+			cand[j] = cand[--n];
+		}
 		int z = tac_spawn_zombie(rng_next() % 3 ? UT_WALKER : UT_RUNNER, c & 0xFF, c >> 8, false);
 		if (z >= 0) {
 			wake(z, nx, ny);
@@ -733,14 +770,16 @@ static void spawn_wave(int nx, int ny)
 	}
 }
 
-// Fill the Horde meter by n (scaled by difficulty: x0.75 x1 x1.25 x1.5, at least 1); each
-// threshold crossed brings a wave heading for (x, y).
+// Fill the Horde meter by n, scaled by difficulty (x0.75 x1 x1.25 x1.5; the quarters carry over to
+// the next fill, so a +1 round tick and quiet melee scale too); each threshold crossed brings a
+// wave heading for (x, y).
 static void horde_add(int n, int x, int y)
 {
 	static const char *const wave_text[3] = { "Wave 1 of 3", "Wave 2 of 3", "Wave 3 of 3" };
 	static const u8 scale[4] = { 3, 4, 5, 6 };
-	n = (n * scale[run.difficulty & 3]) >> 2;
-	tac.horde = MIN(tac.horde + MAX(n, 1), 0xFFFF);
+	int q = n * scale[run.difficulty & 3] + tac.horde_q;
+	tac.horde_q = q & 3;
+	tac.horde = MIN(tac.horde + (q >> 2), 0xFFFF);
 	while (tac.wave < 3 && tac.m->waves[tac.wave] && tac.horde >= tac.m->waves[tac.wave]) {
 		spawn_wave(x, y);
 		tac_fx_text("The horde is coming", wave_text[tac.wave]);
@@ -752,9 +791,14 @@ void tac_noise(int x, int y, int r)
 {
 	if (r <= 0 || !tac.m)
 		return;
-	for (int i = 0; i < MAX_UNITS; i++)
-		if (live(i, SIDE_HORDE) && mdist(x, y, gs.units[i].x, gs.units[i].y) <= r)
-			wake(i, x, y);
+	for (int i = 0; i < MAX_UNITS; i++) {
+		const Unit *u = &gs.units[i];
+		if (!live(i, SIDE_HORDE) || mdist(x, y, u->x, u->y) > r)
+			continue;
+		if (u->x == x && u->y == y && tac.actor[i].alerted)
+			continue; // its own bite or bash: it keeps the goal it is after
+		wake(i, x, y);
+	}
 	tac_fx_noise(x, y, r);
 	horde_add(r, x, y);
 }
@@ -969,10 +1013,10 @@ void tac_check_objective(void)
 	}
 	if (tac_survivors_left())
 		return;
-	bool out = false;
-	for (int i = 0; i < MAX_UNITS; i++)
-		out = out || (tac.actor[i].person != 0xFF && tac.actor[i].extracted);
-	tac.result = m->objective == OBJ_SCAVENGE && out ? 1 : 2;
+	int got = 0; // a scavenge run is won by what comes out (only the people who left carry it out)
+	for (int r = 0; r < RES_COUNT; r++)
+		got += tac.loot[r];
+	tac.result = m->objective == OBJ_SCAVENGE && got ? 1 : 2;
 }
 
 int tac_spawn_zombie(int type, int x, int y, bool dormant)

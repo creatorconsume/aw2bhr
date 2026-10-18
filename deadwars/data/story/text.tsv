@@ -44,7 +44,7 @@ mission_end_shaken	1	B	Hold still. This is going to sting, and you're going to l
 mission_end_shaken	2		{B.name} stays with {A.him} until {A.his} hands stop shaking.
 death_grief_bonded			They raise a cairn for {A.name} at the edge of the road. {B.name} carries the top stone up from the river.
 death_grief_bonded		B	{A.He} pulled me out of that store on the first day. I never said thanks. Not once.
-death_grief_bonded			{B.name} sits by the grave until the fire burns out.
+death_grief_bonded			{B.name} sits by the cairn until the fire burns out.
 death_rival_guilt		B	We fought about everything. Every single thing. And now {A.he} {A.is} just gone.
 death_rival_guilt		B	I said things to {A.him} I can't take back. Not now. Not ever.
 death_rival_guilt	1		{B.name} nods, but doesn't look up.
@@ -247,7 +247,7 @@ death_epitaph_caring			{B.name} takes the med bag. Nobody argues.
 death_epitaph_hothead		B	{A.He} picked a fight with everything. The road, the dead, me. Mostly me.
 death_epitaph_hothead		B	And {A.he} never lost one. Not until today.
 death_epitaph_hothead			{B.name} carves {A.name}'s name into the marker with a knife. Crooked, the way {A.he}'d have done it.
-death_grave_generic			There's nothing to bury. They pile stones by the road instead, one for every day {A.name} made it.
+death_grave_generic			They pile stones by the road, one for every day {A.name} made it.
 death_grave_generic		B	Somebody should say something.
 death_grave_generic	1	B	{A.name}. You made it further than most. Rest now. We'll take it from here.
 death_grave_generic	2		{A.His} pack is still in the car. Half a box of shells. {A.name} won't need them. It still feels like stealing.

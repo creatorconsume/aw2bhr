@@ -2,6 +2,7 @@
 #include "lb.h"
 
 static const u8 skill_steps[5] = { 10, 25, 45, 70, 100 };
+static const s8 bite_days[4] = { 2, 0, -1, -1 }; // turn time after a bite vs base, by difficulty (16)
 
 int person_move(const Person *p)
 {
@@ -21,6 +22,15 @@ void skill_use(Person *p, int skill, int xp)
 	p->skill_xp[skill] = v > 255 ? 255 : v;
 	while (p->skill[skill] < 5 && p->skill_xp[skill] >= skill_steps[p->skill[skill]])
 		p->skill[skill]++;
+}
+
+// Infected now, by a bite in a mission (tac_rules.c) or a storylet's `infect` alike: turns in
+// 3 + grit/2 days, then the difficulty's bite days (LAST_BOAT.md 5.6, 16), at least 1.
+void person_bitten(Person *p)
+{
+	int t = 3 + (p->grit >> 1) + bite_days[run.difficulty & 3];
+	p->flags |= PF_INFECTED;
+	p->turn_in = t < 1 ? 1 : t > 255 ? 255 : t;
 }
 
 int seats_total(void)

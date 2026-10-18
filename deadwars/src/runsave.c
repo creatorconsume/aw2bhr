@@ -58,11 +58,22 @@ static void sram_get(u32 off, void *dst, u32 n)
 		d[i] = SRAM[off + i];
 }
 
+#ifdef HOST_SIM
+int sram_cut = -1; // test/unit: the power goes after this many more byte writes (-1 = never)
+#endif
+
 static void sram_put(u32 off, const void *src, u32 n)
 {
 	const u8 *s = src;
-	for (u32 i = 0; i < n; i++)
+	for (u32 i = 0; i < n; i++) {
+#ifdef HOST_SIM
+		if (!sram_cut)
+			return;
+		if (sram_cut > 0)
+			sram_cut--;
+#endif
 		SRAM[off + i] = s[i];
+	}
 }
 
 // Is slot k complete and intact? The data is checked straight from SRAM, so `run` is untouched.
@@ -144,10 +155,12 @@ bool run_exists(void)
 	return newest(NULL) >= 0;
 }
 
-// Permadeath: both slots go, so an older slot can never bring a finished run back.
+// Permadeath: both slots go, the newest last, so a cut in between leaves only the newest state:
+// an older slot can never bring a finished run back.
 void run_erase(void)
 {
 	static const RunHdr zero;
-	sram_put(RUN_SLOT_A, &zero, sizeof zero);
-	sram_put(RUN_SLOT_B, &zero, sizeof zero);
+	int k = newest(NULL);
+	sram_put(slot_base[k == 0 ? 1 : 0], &zero, sizeof zero);
+	sram_put(slot_base[k == 0 ? 0 : 1], &zero, sizeof zero);
 }

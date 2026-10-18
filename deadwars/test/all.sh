@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Dead Wars: every check in one go (CI). Works from any directory.
 #   1. clean build with zero compiler warnings (and the PERF build)
-#   2. host unit tests of the tactical rules (test/unit, ASan + UBSan)
+#   2. host unit tests of the tactical rules, the horde turn, the mission flow, the run layer and the
+#      battery save (test/unit, ASan + UBSan)
 #   3. storyc selftest + the storylet runtime fuzzers (test/story)
 #   4. the classic balance simulator builds (test/sim)
 #   5. smoke test (boot, classic mission 1)        test/smoke.sh
@@ -21,7 +22,7 @@ if [ -n "$warn" ] || [ ! -f "$DW/deadwars.gba" ]; then echo "$warn"; fails+=(bui
 make -s -C "$DW" PERF=1 >/dev/null 2>&1 || fails+=(perf-build)
 
 step "unit tests"
-make -s -C "$DW/test/unit" run | tail -n 3 || fails+=(unit)
+make -s -C "$DW/test/unit" run | tail -n 4 || fails+=(unit)
 
 step "storylets"
 log=$(make -s -C "$DW/test/story" run 2>&1) || fails+=(story)

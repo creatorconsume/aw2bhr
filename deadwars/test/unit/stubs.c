@@ -1,6 +1,8 @@
 // Host-side stand-ins for the hardware, video, text, run.c and tac.c's feedback hooks, so the
 // rules code (map.c, data.c, missions.c, lb_data.c, person.c, tac_rules.c) links on a PC.
-// Nothing draws; the tac_fx_* hooks only count their calls (FxLog fx).
+// Nothing draws; the tac_fx_* hooks only count their calls (FxLog fx). test_flow.c brings the
+// real tac.c (and its hooks): it builds this file with TAC_FLOW_TEST. test_run.c brings run.c
+// (and its RunState): RUN_TEST; it plays the player through frame_hook.
 #include "game.h"
 #include "video.h"
 #include "lb.h"
@@ -18,14 +20,24 @@ s16 cam_px, cam_py;
 u16 keys_down, keys_held, keys_rep;
 u32 frame_count;
 Profile profile;
-bool tac_mode;
+#ifndef RUN_TEST
 RunState run;   // run.c on the GBA
+#endif
+void (*frame_hook)(void); // test_run.c: the player's keys for this frame
 
-void frame(void) { frame_count++; }
+void frame(void)
+{
+	frame_count++;
+	if (frame_hook)
+		frame_hook();
+}
 void wait_frames(int n) { frame_count += n; }
 void input_poll(void) {}
 
 FxLog fx;
+
+#ifndef TAC_FLOW_TEST
+bool tac_mode;
 
 void tac_fx_hit(int d, int dmg)
 {
@@ -54,3 +66,4 @@ void tac_fx_noise(int x, int y, int radius)
 	fx.ny = y;
 	fx.nr = radius;
 }
+#endif
