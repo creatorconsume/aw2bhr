@@ -156,6 +156,8 @@ void overlay_set(int x, int y, int kind);
 void camera_follow(int x, int y, bool smooth);
 void camera_apply(void);
 int  unit_at(int x, int y);    // index or -1 (ignores carried units)
+void occ_begin(void);          // fast unit_at until occ_end(); nothing may move in between
+void occ_end(void);
 int  damage_estimate(const Unit *att, const Unit *def, bool luck);
 u32  rng_next(void);
 

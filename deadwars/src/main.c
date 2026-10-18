@@ -1,6 +1,7 @@
 // Dead Wars - entry point, title screen, mission select
 #include "game.h"
 #include "video.h"
+#include "perf.h"
 #include <string.h>
 
 static int mission_select(void)
@@ -37,6 +38,9 @@ static void how_to_play(void)
 int main(void)
 {
 	video_init();
+#ifdef PERF
+	perf_init();
+#endif
 	profile_load();
 	for (;;) {
 		video_show_title();

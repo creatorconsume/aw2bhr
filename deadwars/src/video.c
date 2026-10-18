@@ -1,6 +1,7 @@
 // Dead Wars - video setup, palettes, sprite manager, input, frame loop
 #include "game.h"
 #include "video.h"
+#include "perf.h"
 #include <string.h>
 
 u16 keys_down, keys_held, keys_rep;
@@ -252,7 +253,21 @@ done:
 void frame(void)
 {
 	build_oam();
+#ifdef PERF
+	static u32 last;
+	if (last) {
+		u32 c = perf_now() - last;
+		perf_add(&perf.frame_work, last);
+		if (c > 280896 - 83776) // longer than the visible part of a frame
+			perf.dropped++;
+		if (perf.turn_frame_max && c > perf.turn_frame_max)
+			perf.turn_frame_max = c;
+	}
+#endif
 	VBlankIntrWait();
+#ifdef PERF
+	last = perf_now();
+#endif
 	copy16(OAM, shadow_oam, sizeof(shadow_oam));
 	if (spr.map_visible) {
 		REG_BGHOFS(1) = REG_BGHOFS(2) = cam_px;

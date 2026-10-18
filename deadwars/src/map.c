@@ -113,8 +113,32 @@ int move_cost(int movetype, int tt)
 	return terrain_info[tt].cost[movetype];
 }
 
+// Occupancy grid (index+1 per tile) for hot loops. Only valid between
+// occ_begin() and occ_end(), while no unit moves, spawns or dies.
+static u8 occ[MAP_MAX_H][MAP_MAX_W];
+static u8 occ_depth;
+
+void occ_begin(void)
+{
+	if (occ_depth++)
+		return;
+	memset(occ, 0, sizeof occ);
+	for (int i = 0; i < MAX_UNITS; i++) {
+		Unit *u = &gs.units[i];
+		if (u->alive && !u->carried && u->x < MAP_MAX_W && u->y < MAP_MAX_H)
+			occ[u->y][u->x] = i + 1;
+	}
+}
+
+void occ_end(void)
+{
+	occ_depth--;
+}
+
 int unit_at(int x, int y)
 {
+	if (occ_depth)
+		return (unsigned)x < MAP_MAX_W && (unsigned)y < MAP_MAX_H ? occ[y][x] - 1 : -1;
 	for (int i = 0; i < MAX_UNITS; i++) {
 		Unit *u = &gs.units[i];
 		if (u->alive && !u->carried && u->x == x && u->y == y)
