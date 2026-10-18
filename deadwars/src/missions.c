@@ -23,9 +23,11 @@ static const char *const m1_rows[] = {
 static const UnitPlacement m1_units[] = {
 	{ UT_SURVIVOR, 2, 1, S, 0, 0 }, { UT_SURVIVOR, 1, 3, S, 0, 0 }, { UT_HEAVY, 3, 3, S, 0, 0 },
 	{ UT_SURVIVOR, 0, 5, S, 70, 0 },
-	{ UT_WALKER, 8, 3, Z, 0, 1 }, { UT_WALKER, 11, 1, Z, 0, 1 }, { UT_WALKER, 13, 6, Z, 0, 1 },
-	{ UT_WALKER, 9, 8, Z, 0, 1 }, { UT_WALKER, 14, 5, Z, 0, 0 }, { UT_WALKER, 14, 1, Z, 0, 0 },
-	{ UT_RUNNER, 13, 9, Z, 0, 1 }, { UT_WALKER, 6, 9, Z, 60, 1 },
+	{ UT_WALKER, 8, 3, Z, 0, 0 }, { UT_WALKER, 11, 1, Z, 0, 0 }, { UT_WALKER, 13, 6, Z, 0, 0 },
+	{ UT_WALKER, 9, 8, Z, 0, 0 }, { UT_WALKER, 14, 5, Z, 0, 0 }, { UT_WALKER, 14, 1, Z, 0, 0 },
+	{ UT_RUNNER, 13, 9, Z, 0, 0 }, { UT_WALKER, 6, 9, Z, 60, 0 },
+	{ UT_WALKER, 6, 0, Z, 0, 0 }, { UT_WALKER, 6, 5, Z, 0, 0 }, { UT_WALKER, 5, 8, Z, 0, 0 },
+	{ UT_RUNNER, 9, 6, Z, 0, 0 },
 	END
 };
 static const Line m1_intro[] = {

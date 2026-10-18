@@ -20,12 +20,13 @@ u16 keys_down, keys_held, keys_rep;
 u32 frame_count;
 Profile profile;
 
-// watchdog: sim.c resets this every turn and checks it
+// watchdog: sim.c resets sim_frames every horde turn and bails out past a cap
 u32 sim_frames;
 int sim_verbose;
+void sim_check_watchdog(void);
 
-void frame(void) { frame_count++; sim_frames++; }
-void wait_frames(int n) { frame_count += n; sim_frames += n; }
+void frame(void) { frame_count++; sim_frames++; sim_check_watchdog(); }
+void wait_frames(int n) { frame_count += n; sim_frames += n; sim_check_watchdog(); }
 void input_poll(void) {}
 void video_init(void) {}
 void video_load_game_gfx(void) {}

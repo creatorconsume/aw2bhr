@@ -1,0 +1,47 @@
+# Regression: A on a visible zombie must show its move/attack range, and
+# START > Objective must show the objective window (both waited on stale keys_down).
+# Stock ROM, fresh SRAM. Run: gbarun deadwars.gba test/playtest/m1_zombie_range_and_objective.txt out
+# EXPECT out-ranges.ppm: blue/red overlay around the Walker at (8,3) (cursor on it).
+# EXPECT out-objective.ppm: window with "First Night", "Survive until Day 5.", Day/Survivors/Nests lines.
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press A 3
+wait 60
+press A 3
+wait 5
+press T 3
+wait 10
+press A 3
+wait 30
+# cursor starts on (2,1); walk to the dormant Walker at (8,3)
+press > 3
+wait 5
+press > 3
+wait 5
+press > 3
+wait 5
+press > 3
+wait 5
+press > 3
+wait 5
+press > 3
+wait 5
+press D 3
+wait 5
+press D 3
+wait 10
+press A 3
+wait 10
+shot ranges
+press B 3
+wait 10
+press T 3
+wait 10
+press D 3
+wait 5
+press A 3
+wait 10
+shot objective

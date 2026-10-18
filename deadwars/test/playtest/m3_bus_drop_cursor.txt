@@ -1,0 +1,54 @@
+# Regression: when choosing where to Drop the bus passenger, the selected tile must be
+# marked (cursor). Bug: spr.cursor_show is 0 in drop_cargo(), all candidate tiles look identical.
+# NEEDS mission 3 unlocked: use a scratch build with profile.unlocked = 5 in save.c (never commit).
+# EXPECT out-dropsel.ppm / out-dropsel2.ppm: cursor on (3,5) then (2,6) next to the bus at (2,5).
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press U 3
+wait 5
+press U 3
+wait 5
+press A 3
+wait 60
+press A 3
+wait 5
+press T 3
+wait 10
+press A 3
+wait 30
+# Survivor (2,2) boards Bus (1,3)
+press A 3
+wait 10
+press < 3
+wait 5
+press D 3
+wait 5
+press A 3
+wait 30
+shot boardmenu
+press A 3
+wait 20
+# Bus (1,3) -> (2,5), Drop
+press A 3
+wait 10
+press > 3
+wait 5
+press D 3
+wait 5
+press D 3
+wait 5
+press A 3
+wait 40
+shot busmenu
+press A 3
+wait 10
+shot dropsel
+press D 3
+wait 5
+shot dropsel2
+press A 3
+wait 20
+shot dropped

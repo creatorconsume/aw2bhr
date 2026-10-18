@@ -1,0 +1,30 @@
+# Regression (cosmetic): HUD text must stay inside its window frames.
+# Stock ROM, fresh SRAM, mission 1 Day 1.
+# EXPECT out-hud.ppm: top box "D1  $2000" keeps its right border; info panel shows
+#   "Def 1" and "10HP" separated, right border intact (bug: "Def 110HP", border overwritten).
+# EXPECT out-options.ppm: "Speed: Normal" inside the frame (bug: last letter on the border).
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press A 3
+wait 60
+press A 3
+wait 5
+press T 3
+wait 10
+press A 3
+wait 30
+shot hud
+press T 3
+wait 10
+press D 3
+wait 5
+press D 3
+wait 5
+press A 3
+wait 10
+shot options
+press B 3
+wait 10
