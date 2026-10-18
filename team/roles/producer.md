@@ -102,6 +102,8 @@ git push origin claude/dreamy-fermi-yhrz7u
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/producer.md`. It is yours to keep current.
+
 1. Finish the hardening pass. That covers the bug review fixes, the playtest scripts in
    `deadwars/test/playtest/`, the mission tuning in `missions.c`, and the host simulator in `deadwars/test/sim/`. Commit it.
 2. Merge the work from before the team split, resolving conflicts against the hardening changes:
@@ -117,6 +119,8 @@ git push origin claude/dreamy-fermi-yhrz7u
 4. Start the Engineer, Designer and Artist sessions and record their ids in `team/README.md`.
 5. Hand `deadwars/test/check_maps.py` to the designer, who needs `m\d+` for Part Two.
 6. Remix: write `build_remix.py` (base ROM, then balance, maps and options, then verify and BPS). Then rework the 5 Orange Star maps.
+7. Update `docs/miyoo/ONION_GBA_FIX.md` with QA's findings in `docs/miyoo/EMU_LAB.md`. Onion 4.4 beta defaults to gpSP, and
+   the Onion gpSP build segfaults or shows a white screen with a junk `gba_bios.bin`.
 
 ## Definition of done
 

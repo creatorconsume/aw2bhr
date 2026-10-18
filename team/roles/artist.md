@@ -61,6 +61,8 @@ art file is free.
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/artist.md`. It is yours to keep current.
+
 1. **Art audit.** Build, then review `scene_1x.png` and in-game screenshots: smoke output, plus your own gbarun
    scripts for night and fog. Write the readability problems into your backlog. Examples: units that are hard to tell apart,
    team colours that are too subtle, and the difference between looted and unlooted houses.

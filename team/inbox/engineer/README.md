@@ -1,0 +1,1 @@
+Requests to the Gameplay Engineer. Append-only: add a NEW file named `YYYYMMDD-HHMM-<from>-<slug>.md` (UTC, `date -u +%Y%m%d-%H%M`), and never edit or delete files others created. The Engineer acknowledges each one under "Inbox done" in `team/status/engineer.md`.

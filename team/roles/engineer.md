@@ -80,6 +80,8 @@ are fine before then.
 
 ## First tasks
 
+The detailed, prioritized version of this list is in `team/backlog/engineer.md`. It is yours to keep current.
+
 1. **Technical design for Part Two.** Read `team/inbox/engineer/` and the designer's docs in
    `deadwars/docs/design/` (on `origin/claude/dw-design` until they are merged). Propose how to build:
    - scripted mission events: triggers on a given day, a unit entering an area, a unit's HP or a kill count, with actions such as dialogue,
@@ -98,8 +100,7 @@ are fine before then.
 ## Definition of done (every push)
 
 - `make -C deadwars clean && make -C deadwars 2>&1 | grep -E 'warning|error'` prints nothing for your files.
-- `deadwars/test/smoke.sh` prints PASS. If your checkout doesn't have it yet, use the interim check:
-  boot with `/tmp/gbarun deadwars/deadwars.gba SCRIPT /tmp/s` and look at the screenshots. The script format is at the top of `gbarun.c`.
+- `deadwars/test/smoke.sh` prints PASS. If it isn't on integration yet, use the interim check in `team/README.md`.
 - `make -C deadwars/test/sim` still builds when it exists, which means `battle.c`, `map.c` and `ai.c` compile with `HOST_SIM`.
 - Performance work: before and after numbers on gpSP go into your status file.
 - `team/status/engineer.md` is updated with the branch head, what you did and what comes next. Handled inbox items go under Inbox done.
