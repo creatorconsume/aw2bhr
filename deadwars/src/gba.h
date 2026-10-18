@@ -95,6 +95,38 @@ typedef uint32_t u32; typedef int32_t s32;
 #define ATTR2_PRIO(n) ((n) << 10)
 #define ATTR2_PAL(n)  ((n) << 12)
 
+#ifndef HOST_SIM
 static inline void VBlankIntrWait(void) { __asm__ volatile("swi 0x05" ::: "r0", "r1", "r2", "r3", "memory"); }
+#else
+// Host-side simulator (test/sim): hardware is redirected to plain arrays so the
+// game rules (map.c, battle.c, ai.c, ...) compile and run on a PC.
+extern u16 host_vram[0x18000 / 2], host_pal[0x400 / 2], host_oam[0x400 / 2], host_io[0x400 / 2];
+extern u8 host_sram[0x10000];
+#undef EWRAM_BSS
+#undef IWRAM_CODE
+#undef REG16
+#undef REG32
+#undef VRAM
+#undef CHARBLOCK
+#undef SCREENBLOCK
+#undef OBJ_VRAM
+#undef PAL_BG
+#undef PAL_OBJ
+#undef OAM
+#undef SRAM
+#define EWRAM_BSS
+#define IWRAM_CODE
+#define REG16(a) (*(volatile u16 *)&host_io[((a) & 0x3FF) >> 1])
+#define REG32(a) (*(volatile u32 *)&host_io[((a) & 0x3FC) >> 1])
+#define VRAM        ((volatile u16 *)host_vram)
+#define CHARBLOCK(n) ((volatile u16 *)host_vram + (n) * 0x2000)
+#define SCREENBLOCK(n) ((volatile u16 *)host_vram + (n) * 0x400)
+#define OBJ_VRAM    ((volatile u16 *)host_vram + 0x8000)
+#define PAL_BG      ((volatile u16 *)host_pal)
+#define PAL_OBJ     ((volatile u16 *)host_pal + 0x100)
+#define OAM         ((volatile u16 *)host_oam)
+#define SRAM        ((volatile u8 *)host_sram)
+static inline void VBlankIntrWait(void) {}
+#endif
 
 #endif

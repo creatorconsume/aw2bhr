@@ -1,0 +1,54 @@
+# Regression: after winning, the results window (Victory / Days / Zombies / Lost / Press A)
+# must stay up until A. Bug: the A that closes the outro dialogue is still in keys_down,
+# so results() and the title "Press START" are skipped instantly.
+# Stock ROM, fresh SRAM. Ends Day 4 times (Survive until Day 5).
+# EXPECT out-results.ppm: "Victory" stats window over the map (bug: title menu shown instead).
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press A 3
+wait 60
+press A 3
+wait 5
+press T 3
+wait 10
+press A 3
+wait 30
+press T 3
+wait 10
+press A 3
+hold B
+wait 700
+release
+wait 80
+press T 3
+wait 10
+press A 3
+hold B
+wait 700
+release
+wait 80
+press T 3
+wait 10
+press A 3
+hold B
+wait 700
+release
+wait 80
+press T 3
+wait 10
+press A 3
+hold B
+wait 700
+release
+wait 100
+# outro line 1 is on screen now; A -> line 2 (fully typed after 80 frames)
+press A 3
+wait 80
+shot outro_last
+# A closes the outro -> results window should appear and wait for another A
+press A 3
+wait 20
+shot results
