@@ -99,7 +99,7 @@ int text_menu(int x, int y, int w, const char *const *items, const u8 *enabled, 
 	return sel;
 }
 
-static const char *const speaker_names[PORTRAIT_COUNT] = { "Mara", "Doc", "June", "Holt", "???" };
+static const char *const speaker_names[PORTRAIT_COUNT] = { "Mara", "Doc", "June", "Holt", "???", "???" };
 
 // Word-wrapped dialogue box with portraits, typewriter text.
 void dialogue(const Line *lines)
@@ -116,7 +116,7 @@ void dialogue(const Line *lines)
 			spr.portrait_flip = 0;
 			tx = bx + 6;
 			tw = bw - 7;
-			text_put(tx, by + 1, speaker_names[lines->portrait], lines->portrait == PT_ZERO ? BGPAL_TEXT_RED : BGPAL_TEXT_YEL);
+			text_put(tx, by + 1, speaker_names[lines->portrait], lines->portrait >= PT_ZERO ? BGPAL_TEXT_RED : BGPAL_TEXT_YEL);
 		} else {
 			spr.portrait = -1;
 		}

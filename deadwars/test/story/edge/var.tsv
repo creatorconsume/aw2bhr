@@ -1,0 +1,5 @@
+# storyc selftest data (docs/tech/STORY.md)
+id	type	min	max	default	doc
+flag_a	bool	0	1	0
+counter	int	-5	5	0
+big	int	-32768	32767	100

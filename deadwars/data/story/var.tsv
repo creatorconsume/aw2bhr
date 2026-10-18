@@ -1,0 +1,11 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+id	type	min	max	default	doc
+arguments	int	0	20	0	camp arguments since Holt last cooled off
+radio_heard	bool	0	1	0	June caught the Haven Bay broadcast
+stranger_fate	int	0	2	0	the stranger on the road: 0 not met, 1 helped, 2 robbed
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+mission_won	int	0	2	0	[game] the last mission: 0 none yet, 1 won, 2 lost (run.c sets it after each mission)
+dog	int	0	2	0	the stray dog: 0 not met, 1 with us, 2 gone
+bandits	int	0	2	0	the toll-road gang: 0 not met, 1 paid or talked past, 2 shot our way through
+promise	int	0	2	0	Mara and June: 0 no promise, 1 mercy, 2 a cure
+radio_lost	int	0	2	0	the Haven Bay loop: 0 fine, 1 went silent, 2 came back

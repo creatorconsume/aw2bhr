@@ -1,0 +1,4 @@
+# storyc selftest data (docs/tech/STORY.md)
+id	type	min	max	default	doc
+mood	int	0	5	2
+seen	bool	0	1	0

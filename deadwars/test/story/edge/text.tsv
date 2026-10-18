@@ -1,0 +1,27 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	speaker	body
+e_noroles			The wind changes. Day {day}, {days_left} days left.\nFood {res.food}, fuel {res.fuel}.
+e_lethal		A	I can't... go on.
+e_lethal			{A.name} falls. {B.name} holds {A.him} until it is over.
+e_four		A	{B.name}, {C.name}, {D.name}. We stick together.
+e_four		D	Whatever you say.
+e_prio		A	Listen up. All of you.
+e_prio		B	We're listening, {A.name}. What now?
+e_prio	1	A	Nobody moves until I say so.
+e_prio	2	B	I have it. Get some sleep, {A.name}.
+e_excl_a			{A.name} takes the left fork.
+e_excl_b			{A.name} takes the right fork.
+e_cool_a		A	Quiet here. Too quiet.
+e_cool_b			A crow watches the cars.
+e_death		B	{A.He} {A.was} the best of us. {A.He} {A.has} earned {A.his} rest.
+e_death		C	Maybe. Maybe not.
+e_death	1	C	{A.He} kept us going. All of us.
+e_death_any			Another grave by the road.
+e_bite		A	It burns.
+e_bite		B	Hold still, {A.name}. Look at me.
+e_start		A	I know this town. Follow me.
+e_end			{A.name} looks at {A.his} stump, then at the bite. {A.He} laugh{A.s}. {A.He} watch{A.es} the dark {A.self}.
+e_disabled			Never.
+e_bite_other			{A.name} keeps watch, and keeps away from the bitten.
+e_gated			A trader waves you down.
+e_gated		A	We could deal, if we have anything they want.

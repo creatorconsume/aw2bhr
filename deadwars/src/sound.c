@@ -26,6 +26,7 @@
 #define SND_NOSFX   0x02
 
 enum { CH_SQ1, CH_SQ2, CH_WAVE, CH_NOISE, CH_COUNT };
+#define CHB(ch) (1 << (ch))
 
 typedef struct {
 	const u8 *pos, *loop;  // event stream, loop point (NULL = play once)
@@ -52,6 +53,7 @@ static Voice vox[CH_COUNT];
 static s8 cur_song = -1, saved_song = -1, forced = MUS_AUTO, wave_loaded = -1;
 static u8 last_day, last_night, last_visible;
 static u8 in_dialogue, battle_live, jingle_started, boss_seen;
+static u8 horde_lvl, last_tac, mute; // The Last Boat: horde meter level 0..3, channels silenced by it
 
 // ---------------------------------------------------------------- hardware
 
@@ -116,7 +118,7 @@ static void track_sound(int ch)
 static void track_tick(int ch)
 {
 	Track *t = &trk[ch];
-	bool own = !vox[ch].step; // an SFX holds the channel: keep time, stay quiet
+	bool own = !vox[ch].step && !(mute & CHB(ch)); // SFX or muted layer: keep time, stay quiet
 	if (!t->pos)
 		return;
 	for (int guard = 0; !t->wait; guard++) {
@@ -177,9 +179,18 @@ static void track_tick(int ch)
 	}
 }
 
+// Hand a channel back to its track: the held note, or quiet (rest, muted layer)
+static void track_resume(int ch)
+{
+	if (trk[ch].pos && trk[ch].on && !(mute & CHB(ch)))
+		track_sound(ch);
+	else
+		hw_off(ch);
+}
+
 static void start_song(int id)
 {
-	if (cur_song == MUS_DAY || cur_song == MUS_NIGHT) {
+	if (cur_song == MUS_DAY || cur_song == MUS_NIGHT || cur_song == MUS_LASTSTAND) {
 		memcpy(saved, trk, sizeof trk);
 		saved_song = cur_song;
 	}
@@ -189,12 +200,8 @@ static void start_song(int id)
 		memcpy(trk, saved, sizeof trk);
 		saved_song = -1;
 		for (int ch = 0; ch < CH_COUNT; ch++)
-			if (!vox[ch].step) {
-				if (trk[ch].on)
-					track_sound(ch);
-				else
-					hw_off(ch);
-			}
+			if (!vox[ch].step)
+				track_resume(ch);
 		return;
 	}
 	if (id != MUS_HORDE)
@@ -268,10 +275,48 @@ static int director(void)
 		return MUS_ZERO;
 	if (gs.side == SIDE_HORDE)
 		return MUS_HORDE;
+	if (tac_mode) // The Last Boat: the campaign's mission table doesn't apply, the horde meter does
+		return horde_lvl >= 3 ? MUS_LASTSTAND : gs.night ? MUS_NIGHT : MUS_DAY;
 	const Mission *m = &missions[gs.mission];
 	if (m->goal == GOAL_SURVIVE && m->goal_days && gs.day + 1 >= m->goal_days)
 		return MUS_LASTSTAND;
 	return gs.night ? MUS_NIGHT : MUS_DAY;
+}
+
+// The Last Boat: the horde meter layers the map music. 0 calm bed, 1 + pulse, 2 full,
+// 3 the last-stand theme (director). Only the director's songs in a tactical mission.
+static int layer_mute(int song)
+{
+	if (!tac_mode || forced != MUS_AUTO || horde_lvl >= 2)
+		return 0;
+	switch (song) {
+	case MUS_DAY: // arpeggio + bass, then drums, then the lead
+		return horde_lvl ? CHB(CH_SQ1) : CHB(CH_SQ1) | CHB(CH_NOISE);
+	case MUS_NIGHT: // echo + drone, then the music box, then the hiss
+		return horde_lvl ? CHB(CH_NOISE) : CHB(CH_SQ1) | CHB(CH_NOISE);
+	case MUS_HORDE: // the horde's turn: no drums while the meter is low
+		return horde_lvl ? 0 : CHB(CH_NOISE);
+	}
+	return 0;
+}
+
+static void set_mute(int m)
+{
+	int changed = mute ^ m;
+	mute = m;
+	for (int ch = 0; ch < CH_COUNT; ch++) {
+		if (!(changed & CHB(ch)))
+			continue;
+		if (!(m & CHB(ch)))
+			trk[ch].on = 0; // a layer comes back on its next note, never mid-note
+		else if (!vox[ch].step)
+			hw_off(ch);     // an SFX keeps the channel; voice_tick silences it after
+	}
+}
+
+void sound_horde_level(int level)
+{
+	horde_lvl = MAX(0, MIN(level, 3)); // sound_update applies it, only when it changes
 }
 
 // ---------------------------------------------------------------- sound effects
@@ -409,10 +454,7 @@ static void voice_tick(int ch)
 		if (!s->frames) {
 			// done: give the channel back to the music
 			v->step = NULL;
-			if (trk[ch].pos && trk[ch].on)
-				track_sound(ch);
-			else
-				hw_off(ch);
+			track_resume(ch);
 			return;
 		}
 		v->left = s->frames;
@@ -454,9 +496,15 @@ void sound_update(void)
 	REG16(0x04000108) = 0;
 	REG16(0x0400010A) = 0x80; // timer 2, 1 tick per cycle
 #endif
+	if (last_tac && !tac_mode)
+		horde_lvl = 0; // the meter ends with its mission
+	last_tac = tac_mode;
 	int want = forced != MUS_AUTO ? forced : director();
 	if (!sound_music_on())
 		want = -1;
+	int m = layer_mute(want);
+	if (m != mute)
+		set_mute(m); // before start_song, so a resumed song comes back already layered
 	if (want != cur_song)
 		start_song(want);
 	// day <-> night sting when a new day starts mid-battle
@@ -487,9 +535,7 @@ void sound_set(bool music, bool effects)
 		for (int ch = 0; ch < CH_COUNT; ch++)
 			if (vox[ch].step) {
 				vox[ch].step = NULL;
-				hw_off(ch);
-				if (trk[ch].pos && trk[ch].on)
-					track_sound(ch);
+				track_resume(ch);
 			}
 }
 

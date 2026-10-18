@@ -1,0 +1,281 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+storylet	choice	op	role	other	target	value	chance	doc
+camp_thin_stew	1	res_add			food	-3
+camp_thin_stew	1	morale_add				1
+camp_thin_stew	2	morale_add				-1
+camp_thin_stew	2	skill_xp	A		survival	10
+camp_thin_stew	3	res_add			food	-1
+camp_thin_stew	3	morale_add				2
+camp_hunt_dusk	1	res_add			ammo	-1
+camp_hunt_dusk	1	res_add			food	4
+camp_hunt_dusk	1	skill_xp	A		firearms	10
+camp_hunt_dusk	2	res_add			food	2
+camp_hunt_dusk	2	skill_xp	A		stealth	10
+camp_hunt_dusk	2	hp_add	A			-2	30	scratched up (A has hp_pct >= 50)
+camp_holt_temper		var_add			arguments	1
+camp_holt_temper	1	rel_add	A	B		-1
+camp_holt_temper	1	var_add			arguments	1
+camp_holt_temper	2	rel_add	A	B		-1
+camp_holt_temper	2	morale_add				-1
+camp_holt_temper	3	rel_add	A	B		1
+camp_holt_temper	3	morale_add				1
+camp_holt_cools_off		trait_remove	A		hothead
+camp_holt_cools_off		trait_add	A		calm
+camp_holt_cools_off		var_set			arguments	0
+camp_holt_cools_off		rel_add	A	B		1
+camp_holt_cools_off		morale_add				1
+camp_new_face		rel_add	A	B		1
+road_radio_boat		var_set			radio_heard	1
+road_radio_boat		morale_add				2
+road_stranger_help	1	res_add			meds	-1
+road_stranger_help	1	morale_add				1
+road_stranger_help	1	var_set			stranger_fate	1
+road_stranger_help	1	skill_xp	A		medicine	10
+road_stranger_help	2	morale_add				-1
+road_stranger_rob	1	res_add			ammo	3
+road_stranger_rob	1	res_add			food	2
+road_stranger_rob	1	morale_add				-2
+road_stranger_rob	1	rel_add	B	A		-1
+road_stranger_rob	1	var_set			stranger_fate	2
+road_stranger_rob	2	rel_add	A	B		-1
+stop_pharmacy_cross	1	res_add			meds	3
+stop_pharmacy_cross	1	skill_xp	A		scavenge	15
+stop_pharmacy_cross	1	hp_add	A			-2	50
+stop_pharmacy_cross	1	infect	A				20	something in the dark
+mission_end_shaken	1	res_add			meds	-1
+mission_end_shaken	1	hp_add	A			3
+mission_end_shaken	1	skill_xp	B		medicine	5
+mission_end_shaken	2	rel_add	A	B		1
+death_grief_bonded		morale_add				-1
+death_grief_bonded		trait_add	B		haunted
+death_rival_guilt		morale_add				-1
+death_rival_guilt	1	morale_add				1
+death_rival_guilt	2	trait_add	B		haunted		50
+bite_confession	1	morale_add				-1
+bite_confession	2	res_add			meds	-1
+bite_confession	2	hp_add	A			-3
+bite_confession	2	cure	A				50	burning it out works half the time
+bite_confession	2	trait_add	A		haunted
+bite_caring_stays	1	res_add			meds	-2
+bite_caring_stays	1	rel_add	A	B		1
+bite_caring_stays	1	skill_xp	B		medicine	15
+bite_caring_stays	2	rel_add	A	B		-1
+bite_caring_stays	2	morale_add				-1
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft		res_add			food	-2
+camp_food_theft	1	res_add			food	1		A eats less
+camp_food_theft	1	rel_add	A	B		-1
+camp_food_theft	2	morale_add				-1
+camp_food_theft	2	trait_add	A		selfish		25	it gets easier the second time
+camp_food_theft	3	rel_add	A	B		1
+camp_food_theft	3	hp_add	B			-1
+camp_fever	1	res_add			meds	-1
+camp_fever	1	hp_add	A			2
+camp_fever	2	rel_add	A	B		1
+camp_fever	2	skill_xp	B		medicine	5
+camp_fever	3	hp_add	A			-2	50
+camp_wants_to_leave	1	morale_add				1
+camp_wants_to_leave	1	rel_add	A	B		1
+camp_wants_to_leave	1	skill_xp	B		leadership	10
+camp_wants_to_leave	2	res_add			food	-2
+camp_wants_to_leave	2	rel_add	A	B		1
+camp_wants_to_leave	3	morale_add				-1
+camp_wants_to_leave	3	rel_add	A	B		-1
+camp_doc_tired	1	rel_add	A	B		1
+camp_doc_tired	2	hp_add	A			2
+camp_doc_tired	2	morale_add				-1
+camp_watch_together		rel_add	A	B		1
+camp_watch_together		morale_add				1
+camp_holt_lesson	1	res_add			ammo	-2
+camp_holt_lesson	1	skill_xp	B		firearms	20
+camp_holt_lesson	1	rel_add	A	B		1
+camp_holt_lesson	2	skill_xp	B		firearms	8
+camp_mara_promise	1	var_set			promise	1
+camp_mara_promise	1	rel_add	A	B		1
+camp_mara_promise	2	var_set			promise	2
+camp_mara_promise	2	rel_add	A	B		1
+camp_counting_days		rel_add	A	B		1
+camp_counting_days		morale_add				-1
+camp_nightmare	1	rel_add	A	B		1
+camp_nightmare	1	trait_remove	A		haunted		30
+camp_nightmare	2	rel_add	A	B		-1
+camp_nightmare	2	morale_add				1
+camp_june_music		morale_add				2
+camp_june_music		rel_add	A	B		1
+camp_cynic_needle	1	rel_add	A	B		-1
+camp_cynic_needle	2	morale_add				-1
+camp_cynic_needle	2	rel_add	A	B		1
+camp_reckless_dare	1	res_add			food	2
+camp_reckless_dare	1	hp_add	A			-3	30
+camp_reckless_dare	1	skill_xp	A		stealth	10
+camp_reckless_dare	2	res_add			food	3
+camp_reckless_dare	2	hp_add	B			-1
+camp_reckless_dare	2	rel_add	A	B		1
+camp_reckless_dare	3	rel_add	A	B		-1
+camp_brave_watch		morale_add				1
+camp_brave_watch		skill_xp	A		leadership	5
+camp_doc_pills	1	rel_add	A	B		-1
+camp_doc_pills	2	res_add			meds	-1
+camp_doc_pills	2	trait_remove	A		weary
+camp_doc_pills	2	trait_add	A		addict
+camp_doc_pills	3	rel_add	A	B		1
+camp_doc_pills	3	trait_remove	A		weary		25
+camp_meds_missing		res_add			meds	-1
+camp_meds_missing	1	res_add			parts	-1
+camp_meds_missing	1	rel_add	A	B		-1
+camp_meds_missing	2	res_add			meds	-1
+camp_dog_hunger	1	res_add			food	-1
+camp_dog_hunger	1	morale_add				1
+camp_dog_hunger	2	var_set			dog	2
+camp_dog_hunger	2	morale_add				-1
+camp_dog_hunger	3	var_set			dog	2
+camp_dog_hunger	3	res_add			food	3
+camp_dog_hunger	3	morale_add				-2
+camp_nerve_back	1	trait_remove	A		cowardly
+camp_nerve_back	1	trait_add	A		brave
+camp_nerve_back	1	rel_add	A	B		1
+camp_nerve_back	2	hp_add	A			1
+road_breakdown	1	res_add			parts	-2
+road_breakdown	1	skill_xp	A		mechanics	10
+road_breakdown	2	skill_xp	A		mechanics	15
+road_breakdown	2	res_add			fuel	-1	50	the drip
+road_breakdown	3	res_add			fuel	-2
+road_body_backpack	1	res_add			ammo	2
+road_body_backpack	1	res_add			meds	1	50
+road_body_backpack	1	hp_add	A			-2	25	not dead enough
+road_body_backpack	2	res_add			ammo	2
+road_body_backpack	2	res_add			meds	1	50
+road_body_backpack	2	skill_xp	A		melee	5
+road_horde_crossing	1	res_add			food	-2
+road_horde_crossing	1	morale_add				-1
+road_horde_crossing	2	res_add			fuel	-2
+road_horde_crossing	3	res_add			parts	-2
+road_horde_crossing	3	morale_add				1
+road_horde_crossing	3	hp_add	A			-2	30
+road_bandit_toll	1	res_add			food	-3
+road_bandit_toll	1	var_set			bandits	1
+road_bandit_toll	2	res_add			ammo	-3
+road_bandit_toll	2	var_set			bandits	1
+road_bandit_toll	3	morale_add				1
+road_bandit_toll	3	skill_xp	A		leadership	10
+road_bandit_toll	3	var_set			bandits	1
+road_bandit_toll	4	res_add			ammo	-2
+road_bandit_toll	4	hp_add	A			-3	40
+road_bandit_toll	4	morale_add				1
+road_bandit_toll	4	var_set			bandits	2
+road_bandit_revenge		hp_add	A			-2	30	flying glass
+road_bandit_revenge	1	res_add			parts	-2
+road_bandit_revenge	2	res_add			ammo	-2
+road_bandit_revenge	2	morale_add				1
+road_bandit_revenge	2	skill_xp	A		firearms	10
+road_stray_dog	1	res_add			food	-1
+road_stray_dog	1	morale_add				1
+road_stray_dog	1	var_set			dog	1
+road_stray_dog	2	var_set			dog	2
+road_stray_dog	2	morale_add				-1
+road_hitchhiker	1	res_add			food	-1
+road_hitchhiker	2	morale_add				-1
+road_hitchhiker	3	morale_add				-1
+road_hitchhiker	3	trait_add	A		haunted		25
+road_abandoned_car		res_add			fuel	2
+road_abandoned_car		hp_add	A			-1	25	swallowed some
+road_radio_static		morale_add				-1
+road_radio_static		var_set			radio_lost	1
+road_radio_static		trait_add	A		cynic		30	replaces her second trait (Curious at the start)
+road_radio_back		morale_add				2
+road_radio_back		var_set			radio_lost	2
+road_stranger_bait	2	res_add			food	-2
+road_stranger_bait	2	res_add			ammo	-1
+road_stranger_bait	2	morale_add				-1
+stop_church_board	1	morale_add				1
+stop_church_board	2	res_add			parts	2
+stop_church_board	2	morale_add				-1
+stop_garden	1	res_add			food	3
+stop_garden	1	skill_xp	A		survival	10
+stop_garden	1	hp_add	A			-2	25
+stop_garden	2	res_add			food	1
+stop_army_checkpoint	1	res_add			ammo	3
+stop_army_checkpoint	1	trait_add	A		haunted		20	what the logbook said
+stop_army_checkpoint	2	morale_add				1
+stop_school	1	res_add			meds	2
+stop_school	1	morale_add				-1
+stop_tanker	1	res_add			fuel	3
+stop_tanker	1	hp_add	A			-2	15	fumes
+stop_greedy_jeweler	1	res_add			parts	1
+stop_greedy_jeweler	1	hp_add	A			-1
+stop_greedy_jeweler	2	rel_add	A	B		-1
+mission_end_won		morale_add				1
+mission_end_won		skill_xp	A		leadership	10
+mission_end_lost_blame		rel_add	A	B		-1
+mission_end_lost_blame		morale_add				-1
+mission_end_lost_shoulder		morale_add				1
+mission_end_lost_shoulder		skill_xp	A		leadership	10
+mission_end_ammo_low	1	skill_xp	A		melee	10
+mission_end_ammo_low	1	morale_add				-1
+mission_end_ammo_low	2	res_add			parts	-2
+mission_end_ammo_low	2	res_add			ammo	2
+mission_end_ammo_low	2	skill_xp	A		mechanics	5
+mission_end_doc_laughs		trait_remove	A		weary
+mission_end_doc_laughs		trait_add	A		optimist
+mission_end_doc_laughs		morale_add				1
+mission_end_froze		trait_remove	A		brave
+mission_end_froze		trait_add	A		cowardly
+mission_end_froze		morale_add				-1
+death_epitaph_brave		morale_add				1
+death_epitaph_caring		skill_xp	B		medicine	15
+death_epitaph_caring		morale_add				-1
+death_grave_generic	1	morale_add				1
+death_grave_generic	2	res_add			ammo	2
+death_grave_generic	2	morale_add				-1
+death_holt_words		morale_add				1
+death_june_names		morale_add				1
+death_selfish_mouth		rel_add	B	C		-1
+death_selfish_mouth		morale_add				-1
+death_loyal_keepsake		skill_xp	B		melee	10
+death_doc_failed	1	morale_add				1
+death_doc_failed	2	skill_xp	B		medicine	20
+death_doc_failed	2	morale_add				-1
+bite_hide	1	morale_add				-1
+bite_hide	1	rel_add	A	B		-1
+bite_hide	2	rel_add	A	B		1
+bite_put_me_down	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_put_me_down	1	morale_add				-2		as a death costs in run.c
+bite_put_me_down	1	trait_add	B		haunted		50
+bite_put_me_down	2	rel_add	A	B		1
+bite_doc_gamble	1	res_add			meds	-3
+bite_doc_gamble	1	hp_add	A			-2
+bite_doc_gamble	1	cure	A				30
+bite_doc_gamble	1	skill_xp	B		medicine	15
+bite_doc_gamble	2	morale_add				-1
+bite_amputation_talk	1	rel_add	A	B		1
+bite_amputation_talk	1	skill_xp	B		medicine	5
+bite_amputation_talk	2	morale_add				-1
+bite_hothead_denial		hp_add	A			-1
+bite_hothead_denial		rel_add	A	B		-1
+bite_holt_orders		rel_add	A	B		1
+bite_holt_orders		skill_xp	B		leadership	15
+bite_holt_orders		morale_add				-1
+bite_vow_mara	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_vow_mara	1	morale_add				-2		as a death costs in run.c
+bite_vow_mara	1	trait_add	B		haunted		50
+bite_vow_mara	2	rel_add	A	B		1
+bite_vow_mara	2	skill_xp	B		medicine	10
+bite_vow_june	1	hp_add	A			-99		mercy: a storylet death (no death scene)
+bite_vow_june	1	morale_add				-2		as a death costs in run.c
+bite_vow_june	1	trait_add	B		haunted		50
+bite_vow_june	2	rel_add	A	B		1
+bite_vow_june	2	skill_xp	B		medicine	10
+camp_dog_warns		morale_add				1
+camp_dog_warns		skill_xp	A		stealth	5
+road_rosa_engine	1	res_add			parts	-1
+road_rosa_engine	1	res_add			fuel	2
+road_rosa_engine	1	skill_xp	A		mechanics	10
+camp_rosa_believe		rel_add	A	B		1
+camp_rosa_believe		morale_add				1
+camp_tess_stash	1	res_add			food	3
+camp_tess_stash	1	rel_add	A	B		-1
+camp_tess_stash	2	res_add			food	1
+camp_tess_stash	2	rel_add	A	B		1
+stop_tess_scout	1	res_add			ammo	2
+stop_tess_scout	1	skill_xp	A		stealth	10
+stop_tess_scout	1	hp_add	A			-2	15	a bad landing

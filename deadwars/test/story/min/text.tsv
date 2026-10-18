@@ -1,0 +1,5 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	speaker	body
+m_talk		A	{B.name}, got a minute?
+m_talk	1	B	Sure. Sit.
+m_grave		B	{A.He} deserved better.

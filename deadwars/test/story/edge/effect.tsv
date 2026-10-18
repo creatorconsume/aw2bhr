@@ -1,0 +1,58 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	op	role	other	target	value	chance	doc
+e_noroles		res_add			fuel	999
+e_noroles		res_add			food	-999
+e_noroles		var_add			counter	5
+e_noroles		var_add			big	32767
+e_noroles		morale_add				-10
+e_noroles		var_set			flag_a	1
+e_lethal		hp_add	A			-99
+e_lethal		trait_add	A		haunted
+e_lethal		rel_add	A	B		3
+e_lethal		skill_xp	A		medicine	50
+e_lethal		infect	A
+e_lethal		cure	A
+e_lethal		hp_add	A			5
+e_lethal		rel_add	B	A		-6
+e_lethal		trait_add	B		haunted
+e_lethal		hp_add	B			99
+e_lethal		skill_xp	B		firearms	100
+e_four		rel_add	A	D		6
+e_four		rel_add	B	C		-6
+e_four		trait_remove	A		brave
+e_four		trait_add	D		calm
+e_four		trait_add	D		loner
+e_prio		var_add			counter	1
+e_prio	1	morale_add				10
+e_prio	2	rel_add	A	B		-6
+e_prio	2	var_set			flag_a	0
+e_prio	3	var_add			big	-30000
+e_prio	4	var_set			flag_a	0
+e_prio	4	hp_add	A			-3
+e_excl_a		skill_xp	A		stealth	5
+e_excl_b		skill_xp	A		melee	5
+e_cool_a		res_add			parts	2	50
+e_cool_b		res_add			parts	-1
+e_death		morale_add				-2
+e_death	1	trait_remove	C		brave
+e_death	1	rel_add	B	C		1
+e_death	2	trait_add	B		haunted
+e_death	2	trait_add	C		haunted
+e_death_any		morale_add				-1
+e_bite	1	res_add			meds	-1
+e_bite	1	hp_add	A			-99	30
+e_bite	1	cure	A				50
+e_bite	2	rel_add	A	B		-2
+e_bite	2	infect	B				10
+e_start		res_add			ammo	-999
+e_start		skill_xp	A		leadership	10
+e_end		cure	A
+e_end		trait_add	A		haunted
+e_end		trait_add	A		weary
+e_end		trait_remove	A		haunted
+e_disabled		morale_add				1
+e_bite_other		skill_xp	A		survival	5
+e_gated	1	res_add			food	-5
+e_gated	1	res_add			fuel	2
+e_gated	2	res_add			fuel	3
+e_gated	2	skill_xp	A		mechanics	10

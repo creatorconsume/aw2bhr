@@ -1,0 +1,316 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+# one row per line of dialogue, in order; choice empty = before the menu, N = after choice N
+storylet	choice	speaker	body
+camp_thin_stew			The pot is mostly water tonight. {res.food} rations left in the crates.
+camp_thin_stew		A	We can make this last, or we can eat like people. Not both.
+camp_thin_stew	1	A	Eat up. Tomorrow can worry about tomorrow.
+camp_thin_stew	2		Nobody says much. Spoons scrape the tin long after the bowls are empty.
+camp_thin_stew	3	A	Did I ever tell you about the wedding cake? The whole thing. By myself.
+camp_hunt_dusk			{A.name} checks the treeline. Deer tracks, fresh, heading down to the creek.
+camp_hunt_dusk		A	I can be back before dark. Probably.
+camp_hunt_dusk	1		One shot echoes off the hills. {A.name} comes back dragging a young doe.
+camp_hunt_dusk	2		{A.name} comes back late and scratched up, with two rabbits and a grin.
+camp_hunt_dusk	3	A	Fine. The tracks will still be there tomorrow. Maybe.
+camp_holt_temper		A	{B.name}, you sleep through your watch again and I leave you at the next stop.
+camp_holt_temper		B	Say it louder, Sergeant. Wake up the whole county.
+camp_holt_temper	1		{B.He} turn{B.s} {B.his} back on the fire. {B.He} {B.has} nothing more to say.
+camp_holt_temper	2		{A.name} storms off to check the cars. Again.
+camp_holt_temper	3		Somebody snorts. Then everybody is laughing, even {A.name}. Even {B.name}.
+camp_holt_cools_off		B	That's every night this week, {A.name}. Every night, somebody.
+camp_holt_cools_off		A	...Yeah. I hear it. I sound like my old man.
+camp_holt_cools_off			{A.name} sits by {A.self} for a long time. Something in {A.him} unclenches.
+camp_new_face		B	So, {A.name}. Where were you when it started?
+camp_new_face		A	Stuck in traffic with everybody else. I walked away from my car and never looked back.
+camp_new_face			{B.name} laughs. It's the first time {A.name} has heard {B.him} laugh.
+road_radio_boat		A	Got something. Haven Bay harbor control. It's a recorded loop.
+road_radio_boat			"...last sailing in {days_left} days. Do not bring the bitten. Repeat, do not..."
+road_radio_boat		A	{days_left} days. We can make that. We can.
+road_stranger_help			A woman waves from the shoulder, a boy limp in her arms. His leg is wrapped in a bloody shirt.
+road_stranger_help		A	Pull over. Please. I can look at him.
+road_stranger_help	1	A	It's a cut, not a bite. Keep it clean. Every day, you hear me? Every day.
+road_stranger_help	2		{A.name} watches them shrink in the mirror and doesn't speak again until dark.
+road_stranger_rob			A man waves from the shoulder. Clean jacket, full duffel bag, nobody else around.
+road_stranger_rob		A	Nobody that clean is alone. We drive past, or we take the bag.
+road_stranger_rob		B	Listen to yourself, {A.name}. We're not bandits.
+road_stranger_rob	1		He doesn't fight. He just watches you go. The bag holds food and a box of shells.
+road_stranger_rob	2	A	Your call. When we're starving, remember whose call it was.
+stop_pharmacy_cross			{A.name} spots a green cross through the trees. The pharmacy door hangs open.
+stop_pharmacy_cross		A	Shelves could still be full. Could be full of them, too. Give me ten minutes.
+stop_pharmacy_cross	1		Ten minutes. Twenty. Then {A.name} is back, out of breath, pockets rattling with pills.
+stop_pharmacy_cross	2	A	Your call. I'd have been quick.
+mission_end_shaken		B	Sit down before you fall down, {A.name}.
+mission_end_shaken		A	I'm fine. I'm fine. I just need a minute.
+mission_end_shaken	1	B	Hold still. This is going to sting, and you're going to let it.
+mission_end_shaken	2		{B.name} stays with {A.him} until {A.his} hands stop shaking.
+death_grief_bonded			They raise a cairn for {A.name} at the edge of the road. {B.name} carries the top stone up from the river.
+death_grief_bonded		B	{A.He} pulled me out of that store on the first day. I never said thanks. Not once.
+death_grief_bonded			{B.name} sits by the grave until the fire burns out.
+death_rival_guilt		B	We fought about everything. Every single thing. And now {A.he} {A.is} just gone.
+death_rival_guilt		B	I said things to {A.him} I can't take back. Not now. Not ever.
+death_rival_guilt	1		{B.name} nods, but doesn't look up.
+death_rival_guilt	2		{B.name} walks off alone. Nobody follows.
+bite_confession		A	Teeth. Through the sleeve. I felt them go in.
+bite_confession			{A.name} won't meet anyone's eyes.
+bite_confession		A	I know what this means. I know how many days I have.
+bite_confession	1		The camp goes quiet. Someone moves {A.name}'s bedroll to the far side of the fire.
+bite_confession	2		{A.name} bites down on a belt while the knife heats. Nobody sleeps.
+bite_confession	3	A	Not a word. Not yet. Let me think.
+bite_caring_stays		B	Let me see it, {A.name}. No, look at me. Not at the wound. At me.
+bite_caring_stays		A	Don't. You know what's coming. Don't get close.
+bite_caring_stays	1	B	Clean, dressed, and you're not alone. That buys time. Time is all we need.
+bite_caring_stays	2		{B.name} steps back. {A.name} sees it, and something in {A.his} face closes.
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft			Two cans are gone from the crate. {B.name} finds the empty tins behind {A.name}'s bedroll.
+camp_food_theft		B	You want to tell us something, {A.name}?
+camp_food_theft		A	I was hungry. We're all hungry. I'm sorry, okay? I'm sorry.
+camp_food_theft	1		{A.name} eats last tomorrow, and the day after. Nobody lets {A.him} forget it.
+camp_food_theft	2		{A.name} mumbles a thank you. Nobody looks at {A.him} for the rest of the night.
+camp_food_theft	3	B	Here. Take mine. Just ask next time. Ask, and I'll say yes.
+camp_fever			{A.name} is burning up. Shivering, sweating, talking to people who aren't there.
+camp_fever		B	No bite. I checked twice. It's just a fever. Just a fever.
+camp_fever			{A.He} need{A.s} meds, or somebody awake beside {A.him} all night.
+camp_fever	1		The pills go down on the third try. By morning {A.name} can hold a cup.
+camp_fever	2		{B.name} wipes {A.name}'s face until dawn. Neither of them says much.
+camp_fever	3		{A.name} thrashes until dawn. Then the fever breaks, and takes something with it.
+camp_wants_to_leave			{A.name} has {A.his} pack on and {A.his} boots laced. It's the middle of the night.
+camp_wants_to_leave		A	I'm faster alone. You're all going to die on this road, and I'm not staying to watch.
+camp_wants_to_leave		B	Then go. Or sit down for five minutes and let me talk.
+camp_wants_to_leave	1	B	We're slower together. We're also still alive together. Count how many people can say that.
+camp_wants_to_leave	1		{A.name} sits down. After a while, {A.he} take{A.s} the pack off.
+camp_wants_to_leave	2		An extra can of peaches does what words couldn't. {A.name} stays. For now.
+camp_wants_to_leave	3		{A.name} walks into the dark. An hour later {A.he} walk{A.s} back and sit{A.s} by the fire.
+camp_wants_to_leave	3		Nobody says anything. Nobody has to.
+camp_doc_tired		A	Leave me at the next town. I'm slowing you down, and I'm too tired to be scared anymore.
+camp_doc_tired		B	You're the only one of us who knows which end of the needle goes in.
+camp_doc_tired		A	Then I'll write it down for you. Please. I'm so tired.
+camp_doc_tired	1	A	...Fine. But I want the good blanket.
+camp_doc_tired	1		It's the closest thing to a joke {A.he} {A.has} made in a month.
+camp_doc_tired	2		{A.name} sleeps for fourteen hours. Everyone else stands {A.his} watch.
+camp_watch_together			{A.name} and {B.name} take the same watch. They don't talk much. They don't need to.
+camp_watch_together		B	When this is over... if it's ever over... I'd like to keep doing this. Watches. With you.
+camp_watch_together			{A.name} doesn't answer. {A.He} just move{A.s} closer to the fire, and to {B.name}.
+camp_holt_lesson		A	{B.name}. Over here. You hold that like it owes you money.
+camp_holt_lesson		A	Breathe out. Squeeze, don't pull. And never shoot when walking away will do.
+camp_holt_lesson	1		Two shots echo down the valley. The second one hits the can.
+camp_holt_lesson	1	A	Huh. Not bad. Not bad at all.
+camp_holt_lesson	2		An hour of click, click, click. {B.name}'s finger aches. {B.His} grip doesn't shake.
+camp_mara_promise		A	{B.name}. If I get bitten... you don't let me turn. You don't let me hurt anyone.
+camp_mara_promise		B	Don't. Don't ask me that.
+camp_mara_promise		A	I'm asking. Promise me. And I'll promise you the same.
+camp_mara_promise	1	B	...Okay. I promise. And you promise me.
+camp_mara_promise	1		They shake on it like it's a business deal. Neither one lets go for a while.
+camp_mara_promise	2	B	No. If one of us gets bitten, the other one finds a cure. That's the promise. Both of us.
+camp_counting_days		B	How many days?
+camp_counting_days		A	Enough to see a few more sunsets. Don't make that face.
+camp_counting_days			{B.name} stays until {A.name} falls asleep. Then a while longer.
+camp_nightmare			{A.name} wakes screaming. Out in the dark, something answers.
+camp_nightmare		B	Shh. Shh. You're here. You're with us. Breathe.
+camp_nightmare	1		{B.name} holds on until the shaking stops. Maybe the worst of it has passed. Maybe.
+camp_nightmare	2		A rag, a belt, and a long night. {A.name} won't look at {B.name} in the morning.
+camp_nightmare	2		Everyone else sleeps, at least.
+camp_june_music		A	Wait. Listen. Somebody left a station on automatic. It's been playing the same tape for weeks.
+camp_june_music			Old dance music crackles out of the speaker. {B.name} groans. Then {B.he} start{B.s} tapping {B.his} foot.
+camp_june_music			By the third song everyone is dancing badly in the firelight. Even the ones who swore they wouldn't.
+camp_cynic_needle		A	A boat. On a tape. You know what a tape proves? That somebody once owned a tape recorder.
+camp_cynic_needle		B	Then why are you still walking?
+camp_cynic_needle		A	Same reason as you. Nowhere else to walk.
+camp_cynic_needle	1		{A.name} shrugs and rolls over. The fire pops. Nobody sleeps well.
+camp_cynic_needle	2	B	...Yeah. Yeah, maybe.
+camp_cynic_needle	2		The camp gets very quiet after that.
+camp_reckless_dare		A	There's a house down the hill with the curtains still drawn. I'm going in tonight.
+camp_reckless_dare		B	In the dark. Alone. With them out there.
+camp_reckless_dare		A	That's what makes it fun.
+camp_reckless_dare	1		{A.name} slips off into the dark. {A.He} come{A.s} back at dawn with a sack of cans and a look you don't ask about.
+camp_reckless_dare	2		Two shadows go down the hill. Two come back at dawn, loaded down. {B.name} is limping a little.
+camp_reckless_dare	3	A	Fine. Babysit me. See if I care.
+camp_brave_watch			{A.name} takes the first watch. Then the second. Then the third.
+camp_brave_watch		A	Sleep. All of you. I'll wake you if anything moves.
+camp_doc_pills			{B.name} catches {A.name} counting pills into {A.his} palm. Not for a patient.
+camp_doc_pills		A	They take the edges off. Just the edges. I'm still a doctor. I'm still fine.
+camp_doc_pills	1		{A.name} hands the bag over. {A.His} hands are shaking. So are {B.name}'s.
+camp_doc_pills	2		{B.name} looks away. In the morning the edges are gone, and so is the old tired look.
+camp_doc_pills	3		They talk until the fire is coals. {A.name} puts the pills back, one at a time.
+camp_meds_missing			The med count is off again. {B.name} doesn't need to ask who.
+camp_meds_missing		B	{A.name}. Those are for when someone's bleeding.
+camp_meds_missing		A	Someone is bleeding. You just can't see where.
+camp_meds_missing	1		{B.name} rigs a lock on the med box. {A.name} watches {B.him} do it and says nothing.
+camp_meds_missing	2		Nobody says anything. In the morning the count is off by one more.
+camp_dog_hunger			The dog watches every spoon, from bowl to mouth and back again.
+camp_dog_hunger		A	We can't feed it. We can barely feed us. You all know what I'm going to say next.
+camp_dog_hunger	1		Somebody's portion gets a little smaller. The dog sleeps against {A.name}'s legs.
+camp_dog_hunger	2		{A.name} walks the dog a mile back down the road and runs. It doesn't follow. That's the worst part.
+camp_dog_hunger	3		Nobody talks during dinner. It tastes like nothing. Everyone eats anyway.
+camp_nerve_back			{A.name} hasn't gone near the treeline since the last fight. Not even to pee.
+camp_nerve_back		B	Come on. Watch with me tonight. Just the two of us. Nothing's going to happen.
+camp_nerve_back	1		Nothing happens. All night, nothing happens, and {A.name} is there for every minute of it.
+camp_nerve_back	1		In the morning {A.he} walk{A.s} to the treeline alone. Just to see if {A.he} can.
+camp_nerve_back	2		{A.name} sleeps in the car with the doors locked. Nobody blames {A.him}. Not out loud.
+road_breakdown			Steam pours out from under the lead car's hood. The engine coughs twice and dies.
+road_breakdown		A	Radiator hose. I can patch it if we have parts. Or I can get creative with tape and prayer.
+road_breakdown	1		Twenty minutes, one new hose, and a lot of swearing. The engine turns over.
+road_breakdown	2		Tape, wire, a sock and a bent spoon. It holds. Mostly. It drips a little.
+road_breakdown	3		The engine wheezes along at twenty miles an hour, drinking fuel the whole way.
+road_body_backpack			A body lies face down in the ditch. Hiking boots. A full backpack. Flies, but not many.
+road_body_backpack		A	Not many flies means not dead long. Or not dead enough.
+road_body_backpack	1		{A.name} rolls it over. Its eyes are open. For a second, nobody breathes.
+road_body_backpack	2		{A.name} puts the knife in first, just to be sure. Then {A.he} open{A.s} the pack.
+road_body_backpack	3	A	Yeah. Let somebody else find out.
+road_horde_crossing			Ahead, the road is moving. Hundreds of them, shuffling across from one field to the next.
+road_horde_crossing		A	We can wait them out, go around through the fields, or put our foot down and punch through.
+road_horde_crossing	1		Four hours of waiting with the engines off. Everyone eats. Nobody talks above a whisper.
+road_horde_crossing	2		The cars bounce across a mile of plowed field. Somebody throws up. You make it.
+road_horde_crossing	3		Bodies thump off the bumper. Something claws at {A.name}'s window. Then you're through.
+road_bandit_toll			A school bus blocks the road. Three rifles behind it. A painted sign: TOLL.
+road_bandit_toll			"Food or bullets, friends. Pay up, or we take the lot and the cars with it."
+road_bandit_toll		A	They've got the high ground. Your call.
+road_bandit_toll	1		Three cans go over the hood of the bus. The rifles follow you all the way past.
+road_bandit_toll	2		A box of shells changes hands. One of them tips his hat. You want to hit him.
+road_bandit_toll	3	A	We've got sick people and nothing worth your bullets. Let us by and we forget your faces.
+road_bandit_toll	3		A long pause. Then the bus rolls back six feet. Just enough.
+road_bandit_toll	4		Glass explodes. Somebody screams. Then you are past them, and the bus is burning in the mirror.
+road_bandit_revenge			A rifle shot stars the windshield. Behind you, a school bus with a burned hood, closing fast.
+road_bandit_revenge		A	They remember us. Heads down!
+road_bandit_revenge	1		The cars scrape past the ditch at sixty. Something tears loose underneath. You lose them.
+road_bandit_revenge	2		{A.name} leans out the window and fires twice. The bus swerves into the ditch and stays there.
+road_stray_dog			A skinny dog trots alongside the caravan for a mile. Then two. It won't quit.
+road_stray_dog		A	Look at those ribs. Somebody's going to feed that dog, and I think it's me.
+road_stray_dog	1		The dog eats from {A.name}'s hand, then climbs into the back seat like it owns the car.
+road_stray_dog	2		The dog keeps up for another mile. Then it stops in the road and watches you go.
+road_hitchhiker			A man thumbs a ride at the crossroads. His left sleeve is soaked dark and tied off at the elbow.
+road_hitchhiker			"It's a cut. I swear on my kids it's a cut. Please."
+road_hitchhiker		A	It's not a cut.
+road_hitchhiker	1		You leave him a can of beans and a bottle of water. He's still waving when the road bends.
+road_hitchhiker	2		Nobody looks back. {A.name} keeps {A.his} eyes on the road for a long, long time.
+road_hitchhiker	3		{A.name} does it quickly, then sits in the car without starting it for a while.
+road_abandoned_car			A minivan sits in the breakdown lane, doors open, keys in. Crayon drawings taped to the back window.
+road_abandoned_car		A	Tank's half full. Somebody hand me the hose.
+road_abandoned_car			{A.name} gets a mouthful of gasoline. Again. But the cans fill up.
+road_radio_static		A	The Haven Bay loop is gone. Just static. Since this morning.
+road_radio_static		A	Could be the antenna. Could be the hills. Could be...
+road_radio_static			{A.name} spends the whole drive with the headphones on, turning the dial a hair at a time.
+road_radio_back		A	Wait. Wait! Everybody shut up!
+road_radio_back			"...boarding continues at Haven Bay. Last sailing in {days_left} days. Repeat..."
+road_radio_back			{A.name} is crying and laughing at the same time. Nobody makes fun of {A.him} for it.
+road_stranger_bait			A girl waves from the shoulder, crying. The grass in the ditch behind her is flattened in too many places.
+road_stranger_bait		A	Don't stop. Look at the ditch. That's an ambush.
+road_stranger_bait	1		In the mirror, three men climb out of the ditch and stand in the road, watching you go.
+road_stranger_bait	2		Men come out of the ditch with bats. They grab what they can before {A.name} gets the car moving.
+stop_church_board			The church door is chained shut. Taped to it: hundreds of notes. Names. Photos. GONE TO HAVEN BAY.
+stop_church_board		A	We should leave one. So somebody knows we came through.
+stop_church_board	1		{A.name} writes every name in the caravan, living and dead, and tapes it in the middle.
+stop_church_board	2		The pews are good dry oak and the hinges are brass. Nobody prays. Somebody apologizes.
+stop_garden			Behind a burned-out house, a vegetable garden has gone wild. Tomatoes. Beans. Something like squash.
+stop_garden		A	Give me an hour and a sack.
+stop_garden	1		Something moves in the corn rows. {A.name} keeps picking, one eye on the stalks.
+stop_garden	2		{A.name} fills {A.his} pockets from the edge and backs away from the tall corn.
+stop_army_checkpoint			Sandbags. A burned army truck. A hand-painted sign: NO BITTEN BEYOND THIS POINT.
+stop_army_checkpoint		A	Third Battalion. My old unit. Somebody gave them an order they never should have followed.
+stop_army_checkpoint		A	The trailer might still have something in it. Or we leave them be.
+stop_army_checkpoint	1		Two crates of rifle rounds, and a logbook. {A.name} reads the last page and then burns it.
+stop_army_checkpoint	2		{A.name} stands at the sandbags for a minute. Then {A.he} salute{A.s} and walk{A.s} back to the car.
+stop_school			The school still has its banner up: WELCOME BACK, STUDENTS! The front doors are chained from the outside.
+stop_school			On the windows, kids' drawings. Houses, suns, dogs. People with red mouths.
+stop_school		A	There's a nurse's office, and a broken side window. If we can stand to walk through there.
+stop_school	1		{A.name} comes back with a box of bandages and doesn't say a word about the classrooms.
+stop_school	2	A	Yeah. No. Some doors stay shut.
+stop_tanker			A fuel tanker lies on its side across two lanes. You can smell it a block away.
+stop_tanker		A	If the valve's not cracked, there's a lot of gas in there. If it is, nobody lights a match.
+stop_tanker	1		Twenty minutes of nobody breathing. The cans fill. {A.name}'s hands smell like gas for days.
+stop_tanker	2	A	Fair. I like my eyebrows where they are.
+stop_greedy_jeweler			A jewelry store. The front window is smashed, but the back cases are still locked.
+stop_greedy_jeweler		A	Gold. When this is over, gold's going to matter again. Give me five minutes.
+stop_greedy_jeweler		B	When this is over? Look around you.
+stop_greedy_jeweler	1		{A.name} comes out with a pocket of rings, a drawer of watchmaker's tools, and a new cut on {A.his} arm.
+stop_greedy_jeweler	2		{B.name} hauls {A.name} out by the collar. {A.name} sulks for the rest of the day.
+mission_end_won			Back at the cars, somebody starts laughing. It catches, the way it does when you've been that scared.
+mission_end_won		A	Good work. All of you. Now let's be gone before they come looking.
+mission_end_lost_blame		A	{B.name}! You were supposed to cover the left side! Where were you?
+mission_end_lost_blame		B	Where was I? Where were you, while you were busy being a hero?
+mission_end_lost_blame			It goes on until somebody walks away. Nobody remembers who.
+mission_end_lost_shoulder		A	That one's on me. I picked the wrong way in, and you paid for it.
+mission_end_lost_shoulder		A	Tomorrow we do it smarter. Get some sleep.
+mission_end_ammo_low		A	Rounds left: {res.ammo}. That's it. That's the whole war chest.
+mission_end_ammo_low		A	From here on, it's knives and clubs. Guns are for when it all goes wrong.
+mission_end_ammo_low	1		{A.name} spends the evening teaching everyone how to swing a pipe without losing it.
+mission_end_ammo_low	2		Powder, primers, a vise and a lot of patience. By midnight, a few more rounds.
+mission_end_doc_laughs			Halfway through stitching {B.name}'s scrape, {A.name} starts laughing and can't stop.
+mission_end_doc_laughs		A	Sorry. Sorry. I just realized I haven't filled out a single form in two months. It's wonderful.
+mission_end_doc_laughs			Something in {A.name} has come unstuck. {A.He} hum{A.s} while {A.he} work{A.s}.
+mission_end_froze			{A.name} hasn't said a word since the fight. {A.His} hands won't stop shaking.
+mission_end_froze		A	I froze. Right out in the open. I could hear it coming and I couldn't move. Me.
+mission_end_froze			Something that held {A.name} together all this way has cracked. Everyone can see it.
+death_epitaph_brave			They raise a marker facing the road ahead. {A.name} never once turned {A.his} back on it.
+death_epitaph_brave		B	Never ran. Not once. Carve that on it.
+death_epitaph_caring			{B.name} folds {A.name}'s blanket under the marker. {A.He}'d have given it away anyway.
+death_epitaph_caring		B	{A.He} patched up every one of us. Who patches us up now?
+death_epitaph_caring			{B.name} takes the med bag. Nobody argues.
+death_epitaph_hothead		B	{A.He} picked a fight with everything. The road, the dead, me. Mostly me.
+death_epitaph_hothead		B	And {A.he} never lost one. Not until today.
+death_epitaph_hothead			{B.name} carves {A.name}'s name into the marker with a knife. Crooked, the way {A.he}'d have done it.
+death_grave_generic			There's nothing to bury. They pile stones by the road instead, one for every day {A.name} made it.
+death_grave_generic		B	Somebody should say something.
+death_grave_generic	1	B	{A.name}. You made it further than most. Rest now. We'll take it from here.
+death_grave_generic	2		{A.His} pack is still in the car. Half a box of shells. {A.name} won't need them. It still feels like stealing.
+death_holt_words		B	{A.name}. You did your job. You can stand down now.
+death_holt_words			{B.name} says the soldier's words over the stones. Nobody else knows them. Nobody interrupts.
+death_june_names		B	I'm adding {A.name} to the list. When the radio works, I read the list out loud.
+death_june_names		B	Somebody out there should know {A.he} lived. Not just that {A.he} died.
+death_selfish_mouth		B	Well. That's one less mouth to feed.
+death_selfish_mouth			{C.name} hits {B.him}. Hard. Nobody pulls the two of them apart for a while.
+death_loyal_keepsake		B	I'm keeping {A.his} spare knife. {A.He}'d want it to keep working.
+death_loyal_keepsake			{B.name} wears it on {B.his} belt from then on, and checks it's there a hundred times a day.
+death_doc_failed		B	Eight years in the ER. I've lost people before. It never felt like this.
+death_doc_failed		B	Like it was my fault. Like I wasn't watching.
+death_doc_failed	1		{B.name} nods like {B.he} believe{B.s} it. {B.He} sit{B.s} up the rest of the night anyway.
+death_doc_failed	2		{B.name} goes through the med bag by firelight, item by item, until {B.he} know{B.s} it blind.
+bite_hide			{A.name} keeps {A.his} sleeve pulled down all the way back to the cars. In this heat.
+bite_hide		B	Roll it up, {A.name}. Now. Let me see.
+bite_hide		A	It's nothing. I fell. It's a scrape. Please don't.
+bite_hide	1		{B.name} says it out loud. Nobody sits near {A.name} at dinner.
+bite_hide	2	B	Okay. But you tell me if it gets worse. Swear it.
+bite_put_me_down		A	Don't let me turn. Not tonight, not tomorrow. Now, while I'm still me.
+bite_put_me_down		B	There's still time. There's meds, there's...
+bite_put_me_down		A	{B.name}. Look at me. Please.
+bite_put_me_down	1		{B.name} does it quickly. Then {B.he} sit{B.s} in the dirt beside {A.name} for a long time.
+bite_put_me_down	2	B	Not yet. Not while there's a chance. Don't you dare give up on me.
+bite_doc_gamble		B	There are things we haven't tried. Bleed it. Burn it. Pack it with every antibiotic we have.
+bite_doc_gamble		A	Will it work?
+bite_doc_gamble		B	I don't know. Nobody knows. That's the whole point of trying.
+bite_doc_gamble	1		It takes all night and all of {A.name}'s screaming. In the morning, nobody knows yet.
+bite_doc_gamble	2	B	...You're right. I'm sorry. I just wanted to do something.
+bite_amputation_talk		B	Listen to me. The bite is below the joint. If I take the limb tonight, above it, you live.
+bite_amputation_talk		A	And if I say no?
+bite_amputation_talk		B	Then I sit with you. Until.
+bite_amputation_talk	1		{A.name} nods. Somebody starts boiling water. Somebody else finds a belt to bite on.
+bite_amputation_talk	2	A	No. I'd rather go whole. Don't ask me again.
+bite_hothead_denial		A	It's a scratch! I've had worse from a cat! Stop looking at me like that!
+bite_hothead_denial			{A.name} punches the car door hard enough to dent it. {B.name} doesn't flinch.
+bite_hothead_denial		B	Nobody's looking. Sit down before you break your hand.
+bite_holt_orders		A	{B.name}. You're in charge now. If I start acting funny, you don't wait for orders.
+bite_holt_orders			{A.name} hands over {A.his} rifle, stock first. {B.name} has never seen {A.his} hands shake before.
+bite_vow_mara		B	{A.name}. I made you a promise. By the fire. I remember.
+bite_vow_mara		A	So do I. So keep it.
+bite_vow_mara	1		{B.name} keeps it. Quickly, the way they agreed. Then {B.he} sit{B.s} with {A.name} until it's dark.
+bite_vow_mara	2	B	I promised you a cure. I'm going to find it. You hold on until I do.
+bite_vow_mara	3	B	Not yet. Not today. Ask me again tomorrow.
+bite_vow_june		B	{A.name}. I made you a promise. By the fire. I remember.
+bite_vow_june		A	So do I. So keep it.
+bite_vow_june	1		{B.name} keeps it. Quickly, the way they agreed. Then {B.he} sit{B.s} with {A.name} until it's dark.
+bite_vow_june	2	B	I promised you a cure. I'm going to find it. You hold on until I do.
+bite_vow_june	3	B	Not yet. Not today. Ask me again tomorrow.
+camp_dog_warns			Past midnight the dog stands up, hackles raised, growling low at the dark.
+camp_dog_warns		A	Douse the fire. Nobody move. Nobody breathe.
+camp_dog_warns			Shapes drift past the camp, close enough to smell. Then they're gone. The dog gets the last of the stew.
+road_rosa_engine		A	Hear that knock? That's your fuel going out the tailpipe. Give me an hour and a wrench.
+road_rosa_engine	1	A	There. She'll sip it now instead of guzzling it. You're welcome.
+road_rosa_engine	2	A	Your funeral. Literally, probably.
+camp_rosa_believe		B	You don't even believe in the boat. Why are you still here?
+camp_rosa_believe		A	I don't believe in the boat. I believe in you idiots. Somebody has to keep your cars running.
+camp_rosa_believe			{A.name} goes back to the engine before anyone can see {A.his} face.
+camp_tess_stash			Under {A.name}'s bedroll, {B.name} finds granola bars, a jar of peanut butter and three cans of peaches.
+camp_tess_stash		A	What? I've been on my own since I was fourteen. You learn to keep a little back.
+camp_tess_stash	1		{A.name} dumps it all in the crate and doesn't speak to anyone until morning.
+camp_tess_stash	2	A	...Thanks. I'll share the peaches. Maybe.
+stop_tess_scout		A	Give me ten minutes. I'll go over the rooftops and see what's waiting for us.
+stop_tess_scout	1		{A.name} is back in eight, grinning, with a pocket of shotgun shells and a map drawn on {A.his} arm.
+stop_tess_scout	2	A	Fine. Slow and safe. My favorite. Said nobody.

@@ -148,3 +148,13 @@ explosion (BOOM_FRAMES 32 = 4 frames x 8):
 - Art source format (text pixel grids, palettes, compose/derive, glyph sets) is
   documented at the top of `tools/gfx.py`. Review sheets: `build/preview/*.png`
   (`scene.png` / `scene_1x.png` is a mock battle map for readability checks).
+
+## The Last Boat art (`tools/lbart.py`, `art/lb.txt`)
+A separate generator, not gfx.py: `python3 -I tools/lbart.py art/lb.txt build/gen` writes
+`build/gen/lbart.c` (the Makefile runs it). The contract is `src/lbart.h`: people sprites
+(`lbart_person_gfx`, pal_survivor, 16x16, 2 frames), roof metatiles (`lbart_roof_meta`, BG tiles
+from 224, terrain palette), map icons (`lbart_icon_gfx`, pal_cursor) and the journey backdrop
+(`lbart_journey_*`, its own BG palette, at most 512 tiles). Each character is one `cast` row in
+`art/lb.txt`; the tool rebuilds every sprite from the rows. `art/lb.txt` must stay parseable by
+gfx.py: its data lines start with `#:` and its only real block is `palette journey`. Previews:
+`build/preview/lb_*.png`.

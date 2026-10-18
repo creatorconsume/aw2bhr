@@ -1,0 +1,7 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	role	input	other	op	value	doc
+m_talk			mood		>=	1
+m_talk			seen		=	0
+m_talk		A	rel	B	>=	0
+m_talk	1	A	trait		has	calm
+m_grave		B	rel	A	>=	1

@@ -1,0 +1,119 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+storylet	choice	label	doc
+camp_thin_stew	1	Eat well tonight
+camp_thin_stew	2	Stretch it
+camp_thin_stew	3	{A.name} tells a story	Optimists only
+camp_hunt_dusk	1	Take a gun (1 ammo)
+camp_hunt_dusk	2	Go quiet, with a knife
+camp_hunt_dusk	3	Not tonight
+camp_holt_temper	1	Back {A.name}
+camp_holt_temper	2	Back {B.name}
+camp_holt_temper	3	Laugh it off	needs good morale
+road_stranger_help	1	Give them meds
+road_stranger_help	2	Drive on
+road_stranger_rob	1	Take the bag
+road_stranger_rob	2	Drive on
+stop_pharmacy_cross	1	Send {A.name} in
+stop_pharmacy_cross	2	Not worth the risk
+mission_end_shaken	1	Patch {A.him} up (1 meds)
+mission_end_shaken	2	{B.name} stays with {A.him}
+death_rival_guilt	1	It wasn't your fault
+death_rival_guilt	2	Say nothing
+bite_confession	1	Tell the others
+bite_confession	2	Burn it out (1 meds)
+bite_confession	3	Keep it quiet
+bite_caring_stays	1	Dress it (2 meds)
+bite_caring_stays	2	Keep your distance
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft	1	Cut {A.name}'s share
+camp_food_theft	2	Let it go
+camp_food_theft	3	{B.name} gives up a meal	Caring only
+camp_fever	1	Meds for {A.name} (1)
+camp_fever	2	{B.name} stays up
+camp_fever	3	Let {A.him} sweat it out
+camp_wants_to_leave	1	Talk {A.him} down	Leadership 2
+camp_wants_to_leave	2	Offer extra food (2)
+camp_wants_to_leave	3	Let {A.him} go
+camp_doc_tired	1	We need you, {A.name}.
+camp_doc_tired	2	Then rest. We'll manage.
+camp_holt_lesson	1	Live rounds (2 ammo)
+camp_holt_lesson	2	Dry fire only
+camp_mara_promise	1	Promise {A.him} mercy
+camp_mara_promise	2	Promise {A.him} a cure
+camp_nightmare	1	Hold {A.him} till it passes
+camp_nightmare	2	Gag {A.him}. They'll hear.
+camp_cynic_needle	1	Tell {A.him} to shut up
+camp_cynic_needle	2	Fair point, honestly
+camp_reckless_dare	1	Go, then
+camp_reckless_dare	2	{B.name} tags along
+camp_reckless_dare	3	Nobody goes
+camp_doc_pills	1	Take the bag from {A.him}
+camp_doc_pills	2	Look the other way
+camp_doc_pills	3	Sit with {A.him}	needs a friend
+camp_meds_missing	1	Lock the meds (1 parts)
+camp_meds_missing	2	Say nothing
+camp_dog_hunger	1	Share with the dog (1)
+camp_dog_hunger	2	Let the dog go
+camp_dog_hunger	3	Dogs are food
+camp_nerve_back	1	Stand watch with {A.him}
+camp_nerve_back	2	Let {A.him} rest
+road_breakdown	1	Patch it (2 parts)
+road_breakdown	2	{A.name} improvises	Mechanics 1
+road_breakdown	3	Limp on slowly (2 fuel)
+road_body_backpack	1	Search it
+road_body_backpack	2	Knife first, then search	Melee 1
+road_body_backpack	3	Leave it
+road_horde_crossing	1	Wait it out (2 food)
+road_horde_crossing	2	Go around (2 fuel)
+road_horde_crossing	3	Punch through	a Brave driver
+road_bandit_toll	1	Pay 3 food
+road_bandit_toll	2	Pay 3 ammo
+road_bandit_toll	3	{A.name} talks us through	Leadership 2
+road_bandit_toll	4	Shoot our way through
+road_bandit_revenge	1	Floor it
+road_bandit_revenge	2	Return fire (2 ammo)
+road_stray_dog	1	Feed it (1 food)
+road_stray_dog	2	Drive on
+road_hitchhiker	1	Give him food, drive on
+road_hitchhiker	2	Drive on
+road_hitchhiker	3	End it for him
+road_stranger_bait	1	Drive on
+road_stranger_bait	2	Stop anyway
+stop_church_board	1	Leave a note
+stop_church_board	2	Strip the pews (parts)
+stop_garden	1	Pick it clean
+stop_garden	2	Grab what's close
+stop_army_checkpoint	1	Search the trailer
+stop_army_checkpoint	2	Leave them be
+stop_school	1	Check the nurse's office
+stop_school	2	Keep walking
+stop_tanker	1	Fill the cans
+stop_tanker	2	Not worth a fireball
+stop_greedy_jeweler	1	Five minutes, then
+stop_greedy_jeweler	2	Drag {A.him} out
+mission_end_ammo_low	1	Knives from here on
+mission_end_ammo_low	2	Reload casings (2 parts)
+death_grave_generic	1	Say a few words
+death_grave_generic	2	Take {A.his} gear
+death_doc_failed	1	You did all you could
+death_doc_failed	2	Then learn from it
+bite_hide	1	Tell the others
+bite_hide	2	Keep {A.his} secret
+bite_put_me_down	1	Do it
+bite_put_me_down	2	Not yet
+bite_doc_gamble	1	Try everything (3 meds)
+bite_doc_gamble	2	Save the meds
+bite_amputation_talk	1	Tonight, then
+bite_amputation_talk	2	No. Not that.
+bite_vow_mara	1	Keep the promise	promised mercy
+bite_vow_mara	2	Look for the cure	promised a cure
+bite_vow_mara	3	Not yet
+bite_vow_june	1	Keep the promise	promised mercy
+bite_vow_june	2	Look for the cure	promised a cure
+bite_vow_june	3	Not yet
+road_rosa_engine	1	Let {A.name} tune it (1 parts)
+road_rosa_engine	2	No time. Drive.
+camp_tess_stash	1	Make {A.him} share
+camp_tess_stash	2	Let {A.him} keep it
+stop_tess_scout	1	Let {A.him} go
+stop_tess_scout	2	Stay together

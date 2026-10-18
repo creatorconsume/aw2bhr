@@ -1,0 +1,6 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	role	kind	cast	doc
+m_talk	A	alive
+m_talk	B	alive	named
+m_grave	A	subject_dead
+m_grave	B	alive

@@ -1,0 +1,5 @@
+﻿# comment
+storylet	choice	speaker	body
+m_talk		A	Hi {res}.
+m_talk	1	B	Sure.
+m_grave		B	Gone.

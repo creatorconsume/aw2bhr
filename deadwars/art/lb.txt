@@ -1,0 +1,185 @@
+# Dead Wars: The Last Boat - art source for tools/lbart.py (contract: src/lbart.h).
+#
+# Nothing in this file is a pixel grid: tools/lbart.py generates every sprite from these rows
+# (the godot-office way: one CAST row per character -> shapes -> tone slots -> outline).
+# gfx.py reads every art/*.txt as well, so the data lines start with "#:" (a comment for
+# gfx.py) and the one palette block below uses gfx.py's palette syntax.
+#
+#   python3 -I tools/lbart.py art/lb.txt build/gen        (the Makefile does this)
+#   -> build/gen/lbart.c, build/preview/lb_people.png lb_roofs.png lb_icons.png lb_journey.png
+
+# ---------------------------------------------------------------- tone ramps
+# ramp NAME PALETTE light base shade dark   (palette characters, art/palettes.txt)
+# survivor: K outline  s/S skin  b/B/c blue  n/N brown/khaki  g/G steel  W white  R red
+#           Y yellow  h hair  O orange
+#: ramp skin      survivor S S s s
+#: ramp skin_dark survivor S s n n
+#: ramp eye       survivor K K K K
+#: ramp khaki     survivor N N n n
+#: ramp tan       survivor N N n h
+#: ramp blue      survivor c B b b
+#: ramp navy      survivor B b b K
+#: ramp sky       survivor W c B b
+#: ramp white     survivor W W G G
+#: ramp grey      survivor G G g g
+#: ramp dark      survivor G g g K
+#: ramp brown     survivor N n n h
+#: ramp red       survivor O R R n
+#: ramp orange    survivor Y O O n
+#: ramp yellow    survivor W Y Y O
+#: ramp steel     survivor W G G g
+#: ramp gun       survivor g g g K
+#: ramp wood      survivor N n n h
+#: ramp boot      survivor g h h K
+#: ramp hair_dark survivor n h h K
+#: ramp hair_brn  survivor N n h h
+#: ramp hair_aub  survivor O n n h
+#: ramp hair_grey survivor W G g g
+#: ramp hair_salt survivor G g g K
+#: ramp hair_blond survivor Y Y N n
+
+# ---------------------------------------------------------------- body types
+# body NAME head=x0,y0,x1,y1 torso=x0,y0,x1,y1 legs=back_x0,back_x1,front_x0,front_x1
+#           hand=x,y (front hand, holds the prop) back_hand=x,y
+# Boxes are inclusive pixel rectangles in the 16x16 frame, facing right; boots on row 14,
+# the outline on row 15. Frame 1 moves everything above the legs down 1 px.
+#: body slim   head=5,2,10,7 torso=5,8,9,11  legs=5,6,8,9  hand=10,10 back_hand=4,11
+#: body stocky head=5,2,10,7 torso=4,8,10,11 legs=4,6,8,10 hand=11,10 back_hand=3,11
+#: body tall   head=5,1,10,6 torso=5,7,9,11  legs=5,6,8,9  hand=10,9  back_hand=4,11
+#: body teen   head=5,3,10,8 torso=5,9,9,11  legs=5,6,8,9  hand=10,11 back_hand=4,12
+
+# ---------------------------------------------------------------- the cast
+# cast LBG_NAME body=BODY skin=RAMP hair=short|long|ponytail|messy|bald hair_color=RAMP
+#      hat=helmet|cap|bandana|hood|beanie:RAMP badge=RAMP (helmet front)
+#      outfit=jacket|coat|labcoat|overalls top=RAMP (sleeves too) legs=RAMP (overalls: the bib)
+#      boots=RAMP trim=stripe|belt:RAMP shirt=RAMP (labcoat front)
+#      prop=rifle|pistol|crossbow|machete|bat|knife|none (front hand)
+#      acc=medkit|backpack|none pack=RAMP headset=RAMP mic=RAMP beard=1
+# Every name must be an LBG_* of src/lbart.h and every LBG_* needs a row.
+#: cast LBG_MARA  body=slim   skin=skin      hair=short    hair_color=hair_dark  hat=helmet:yellow badge=red outfit=coat top=khaki legs=brown boots=boot trim=stripe:yellow prop=machete
+#: cast LBG_DOC   body=tall   skin=skin      hair=short    hair_color=hair_salt  outfit=labcoat top=white shirt=sky legs=navy boots=boot prop=pistol acc=medkit
+#: cast LBG_JUNE  body=slim   skin=skin      hair=ponytail hair_color=hair_aub   outfit=jacket top=blue legs=dark boots=boot headset=dark prop=crossbow
+#: cast LBG_HOLT  body=stocky skin=skin      hair=short    hair_color=hair_salt  hat=cap:brown outfit=jacket top=dark legs=tan boots=boot beard=1 prop=rifle
+#: cast LBG_ROSA  body=slim   skin=skin_dark hair=long     hair_color=hair_dark  hat=bandana:blue outfit=overalls top=grey legs=orange boots=boot prop=bat
+#: cast LBG_TESS  body=teen   skin=skin      hair=short    hair_color=hair_brn   hat=hood:red outfit=jacket top=red legs=navy boots=boot prop=knife
+#: cast LBG_MAN   body=slim   skin=skin      hair=short    hair_color=hair_brn   outfit=jacket top=brown legs=navy boots=boot acc=backpack pack=tan
+#: cast LBG_WOMAN body=slim   skin=skin      hair=long     hair_color=hair_blond outfit=jacket top=sky legs=brown boots=boot
+
+# ---------------------------------------------------------------- roofs (terrain palette)
+# One pitched roof seen 3/4 from the front (like MT_HOUSE), cut into the 9-slice LBR_NW..LBR_SE:
+# the ridge along the top edge, the front slope in shingle courses (N and middle rows, top of
+# the S row), the eave, then the front wall with a window per tile (S row). Team colours X/Y/Z
+# (13-15) on the roof so the engine can tint ownership.
+# terrain: K outline  g/G/l greens  d/D browns  a asphalt  c concrete  w white  n/u water
+#          r red  X/Y/Z team light/mid/dark
+#: roof ridge=X slope=Y course_line=Z verge_light=X verge_dark=Z eave_shadow=d wall=D wall_shade=d glass=u glass_dark=n glint=w course=4 wall_rows=9
+# sign LBR_SIGN_KIND EMBLEM colours...: stamped on the NW piece (the building's top-left tile)
+#: sign LBR_SIGN_HOUSE    chimney brick=r mortar=d cap=c shadow=Z
+#: sign LBR_SIGN_SHOP     awning  stripe_a=r stripe_b=w board=a text=w
+#: sign LBR_SIGN_GARAGE   wrench  plate=a steel=c light=w
+#: sign LBR_SIGN_PHARMACY cross   plate=w cross=G cross_light=l cross_dark=g
+
+# ---------------------------------------------------------------- icons (cursor palette)
+# cursor: K outline  W white  Y yellow  O dark yellow  R red  g/G smoke dark/light (only 1..7)
+#: ramp c_wood   cursor Y O O K
+#: ramp c_plank  cursor Y Y O O
+#: ramp c_lid    cursor W Y Y O
+#: ramp c_stone  cursor G G g g
+#: ramp c_smoke  cursor g g g K
+#: ramp c_pole   cursor G G g g
+#: ramp c_flag   cursor W Y Y O
+#: ramp c_white  cursor W W W G
+#: ramp c_dark   cursor K K K K
+#: ramp c_hazard cursor Y Y Y O
+#: ramp c_amber  cursor O O O O
+#: ramp c_red    cursor W R R R
+# icon LBI_NAME door|barricade|crate|flag|eye_closed|drop|cross|ring [axis=e: the S recipe
+#      transposed] [part=RAMP to recolour a part]. Status icons (hidden, infected, downed) sit in
+#      the top-right corner, clear of the HP digit (bottom right).
+# Doors: the door stands on the wall line between icon rows 7 and 8 (tac_gfx.c draws DOOR_S
+# 8 px south of the door tile, DOOR_E 8 px east; vflip / hflip give N / W), its step outside.
+#: icon LBI_DOOR_S      door
+#: icon LBI_DOOR_E      door      axis=e
+#: icon LBI_BARRICADE_S barricade
+#: icon LBI_BARRICADE_E barricade axis=e
+#: icon LBI_CACHE       crate
+#: icon LBI_EXIT        flag
+#: icon LBI_HIDDEN      eye_closed
+#: icon LBI_INFECTED    drop
+#: icon LBI_DOWNED      cross
+#: icon LBI_NOISE       ring
+
+# ---------------------------------------------------------------- journey map palette
+# Loaded into BG bank BGPAL_TITLE by run.c. 0 is never drawn; 1/2 stay white/black like
+# pal_title so font tiles read on this bank too.
+palette journey
+. 000000  0 unused
+w f0ece0  1 white (font text, foam)
+k 08080c  2 black (font shadow, outlines)
+a 12140e  3 ground darkest / tree shadow
+b 1c2216  4 ground dark
+c 283020  5 ground
+d 38422a  6 field light / grass
+e 4c4a3a  7 dirt / ruins / road edge
+f 6c665a  8 asphalt light / bridge
+g 2e2c2a  9 asphalt dark
+h 0a1626 10 water deep
+i 17304c 11 water
+j 3a6488 12 water light / ripples
+l b0a070 13 faded paint / sand / lit window
+r 9a2818 14 barn red / embers
+o f08a30 15 fire / lamp glow
+end
+
+# ---------------------------------------------------------------- journey map (240x160)
+# Positions are pixels unless noted. run.c draws a stop's marker on its 8x8 tile (node x y)
+# and its two-line label to the right of it (backing tiles over the map), and moves the
+# caravan marker in a straight line from tile to tile, so the roads are straight lines
+# between the marker tiles. Its status strip covers the top rows and a window the bottom
+# rows, so every site sits in rows 4..14 (y 32..119), clear of the labels.
+#   node NAME TX TY                    a stop (8x8 tile); roads use the tile centre
+#   ground base= dark= light= darkest= the night ground (32 px repeating speckle)
+#   field X0,Y0,X1,Y1 dir=h|v|d step=  furrowed field;  wood X0,Y0,X1,Y1 seed= gaps=%  trees
+#   river X,Y X,Y ... half=            polyline;  sea SHORE_X amp= period=  the coast (right)
+#   town X0,Y0,X1,Y1 seed= burning=% lit=%  blocks of roofs, some on fire, some lit
+#   road A B kind=road|highway bridge=1  A/B: a node or @X,Y; only bridge=1 may cross water
+#   gas X,Y  farm X,Y  wreck X,Y color= dir=h|v  ship X,Y   sites (checked clear of roads / water)
+#: node CEDAR    1  9
+#: node MAIN     6  5
+#: node GAS      6 13
+#: node FARM    16  5
+#: node HIGHWAY 16 13
+#: node BRIDGE  20  9
+#: ground base=c dark=b light=d darkest=a
+#: field 96,14,128,38   dir=h step=3
+#: field 140,12,198,36  dir=v step=3 crop=e
+#: field 100,56,122,72  dir=d step=4
+#: field 166,34,208,64  dir=h step=3
+#: wood 0,0,64,28      seed=1
+#: wood 64,0,96,20     seed=2
+#: wood 102,74,150,98  seed=3
+#: wood 60,112,104,160 seed=4
+#: wood 150,104,214,160 seed=5 gaps=25
+#: wood 196,0,240,30   seed=6
+#: river 262,14 240,38 222,58 204,78 186,94 170,110 152,128 136,146 120,166 half=8 deep=h water=i ripple=j bank=e
+#: sea 224 amp=3 period=14 deep=h water=i foam=j sand=e
+#: town 0,36,34,66    seed=11 burning=40 lit=20
+#: town 30,112,46,126 seed=15 burning=30 lit=20
+#: town 18,22,46,38   seed=13 lit=30
+#: town 56,56,98,70   seed=14 lit=40
+#: road CEDAR MAIN
+#: road CEDAR GAS
+#: road CEDAR @0,76
+#: road MAIN FARM
+#: road MAIN HIGHWAY   kind=highway
+#: road GAS FARM
+#: road GAS HIGHWAY    kind=highway
+#: road FARM BRIDGE
+#: road HIGHWAY BRIDGE kind=highway
+#: road BRIDGE @216,128 bridge=1
+#: gas 14,104
+#: farm 120,58
+#: wreck 104,86
+#: wreck 115,94 color=f
+#: wreck 122,105 color=e dir=v
+#: ship 227,38

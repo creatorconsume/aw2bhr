@@ -1,0 +1,208 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+storylet	choice	role	input	other	op	value	doc
+camp_thin_stew			food		<=	12	only when food is short
+camp_thin_stew			alive_count		>=	3
+camp_thin_stew		A	survival		>=	1
+camp_thin_stew		A	trait		lacks	selfish
+camp_thin_stew	3	A	trait		has	optimist	only an Optimist lifts the mood
+camp_hunt_dusk			food		<=	20
+camp_hunt_dusk		A	survival		>=	2
+camp_hunt_dusk		A	hp_pct		>=	50
+camp_hunt_dusk		A	infected		=	0
+camp_hunt_dusk	1		ammo		>=	1
+camp_hunt_dusk	1	A	firearms		>=	1
+camp_holt_temper		A	trait		has	hothead
+camp_holt_temper		A	rel	B	<=	0
+camp_holt_temper	3		morale		>=	6
+camp_holt_cools_off			arguments		>=	2
+camp_holt_cools_off		A	trait		has	hothead
+camp_holt_cools_off		B	rel	A	>=	1
+camp_new_face			stranger_fate		!=	2	newcomers don't open up to robbers
+camp_new_face		A	rel	B	<=	0
+camp_new_face		B	cast		!=	tess	Tess doesn't ask
+road_radio_boat			radio_heard		=	0
+road_radio_boat			days_left		<=	36
+road_stranger_help			day		>=	2
+road_stranger_help		A	trait		has	caring
+road_stranger_help	1		meds		>=	1
+road_stranger_rob			day		>=	3
+road_stranger_rob		A	trait		has	selfish
+road_stranger_rob		B	trait		lacks	selfish
+stop_pharmacy_cross		A	scavenge		>=	2
+stop_pharmacy_cross		A	amputee		=	0
+stop_pharmacy_cross		A	infected		=	0
+stop_pharmacy_cross	1	A	hp		>=	4	the hp_add -2 below never kills
+mission_end_shaken		A	hp_pct		<	50
+mission_end_shaken		B	rel	A	>=	1
+mission_end_shaken	1		meds		>=	1
+death_grief_bonded		B	rel	A	>=	2
+death_rival_guilt		B	rel	A	<=	-2
+bite_confession	2	A	grit		>=	4
+bite_confession	2	A	hp		>=	4	the hp_add -3 below never kills
+bite_confession	2		meds		>=	1
+bite_caring_stays		B	trait		has	caring
+bite_caring_stays		B	infected		=	0
+bite_caring_stays		B	rel	A	>=	0
+bite_caring_stays	1	B	medicine		>=	2
+bite_caring_stays	1		meds		>=	2
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft			food		>=	3
+camp_food_theft			food		<=	14	only when food is short
+camp_food_theft		A	trait		lacks	caring
+camp_food_theft		A	trait		lacks	loyal
+camp_food_theft	3	B	trait		has	caring	only a Caring person gives up their meal
+camp_food_theft	3	B	hp		>=	2	the hp_add -1 below never kills
+camp_fever		A	infected		=	0
+camp_fever		A	hp		>=	3	the hp_add -2 below never kills
+camp_fever		B	rel	A	>=	0
+camp_fever	1		meds		>=	1
+camp_wants_to_leave			morale		<=	4
+camp_wants_to_leave		A	trait		lacks	loyal
+camp_wants_to_leave		A	nerve		<=	3
+camp_wants_to_leave		A	infected		=	0
+camp_wants_to_leave		B	leadership		>=	1
+camp_wants_to_leave	1	B	leadership		>=	2
+camp_wants_to_leave	2		food		>=	2
+camp_doc_tired		A	trait		has	weary
+camp_doc_tired			day		>=	3
+camp_doc_tired		B	rel	A	>=	0
+camp_watch_together		A	rel	B	>=	1
+camp_watch_together		A	rel	B	<=	2
+camp_watch_together		A	trait		lacks	loner
+camp_watch_together		B	trait		lacks	loner
+camp_holt_lesson		B	firearms		<=	1
+camp_holt_lesson		A	rel	B	>=	0
+camp_holt_lesson	1		ammo		>=	2
+camp_mara_promise			promise		=	0
+camp_mara_promise		A	rel	B	>=	1
+camp_mara_promise		A	infected		=	0
+camp_mara_promise		B	infected		=	0
+camp_counting_days		A	infected		=	1
+camp_counting_days		B	infected		=	0
+camp_counting_days		A	rel	B	>=	1
+camp_nightmare		A	trait		has	haunted
+camp_june_music			morale		<=	7
+camp_cynic_needle			radio_heard		=	1
+camp_cynic_needle		A	trait		has	cynic
+camp_cynic_needle		B	trait		lacks	cynic
+camp_reckless_dare		A	trait		has	reckless
+camp_reckless_dare		B	trait		lacks	reckless
+camp_reckless_dare		A	infected		=	0
+camp_reckless_dare		A	hp		>=	4	the hp_add -3 below never kills
+camp_reckless_dare	2	B	hp		>=	2	the hp_add -1 below never kills
+camp_brave_watch		A	trait		has	brave
+camp_brave_watch		A	hp_pct		>=	50
+camp_brave_watch		A	infected		=	0
+camp_brave_watch			alive_count		>=	3
+camp_doc_pills		A	trait		has	weary
+camp_doc_pills			meds		>=	2
+camp_doc_pills			morale		<=	6
+camp_doc_pills	3	B	rel	A	>=	1
+camp_meds_missing		A	trait		has	addict
+camp_meds_missing		B	trait		lacks	addict
+camp_meds_missing			meds		>=	2
+camp_meds_missing	1		parts		>=	1
+camp_dog_hunger			dog		=	1
+camp_dog_hunger			food		<=	8
+camp_dog_hunger	1		food		>=	1
+camp_nerve_back		A	trait		has	cowardly
+camp_nerve_back		A	rel	B	>=	0
+camp_nerve_back			morale		>=	4
+road_breakdown	1		parts		>=	2
+road_breakdown	2	A	mechanics		>=	1
+road_breakdown	3		fuel		>=	2
+road_body_backpack		A	scavenge		>=	1
+road_body_backpack		A	hp		>=	3	the hp_add -2 below never kills
+road_body_backpack	2	A	melee		>=	1
+road_horde_crossing	1		food		>=	2
+road_horde_crossing	2		fuel		>=	2
+road_horde_crossing	3	A	trait		has	brave
+road_horde_crossing	3	A	hp		>=	3	the hp_add -2 below never kills
+road_bandit_toll			bandits		=	0
+road_bandit_toll			day		>=	2
+road_bandit_toll	1		food		>=	3
+road_bandit_toll	2		ammo		>=	3
+road_bandit_toll	3	A	leadership		>=	2
+road_bandit_toll	4		ammo		>=	2
+road_bandit_toll	4	A	hp		>=	4	the hp_add -3 below never kills
+road_bandit_revenge			bandits		=	2
+road_bandit_revenge		A	hp		>=	3	the hp_add -2 below never kills
+road_bandit_revenge	2		ammo		>=	2
+road_stray_dog			dog		=	0
+road_stray_dog	1		food		>=	1
+road_hitchhiker	1		food		>=	1
+road_abandoned_car		A	hp		>=	2	the hp_add -1 below never kills
+road_radio_static			radio_heard		=	1
+road_radio_static			radio_lost		=	0
+road_radio_back			radio_lost		=	1
+road_radio_back			days_left		>=	2	"last sailing in 0 days" reads wrong
+road_stranger_bait			day		>=	2
+road_stranger_bait		A	trait		has	calm
+stop_garden		A	survival		>=	1
+stop_garden		A	hp		>=	3	the hp_add -2 below never kills
+stop_tanker		A	hp		>=	3	the hp_add -2 below never kills
+stop_greedy_jeweler		A	trait		has	greedy
+stop_greedy_jeweler		B	trait		lacks	greedy
+stop_greedy_jeweler	1	A	hp		>=	2	the hp_add -1 below never kills
+mission_end_won			mission_won		=	1
+mission_end_won		A	leadership		>=	1
+mission_end_won		A	hp_pct		>=	50
+mission_end_lost_blame			mission_won		=	2
+mission_end_lost_blame		A	trait		has	hothead
+mission_end_lost_blame		A	rel	B	<=	1
+mission_end_lost_shoulder			mission_won		=	2
+mission_end_lost_shoulder		A	leadership		>=	2
+mission_end_lost_shoulder		A	trait		lacks	hothead
+mission_end_ammo_low			ammo		<=	4
+mission_end_ammo_low		A	firearms		>=	2
+mission_end_ammo_low	2		parts		>=	2
+mission_end_doc_laughs		A	trait		has	weary
+mission_end_doc_laughs			morale		>=	7
+mission_end_doc_laughs			day		>=	4	a few days on the road first
+mission_end_froze		A	trait		has	brave
+mission_end_froze		A	nerve		<=	3
+mission_end_froze		A	hp_pct		<	25
+mission_end_froze		A	infected		=	0
+death_epitaph_brave		A	trait		has	brave
+death_epitaph_caring		A	trait		has	caring
+death_epitaph_caring		B	rel	A	>=	0
+death_epitaph_hothead		A	trait		has	hothead
+death_holt_words		A	rel	B	>=	0
+death_selfish_mouth		B	trait		has	selfish
+death_selfish_mouth		C	trait		lacks	selfish
+death_loyal_keepsake		B	trait		has	loyal
+death_loyal_keepsake		A	rel	B	>=	1
+bite_hide		A	trait		lacks	brave
+bite_hide		A	nerve		<=	3
+bite_hide		B	infected		=	0
+bite_put_me_down		A	nerve		>=	3
+bite_put_me_down		A	rel	B	>=	1
+bite_put_me_down		B	infected		=	0
+bite_doc_gamble		B	trait		has	caring
+bite_doc_gamble		B	infected		=	0
+bite_doc_gamble	1		meds		>=	3
+bite_doc_gamble	1	A	hp		>=	3	the hp_add -2 below never kills
+bite_amputation_talk		A	amputee		=	0
+bite_amputation_talk		B	medicine		>=	2
+bite_amputation_talk		B	infected		=	0
+bite_hothead_denial		A	trait		has	hothead
+bite_hothead_denial		A	hp		>=	2	the hp_add -1 below never kills
+bite_holt_orders		A	rel	B	>=	0
+bite_holt_orders		B	infected		=	0
+bite_vow_mara			promise		>=	1
+bite_vow_mara		B	infected		=	0
+bite_vow_mara	1		promise		=	1
+bite_vow_mara	2		promise		=	2
+bite_vow_mara	3		promise		=	1	"not yet" answers the mercy promise only
+bite_vow_june			promise		>=	1
+bite_vow_june		B	infected		=	0
+bite_vow_june	1		promise		=	1
+bite_vow_june	2		promise		=	2
+bite_vow_june	3		promise		=	1	"not yet" answers the mercy promise only
+camp_dog_warns			dog		=	1
+road_rosa_engine	1		parts		>=	1
+camp_rosa_believe		A	trait		has	cynic
+camp_rosa_believe		B	rel	A	>=	0
+camp_tess_stash		A	trait		has	selfish
+camp_tess_stash			food		<=	15
+stop_tess_scout		A	hp		>=	3	the hp_add -2 below never kills

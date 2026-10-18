@@ -1,0 +1,4 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	label	doc
+m_talk	1	Listen to {A.name}
+m_talk	2	Walk away

@@ -1,0 +1,1 @@
+var 'seen' is a bool: use var_set

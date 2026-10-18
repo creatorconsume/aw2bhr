@@ -1,0 +1,125 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+storylet	role	kind	cast	doc
+camp_thin_stew	A	alive		the cook
+camp_hunt_dusk	A	alive		the hunter
+camp_holt_temper	A	alive	holt
+camp_holt_temper	B	alive		someone Holt doesn't get on with
+camp_holt_cools_off	A	alive	holt
+camp_holt_cools_off	B	alive		a friend who tells him
+camp_new_face	A	alive	unnamed	the newcomer
+camp_new_face	B	alive	named	who asks
+road_radio_boat	A	alive	june
+road_stranger_help	A	alive		the Caring one
+road_stranger_rob	A	alive		the Selfish one
+road_stranger_rob	B	alive		someone who objects
+stop_pharmacy_cross	A	alive		the scavenger
+mission_end_shaken	A	alive		the hurt one
+mission_end_shaken	B	alive	named	the friend
+death_grief_bonded	A	subject_dead		the dead
+death_grief_bonded	B	alive		the bonded friend
+death_rival_guilt	A	subject_dead		the dead
+death_rival_guilt	B	alive		the rival
+bite_confession	A	subject		the bitten
+bite_caring_stays	A	subject		the bitten
+bite_caring_stays	B	alive		the Caring one
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft	A	alive		the thief
+camp_food_theft	B	alive		who found out
+camp_fever	A	alive		the sick one
+camp_fever	B	alive		who sits up
+camp_wants_to_leave	A	alive		wants to go
+camp_wants_to_leave	B	alive		who answers
+camp_doc_tired	A	alive	doc
+camp_doc_tired	B	alive		who answers
+camp_watch_together	A	alive
+camp_watch_together	B	alive
+camp_holt_lesson	A	alive	holt
+camp_holt_lesson	B	alive		the student
+camp_mara_promise	A	alive	mara
+camp_mara_promise	B	alive	june
+camp_counting_days	A	alive		the infected one
+camp_counting_days	B	alive		a friend
+camp_nightmare	A	alive		the Haunted one
+camp_nightmare	B	alive
+camp_june_music	A	alive	june
+camp_june_music	B	alive
+camp_cynic_needle	A	alive		the Cynic
+camp_cynic_needle	B	alive
+camp_reckless_dare	A	alive		the Reckless one
+camp_reckless_dare	B	alive
+camp_brave_watch	A	alive		the Brave one
+camp_doc_pills	A	alive	doc
+camp_doc_pills	B	alive		who catches him
+camp_meds_missing	A	alive		the Addict
+camp_meds_missing	B	alive
+camp_dog_hunger	A	alive		who says it
+camp_nerve_back	A	alive		the Cowardly one
+camp_nerve_back	B	alive		not an enemy
+road_breakdown	A	alive		who fixes it
+road_body_backpack	A	alive		the scavenger
+road_horde_crossing	A	alive		the driver
+road_bandit_toll	A	alive		who deals with them
+road_bandit_revenge	A	alive
+road_stray_dog	A	alive
+road_hitchhiker	A	alive		who says it
+road_abandoned_car	A	alive
+road_radio_static	A	alive	june
+road_radio_back	A	alive	june
+road_stranger_bait	A	alive		the Calm one
+stop_church_board	A	alive
+stop_garden	A	alive		the forager
+stop_army_checkpoint	A	alive	holt
+stop_school	A	alive
+stop_tanker	A	alive
+stop_greedy_jeweler	A	alive		the Greedy one
+stop_greedy_jeweler	B	alive
+mission_end_won	A	alive		a leader
+mission_end_lost_blame	A	alive		the Hothead
+mission_end_lost_blame	B	alive
+mission_end_lost_shoulder	A	alive		a leader
+mission_end_ammo_low	A	alive		the shooter
+mission_end_doc_laughs	A	alive	doc
+mission_end_doc_laughs	B	alive
+mission_end_froze	A	alive		the Brave one
+death_epitaph_brave	A	subject_dead		the dead
+death_epitaph_brave	B	alive
+death_epitaph_caring	A	subject_dead		the dead
+death_epitaph_caring	B	alive		takes the med bag
+death_epitaph_hothead	A	subject_dead		the dead
+death_epitaph_hothead	B	alive
+death_grave_generic	A	subject_dead		the dead
+death_grave_generic	B	alive
+death_holt_words	A	subject_dead		the dead
+death_holt_words	B	alive	holt
+death_june_names	A	subject_dead		the dead
+death_june_names	B	alive	june
+death_selfish_mouth	A	subject_dead		the dead
+death_selfish_mouth	B	alive		the Selfish one
+death_selfish_mouth	C	alive		who hits them
+death_loyal_keepsake	A	subject_dead		the dead
+death_loyal_keepsake	B	alive		the Loyal friend
+death_doc_failed	A	subject_dead		the dead
+death_doc_failed	B	alive	doc
+bite_hide	A	subject		the bitten
+bite_hide	B	alive		who notices
+bite_put_me_down	A	subject		the bitten
+bite_put_me_down	B	alive		a friend
+bite_doc_gamble	A	subject		the bitten
+bite_doc_gamble	B	alive	doc
+bite_amputation_talk	A	subject		the bitten
+bite_amputation_talk	B	alive		the medic
+bite_hothead_denial	A	subject		the bitten
+bite_hothead_denial	B	alive
+bite_holt_orders	A	subject	holt
+bite_holt_orders	B	alive		the new leader
+bite_vow_mara	A	subject	mara
+bite_vow_mara	B	alive	june
+bite_vow_june	A	subject	june
+bite_vow_june	B	alive	mara
+camp_dog_warns	A	alive
+road_rosa_engine	A	alive	rosa
+camp_rosa_believe	A	alive	rosa
+camp_rosa_believe	B	alive
+camp_tess_stash	A	alive	tess
+camp_tess_stash	B	alive		who finds it
+stop_tess_scout	A	alive	tess

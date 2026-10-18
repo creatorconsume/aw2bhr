@@ -1,0 +1,22 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	role	kind	cast	doc
+e_lethal	A	alive
+e_lethal	B	alive
+e_four	A	alive
+e_four	B	alive
+e_four	C	alive
+e_four	D	alive	unnamed
+e_prio	A	alive	mara
+e_prio	B	alive	named
+e_excl_a	A	alive
+e_excl_b	A	alive
+e_cool_a	A	alive
+e_death	A	subject_dead
+e_death	B	alive
+e_death	C	alive
+e_bite	A	subject
+e_bite	B	alive
+e_start	A	alive	unnamed
+e_end	A	alive
+e_bite_other	A	alive
+e_gated	A	alive

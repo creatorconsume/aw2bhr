@@ -1,0 +1,18 @@
+# storyc selftest data (docs/tech/STORY.md)
+id	phase	weight	priority	once	cooldown	cool_group	excl_group	log	doc
+e_noroles	camp	3	0	0	1			The wind changed	no roles, no choices
+e_lethal	camp	4	0	0	0			{A.name} fell	kills A, then effects on A must be skipped
+e_four	road	6	0	0	0			{A.name} met the others	four roles
+e_prio	camp	2	2	0	2			{A.name} gave orders	priority 2, four choices
+e_excl_a	road	3	0	0	0		g_ex
+e_excl_b	road	3	0	0	0		g_ex
+e_cool_a	stop	4	0	0	3	g_cool
+e_cool_b	stop	4	0	0	1	g_cool
+e_death	death	5	0	0	0			{A.name} was remembered
+e_death_any	death	1	0	0	0				any death, nobody named
+e_bite	bite	5	0	0	0			{A.name} burned the bite
+e_start	mission_start	5	0	1	0			A newcomer spoke up
+e_end	mission_end	5
+e_disabled	camp	0	0	0	0				weight 0: never fires
+e_bite_other	bite	3	0	0	0				no subject role: A is never the bitten one
+e_gated	road	4	0	0	0				every choice has conditions: needs one available

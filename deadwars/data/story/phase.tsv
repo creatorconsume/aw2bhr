@@ -1,0 +1,9 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+id	quiet	doc
+camp	4	weight of a quiet night (no storylet)
+road	6
+stop	8
+mission_start	10
+mission_end	6
+death	0	every death gets a storylet when one fits
+bite	0

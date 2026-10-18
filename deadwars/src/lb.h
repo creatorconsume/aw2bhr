@@ -215,23 +215,25 @@ bool tac_edge_open(int x, int y, int dir, bool zombie);         // may a step cr
 int  tac_move_cost(int x, int y, bool zombie);                  // IMPASSABLE if blocked
 int  tac_paths(int ui, u8 *dist, u8 *prev);                     // dist/prev like find_paths()
 int  tac_cover(int dx, int dy, int ax, int ay);                 // 0/20/40 of (dx,dy) vs attacker at (ax,ay)
+int  tac_edge_cover(int x, int y, int dir);                     // 0/20/40 of the edge on side dir (0 N 1 E 2 S 3 W)
 bool tac_los(int x0, int y0, int x1, int y1);
 bool tac_hidden(int ui);
 bool tac_sees(int z, int t);                                    // zombie z can see survivor t
 int  tac_weapon(int a, int d);                                  // WP_* used by survivor a on d, -1 = can't
 int  tac_hit_chance(int a, int d, int *cover_out);              // 5..95, cover_out may be NULL
 int  tac_damage(int a, int d);
-void tac_noise(int x, int y, int radius);                       // alerts zombies, fills the horde meter, waves
+bool tac_flanked(int a, int d);                                 // ranged, the target's cover faces elsewhere: +15, +1 dmg
+void tac_noise(int x, int y, int radius);                       // alerts zombies, fills the horde meter (x difficulty), waves
 void tac_attack(int a, int d);                                  // rolls, applies, feedback, XP, ammo, infection
 void tac_kill(int i, int killer);
 int  tac_search(int ui);                                        // loot found (sum), 0 = nothing / not searchable
-bool tac_can_search(int ui);
+bool tac_can_search(int ui);                                    // a cache on or orthogonally next to them (car trunks sit on wrecks), or an unsearched building tile
 int  tac_barricade_target(int ui);                              // building index, or -1
 void tac_barricade(int ui);
 void tac_extract(int ui);
-void tac_end_survivor_phase(void);                              // bleeding out, bridge hold, objective
+void tac_end_survivor_phase(void);                              // bleeding out, bridge hold, objective, +1 horde
 void tac_check_objective(void);
-int  tac_spawn_zombie(int type, int x, int y, bool dormant);
+int  tac_spawn_zombie(int type, int x, int y, bool dormant);   // the only way to add units in a mission; people's slots are never reused
 int  tac_survivors_left(void);                                  // on the map, alive
 #define TAC_DIRX(k) ((k) == 1 ? 1 : (k) == 3 ? -1 : 0)
 #define TAC_DIRY(k) ((k) == 2 ? 1 : (k) == 0 ? -1 : 0)
@@ -251,5 +253,8 @@ void tac_oam(void);             // build_oam() hook: doors, barricades, caches, 
 int  tac_unit_tile(int i, int frame); // build_oam() hook: OBJ tile of gs.units[i] (people use lbart sprites)
 void tac_hud(void);             // horde meter, objective, selected person
 void tac_fog(void);             // visibility from survivors (LOS), updates gs.fog and zombie draw flags
+void tac_gfx_pulse(int x, int y); // tac_gfx.c: blink the noise icon (tac_fx_noise)
+void tac_music_update(void);      // tac.c: horde level -> sound_horde_level() when it changes
+void tac_people_notice(void);     // tac.c: banners for people newly downed, bitten or killed
 
 #endif

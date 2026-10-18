@@ -1,0 +1,80 @@
+# Dead Wars: The Last Boat storylets - authoring guide: docs/tech/STORY.md
+id	phase	weight	priority	once	cooldown	cool_group	excl_group	log	doc
+# the row order is the storylet index (saves, Chronicle): append new rows, never reorder or delete (weight 0 retires one)
+camp_thin_stew	camp	8	0	0	3	camp_food		{A.name} made thin stew	food is short: eat well or stretch it
+camp_hunt_dusk	camp	5	0	0	3	camp_food		{A.name} tracked deer	a hunter offers to go out at dusk
+camp_holt_temper	camp	6	0	0	2			{A.name} picked a fight	Holt picks a fight with someone he doesn't get on with
+camp_holt_cools_off	camp	5	1	1	0			{A.name} cooled off	after enough fights, Holt hears himself
+camp_new_face	camp	5	0	0	6			{A.name} opened up	a named survivor gets to know an unnamed one
+road_radio_boat	road	5	1	1	0			{A.name} heard the boat call	June catches the Haven Bay loop
+road_stranger_help	road	6	0	1	0		stranger	A stranger on the road	a Caring person wants to stop for a stranger
+road_stranger_rob	road	6	0	1	0		stranger	A stranger with a bag	a Selfish person wants the stranger's bag
+stop_pharmacy_cross	stop	6	0	0	3			{A.name} saw a pharmacy	a scavenger spots a pharmacy
+mission_end_shaken	mission_end	6	0	0	2			{A.name} was shaken	a hurt person and a friend after the fight
+death_grief_bonded	death	10	0	0	0			{A.name} was buried	a bonded friend grieves
+death_rival_guilt	death	6	0	0	0			A rival mourned {A.name}	a rival feels guilty
+bite_confession	bite	6	0	0	0			Bitten: {A.name} told us	the bitten person speaks
+bite_caring_stays	bite	8	0	0	0			{A.name} was not alone	someone Caring stays with the bitten
+# ---- designer set 1: Act 1 slice content (docs/design/SLICE_NUMBERS.md) ----
+camp_food_theft	camp	6	0	0	3	camp_food		{A.name} stole food	food goes missing; a hungry person took it
+camp_fever	camp	5	0	0	4			{A.name} had a fever	a fever that is not a bite
+camp_wants_to_leave	camp	5	0	0	3	camp_strife		{A.name} almost left	low morale: someone packs to walk away
+camp_doc_tired	camp	4	0	0	5			{A.name} wanted to stop	the Weary doctor asks to be left behind
+camp_watch_together	camp	5	0	0	3	camp_bond		{A.name} grew close	two friends share a watch (rel +3 reads "together")
+camp_holt_lesson	camp	5	0	0	4	camp_bond		{A.name} taught shooting	the sergeant teaches someone to shoot
+camp_mara_promise	camp	5	0	1	0			{A.name} asked a promise	Mara and June promise each other mercy, or a cure
+camp_counting_days	camp	5	0	0	3			{A.name} counted days	a friend sits with someone who is infected
+camp_nightmare	camp	5	0	0	3			{A.name} woke screaming	a Haunted person wakes screaming; comfort or silence
+camp_june_music	camp	5	0	1	0			{A.name} found music	a small joy: dance music on the radio
+camp_cynic_needle	camp	4	0	0	3	camp_strife		{A.name} mocked the boat	a Cynic picks at the Haven Bay hope
+camp_reckless_dare	camp	4	0	0	3	camp_strife		{A.name} went out alone	a Reckless person wants to raid a house at night
+camp_brave_watch	camp	4	0	0	5			{A.name} never slept	a Brave person stands every watch
+camp_doc_pills	camp	5	0	1	0			{A.name} counted pills	the Weary doctor and the pill bag: Weary -> Addict, or not
+camp_meds_missing	camp	4	0	0	3			{A.name} took meds	an Addict dips into the med box
+camp_dog_hunger	camp	5	0	0	3			{A.name} eyed the dog	the stray eats too: share, release, or eat it
+camp_nerve_back	camp	4	0	0	4			{A.name} got brave again	a friend helps a Cowardly person back: Cowardly -> Brave
+road_breakdown	road	5	0	0	3			The car broke down	a breakdown: parts, skill or fuel
+road_body_backpack	road	5	0	0	3	road_loot		{A.name} searched a body	a body with a backpack in the ditch
+road_horde_crossing	road	5	0	0	3			A herd crossed our road	a herd crosses the road ahead: food, fuel or nerve
+road_bandit_toll	road	5	0	1	0			Bandits took a toll	a bandit toll: pay, talk, or shoot (remembered in bandits)
+road_bandit_revenge	road	8	1	1	0			The bandits came back	after a shootout at the toll, they come back once
+road_stray_dog	road	5	0	1	0			{A.name} fed a stray dog	a stray dog follows the caravan (dog = 1 if fed)
+road_hitchhiker	road	4	0	1	0			A bitten stranger	an infected hitchhiker swears it is a cut
+road_abandoned_car	road	5	0	0	3	road_loot		{A.name} siphoned gas	an abandoned minivan with fuel in it
+road_radio_static	road	5	0	1	0			{A.name} lost the signal	the Haven Bay loop goes silent (radio_lost = 1)
+road_radio_back	road	6	0	1	0			{A.name} found the boat	the Haven Bay loop comes back (radio_lost = 2)
+road_stranger_bait	road	6	0	1	0		stranger	A trap on the road	a Calm eye spots an ambush (third stranger variant)
+stop_church_board	stop	5	0	1	0			{A.name} left a note	a church door covered in notes for the missing
+stop_garden	stop	5	0	0	3	stop_forage		{A.name} found a garden	a wild vegetable garden; something in the corn
+stop_army_checkpoint	stop	5	0	1	0			{A.name} found {A.his} unit	Holt finds his old unit's checkpoint
+stop_school	stop	4	0	1	0			{A.name} saw the school	an elementary school: meds for morale
+stop_tanker	stop	5	0	0	3	stop_forage		{A.name} found a tanker	a tipped fuel tanker
+stop_greedy_jeweler	stop	4	0	0	4			{A.name} wanted gold	a Greedy person wants the jewelry store
+mission_end_won	mission_end	6	0	0	2	mission_mood		{A.name} rallied us	after a won mission (mission_won, set by run.c)
+mission_end_lost_blame	mission_end	5	0	0	2	mission_mood		{A.name} blamed somebody	after a lost mission a Hothead blames someone
+mission_end_lost_shoulder	mission_end	5	0	0	2	mission_mood		{A.name} took the blame	after a lost mission a leader owns it
+mission_end_ammo_low	mission_end	5	0	0	3			Ammo ran low	nearly out of ammo: go quiet or reload casings
+mission_end_doc_laughs	mission_end	6	0	1	0			{A.name} laughed again	good times lift the doctor: Weary -> Optimist
+mission_end_froze	mission_end	6	0	1	0			{A.name} froze	near death breaks a Brave person: Brave -> Cowardly
+death_epitaph_brave	death	8	0	0	0			{A.name}: never ran	epitaph for a Brave person
+death_epitaph_caring	death	8	0	0	0			{A.name}: kept us whole	epitaph for a Caring person; someone takes the med bag
+death_epitaph_hothead	death	8	0	0	0			{A.name}: went swinging	epitaph for a Hothead
+death_grave_generic	death	5	0	0	0			{A.name}: rest now	any death: words, or the dead one's pack
+death_holt_words	death	6	0	0	0			{A.name} was saluted	the sergeant's farewell
+death_june_names	death	6	0	0	0			{A.name} was on the list	June adds the dead to the names she reads on air
+death_selfish_mouth	death	5	0	0	0			{A.name}: one less mouth	a Selfish person says the quiet part
+death_loyal_keepsake	death	6	0	0	0			{A.name}: still with us	a Loyal friend keeps something of theirs
+death_doc_failed	death	5	0	0	0			{A.name}: we tried	the doctor blames himself
+bite_hide	bite	6	0	0	0			{A.name} hid a bite	the bitten one tries to hide it
+bite_put_me_down	bite	5	0	0	0			{A.name} asked for mercy	the bitten one asks a friend to end it (mercy kills)
+bite_doc_gamble	bite	6	0	0	0			{A.name}: the gamble	the Caring doctor wants to try anything
+bite_amputation_talk	bite	6	0	0	0			{A.name} faced the saw	a medic offers to amputate tonight (the Tend job does it)
+bite_hothead_denial	bite	6	0	0	0			{A.name} denied the bite	a Hothead refuses to believe it
+bite_holt_orders	bite	6	0	0	0			{A.name} gave {A.his} orders	the bitten sergeant hands over command
+bite_vow_mara	bite	10	1	0	0			{A.name} recalled a vow	the promise from camp_mara_promise comes due (mara bitten)
+bite_vow_june	bite	10	1	0	0			{A.name} recalled a vow	the promise from camp_mara_promise comes due (june bitten)
+camp_dog_warns	camp	4	0	0	4			The dog warned us	the stray earns its keep
+road_rosa_engine	road	5	0	0	4			{A.name} tuned the engine	the mechanic hears a knock (her Field repair)
+camp_rosa_believe	camp	4	0	1	0			{A.name} stayed anyway	the Cynic says why she stays anyway
+camp_tess_stash	camp	5	0	0	4			{A.name} hid a stash	the Selfish runaway has been hoarding
+stop_tess_scout	stop	5	0	0	3			{A.name} scouted ahead	the runaway goes over the rooftops

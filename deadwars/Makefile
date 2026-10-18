@@ -42,7 +42,7 @@ $(GEN)/music.c $(GEN)/music.h: audio/music.txt tools/music.py
 	python3 -I tools/music.py .
 
 # The Last Boat: generated art (tools/lbart.py) and storylets (tools/storyc.py, integrity-checked)
-$(GEN)/lbart.c: art/lb.txt tools/lbart.py src/lbart.h
+$(GEN)/lbart.c: art/lb.txt art/palettes.txt tools/lbart.py src/lbart.h
 	python3 -I tools/lbart.py art/lb.txt $(GEN)
 
 $(GEN)/story_data.c $(GEN)/story_data.h: $(STORY)

@@ -1,0 +1,4 @@
+# storyc selftest data (docs/tech/STORY.md)
+id	phase	weight	priority	once	cooldown	cool_group	excl_group	log	doc
+m_talk	camp	5	0	0	2			{A.name} talked
+m_grave	death	5	0	0	0			{A.name} was buried

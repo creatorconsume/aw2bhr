@@ -1,0 +1,27 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	role	input	other	op	value	doc
+e_noroles			alive_count		>=	1
+e_lethal		A	hp		<=	5
+e_lethal		B	trait		lacks	pacifist
+e_four		A	rel	B	>=	1
+e_four		C	rel	D	<=	-1
+e_four		A	trait		lacks	pacifist
+e_prio			counter		<=	4
+e_prio	2	B	rel	A	>=	1
+e_prio	3		big		>=	30000
+e_prio	4		flag_a		=	1
+e_excl_a		A	speed		>=	3
+e_excl_b		A	aim		>=	3
+e_cool_a		A	nerve		<=	4
+e_cool_b			big		!=	0
+e_death		B	rel	A	>=	1
+e_death		C	rel	A	<=	0
+e_death	1	C	trait		has	brave
+e_bite		B	rel	A	>=	1
+e_bite	1		meds		>=	1
+e_start			day		>=	1
+e_end		A	amputee		=	1
+e_end		A	infected		=	1
+e_end		A	hp_pct		<=	99
+e_gated	1		food		>=	5
+e_gated	2	A	mechanics		>=	3

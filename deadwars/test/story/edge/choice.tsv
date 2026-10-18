@@ -1,0 +1,12 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	label	doc
+e_prio	1	Hold the line, {A.name}
+e_prio	2	{B.name} takes the watch
+e_prio	3	Spend it all
+e_prio	4	Run for it
+e_death	1	Speak for {A.him}
+e_death	2	Stay silent
+e_bite	1	Burn it (1 meds)
+e_bite	2	Back away
+e_gated	1	Trade (5 food)
+e_gated	2	{A.name} fixes their car

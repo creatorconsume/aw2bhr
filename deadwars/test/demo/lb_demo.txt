@@ -1,0 +1,693 @@
+# Dead Wars: The Last Boat - demo playthrough for the headless runner (test/gbarun.c).
+# Run it with test/demo/run.sh (builds the runner, plays this on fresh SRAM, writes PNGs to
+# build/demo/ and checks that no text sits on a window frame).
+#
+# Route: title -> "The Last Boat" (last item of the title menu) -> New Run on Normal -> the intro
+# -> the journey map -> the road to Main Street (a road storylet) -> arrival (a stop storylet) ->
+# the stop menu -> Scavenge -> deploy all four -> the mission: moving, searching the house, the info
+# card, the START menu, horde turns, Holt's rifle shot (a kill, and the noise brings a wave), June's
+# crossbow, leaving by the caravan and the exit -> results -> the mission-end storylet -> camp jobs
+# -> the night -> a camp storylet -> the road to Hensley Farm -> its stop menu, the caravan and the
+# journal.
+#
+# Every shot is followed by two VRAM dumps (the text and window layers, SB_TEXT and SB_WINDOW) that
+# run.sh checks. The run is deterministic: the run's seed comes from frame_count when New Run is
+# picked, and everything after it (storylets, the mission's dice) follows that seed. Changing the
+# frames before "New Run", the storylet data or the order of rng calls changes which storylets play
+# and where the dead walk: then re-check the shots and adjust the presses below.
+# Script commands: see the header of test/gbarun.c ("press K N" holds K for N frames, then 2 more).
+
+# ---- title (classic menu stays as it was; The Last Boat is the last item)
+wait 60
+shot 01_title
+dump 06008000 1280 01_title-txt
+dump 06008800 1280 01_title-win
+press T 4
+wait 20
+shot 02_title_menu
+dump 06008000 1280 02_title_menu-txt
+dump 06008800 1280 02_title_menu-win
+press U 4
+wait 4
+press A 4
+wait 30
+shot 03_lb_title
+dump 06008000 1280 03_lb_title-txt
+dump 06008800 1280 03_lb_title-win
+press A 4
+wait 20
+shot 04_difficulty
+dump 06008000 1280 04_difficulty-txt
+dump 06008800 1280 04_difficulty-win
+press A 4
+wait 60
+shot 05_intro
+dump 06008000 1280 05_intro-txt
+dump 06008800 1280 05_intro-win
+
+# ---- the journey map: START skips the intro dialogue
+press T 4
+wait 30
+shot 06_journey
+dump 06008000 1280 06_journey-txt
+dump 06008800 1280 06_journey-win
+press A 4
+wait 20
+shot 07_roads
+dump 06008000 1280 07_roads-txt
+dump 06008800 1280 07_roads-win
+# Main Street: one day on the road (a road storylet on the way)
+press A 4
+wait 240
+shot 08_road_event
+dump 06008000 1280 08_road_event-txt
+dump 06008800 1280 08_road_event-win
+
+# ---- road storylet, arrival banner, the stop storylet (choices: the first one)
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 09_arrival
+dump 06008000 1280 09_arrival-txt
+dump 06008800 1280 09_arrival-win
+press A 4
+wait 40
+press A 4
+wait 40
+shot 10_stop_story
+dump 06008000 1280 10_stop_story-txt
+dump 06008800 1280 10_stop_story-win
+press A 4
+wait 40
+shot 11_story_choice
+dump 06008000 1280 11_story_choice-txt
+dump 06008800 1280 11_story_choice-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+# the stop: choose one
+shot 12_stop
+dump 06008000 1280 12_stop-txt
+dump 06008800 1280 12_stop-win
+press A 4
+wait 30
+shot 13_deploy
+dump 06008000 1280 13_deploy-txt
+dump 06008800 1280 13_deploy-win
+press T 4
+wait 60
+shot 14_briefing
+dump 06008000 1280 14_briefing-txt
+dump 06008800 1280 14_briefing-win
+press A 4
+wait 80
+shot 15_mission_start
+dump 06008000 1280 15_mission_start-txt
+dump 06008800 1280 15_mission_start-win
+
+# ---- turn 1: Mara walks up to the house door; Holt moves east
+press A 4
+wait 20
+shot 16_move_range
+dump 06008000 1280 16_move_range-txt
+dump 06008800 1280 16_move_range-win
+press U 4
+wait 8
+press U 4
+wait 8
+press U 4
+wait 8
+press > 4
+wait 8
+shot 17_path_arrow
+dump 06008000 1280 17_path_arrow-txt
+dump 06008800 1280 17_path_arrow-win
+press A 4
+wait 60
+shot 18_action_menu
+dump 06008000 1280 18_action_menu-txt
+dump 06008800 1280 18_action_menu-win
+# Wait (the second item)
+press D 4
+wait 6
+press A 4
+wait 30
+shot 19_mara_done
+dump 06008000 1280 19_mara_done-txt
+dump 06008800 1280 19_mara_done-win
+# SELECT jumps to the next ready person: Doc, June, Holt
+press S 4
+wait 10
+press S 4
+wait 10
+press S 4
+wait 10
+shot 20_holt_hud
+dump 06008000 1280 20_holt_hud-txt
+dump 06008800 1280 20_holt_hud-win
+# R: the person card
+press R 4
+wait 20
+shot 21_person_card
+dump 06008000 1280 21_person_card-txt
+dump 06008800 1280 21_person_card-win
+press B 4
+wait 20
+press A 4
+wait 20
+press > 4
+wait 8
+press > 4
+wait 8
+press > 4
+wait 8
+press A 4
+wait 60
+shot 22_holt_moved
+dump 06008000 1280 22_holt_moved-txt
+dump 06008800 1280 22_holt_moved-win
+press A 4
+wait 30
+# START: End Turn / Objective / Options / Cancel
+press T 4
+wait 20
+shot 23_start_menu
+dump 06008000 1280 23_start_menu-txt
+dump 06008800 1280 23_start_menu-win
+# the Objective screen first, then End Turn
+press D 4
+wait 6
+press A 4
+wait 20
+shot 24_objective
+dump 06008000 1280 24_objective-txt
+dump 06008800 1280 24_objective-win
+press A 4
+wait 20
+press T 4
+wait 20
+press A 4
+wait 30
+shot 25_horde_turn
+dump 06008000 1280 25_horde_turn-txt
+dump 06008800 1280 25_horde_turn-win
+wait 260
+shot 26_turn2
+dump 06008000 1280 26_turn2-txt
+dump 06008800 1280 26_turn2-win
+
+# ---- turn 2: Mara steps into the house and searches it; Holt walks up the road
+press A 4
+wait 20
+press U 4
+wait 10
+shot 27_house_tile
+dump 06008000 1280 27_house_tile-txt
+dump 06008800 1280 27_house_tile-win
+press A 4
+wait 60
+shot 28_search_menu
+dump 06008000 1280 28_search_menu-txt
+dump 06008800 1280 28_search_menu-win
+press A 4
+wait 20
+shot 29_search_found
+dump 06008000 1280 29_search_found-txt
+dump 06008800 1280 29_search_found-win
+wait 60
+# R on the next roof tile: the tile card (searched rooms, the door, cover by side)
+press > 4
+wait 10
+press R 4
+wait 20
+shot 30_tile_card
+dump 06008000 1280 30_tile_card-txt
+dump 06008800 1280 30_tile_card-win
+press B 4
+wait 10
+press < 4
+wait 10
+press S 4
+wait 10
+press S 4
+wait 10
+press S 4
+wait 10
+press A 4
+wait 20
+press U 4
+wait 8
+press U 4
+wait 8
+press > 4
+wait 8
+shot 31_holt_path
+dump 06008000 1280 31_holt_path-txt
+dump 06008800 1280 31_holt_path-win
+press A 4
+wait 60
+press A 4
+wait 30
+press T 4
+wait 20
+press A 4
+wait 300
+shot 32_turn3_hud
+dump 06008000 1280 32_turn3_hud-txt
+dump 06008800 1280 32_turn3_hud-win
+
+# ---- turn 3: Mara searches another room; Holt shoots the walker (noise 10: wave 1)
+press A 4
+wait 20
+press U 4
+wait 10
+press A 4
+wait 60
+press A 4
+wait 80
+press S 4
+wait 10
+press S 4
+wait 10
+press S 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 30
+shot 33_holt_attack_menu
+dump 06008000 1280 33_holt_attack_menu-txt
+dump 06008800 1280 33_holt_attack_menu-win
+press A 4
+wait 30
+shot 34_aim
+dump 06008000 1280 34_aim-txt
+dump 06008800 1280 34_aim-win
+press A 4
+wait 30
+shot 35_wave_banner
+dump 06008000 1280 35_wave_banner-txt
+dump 06008800 1280 35_wave_banner-win
+wait 90
+shot 36_after_attack
+dump 06008000 1280 36_after_attack-txt
+dump 06008800 1280 36_after_attack-win
+wait 60
+shot 37_after_attack_hud
+dump 06008000 1280 37_after_attack_hud-txt
+dump 06008800 1280 37_after_attack_hud-win
+press T 4
+wait 20
+press A 4
+wait 20
+wait 20
+shot 38_horde_turn2
+dump 06008000 1280 38_horde_turn2-txt
+dump 06008800 1280 38_horde_turn2-win
+wait 380
+shot 39_turn4
+dump 06008000 1280 39_turn4-txt
+dump 06008800 1280 39_turn4-win
+
+# ---- turn 4: Mara searches again; June shoots the runner in the woods (silent crossbow)
+press A 4
+wait 20
+press > 4
+wait 10
+press A 4
+wait 60
+press A 4
+wait 80
+press S 4
+wait 10
+press S 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 30
+shot 40_june_menu
+dump 06008000 1280 40_june_menu-txt
+dump 06008800 1280 40_june_menu-win
+press A 4
+wait 30
+shot 41_june_aim
+dump 06008000 1280 41_june_aim-txt
+dump 06008800 1280 41_june_aim-win
+press A 4
+wait 20
+shot 42_june_shot
+dump 06008000 1280 42_june_shot-txt
+dump 06008800 1280 42_june_shot-win
+wait 80
+# Holt walks back and finishes the runner with the rifle (wave 2)
+press S 4
+wait 10
+press A 4
+wait 20
+press < 4
+wait 8
+press < 4
+wait 8
+press < 4
+wait 8
+press A 4
+wait 60
+press A 4
+wait 30
+shot 43_holt_aim
+dump 06008000 1280 43_holt_aim-txt
+dump 06008800 1280 43_holt_aim-win
+press A 4
+wait 20
+shot 44_holt_shot
+dump 06008000 1280 44_holt_shot-txt
+dump 06008800 1280 44_holt_shot-win
+wait 200
+press T 4
+wait 20
+press A 4
+wait 20
+wait 320
+shot 45_turn5
+dump 06008000 1280 45_turn5-txt
+dump 06008800 1280 45_turn5-win
+
+# ---- turn 5: everyone heads for the caravan (west, the deploy tiles) and the exit
+press A 4
+wait 20
+press D 4
+wait 8
+press D 4
+wait 8
+press D 4
+wait 8
+press < 4
+wait 8
+press A 4
+wait 60
+press A 4
+wait 30
+press S 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 30
+shot 46_doc_menu
+dump 06008000 1280 46_doc_menu-txt
+dump 06008800 1280 46_doc_menu-win
+press D 4
+wait 6
+press A 4
+wait 20
+shot 47_leave_confirm
+dump 06008000 1280 47_leave_confirm-txt
+dump 06008800 1280 47_leave_confirm-win
+press U 4
+wait 6
+press A 4
+wait 20
+shot 48_doc_left
+dump 06008000 1280 48_doc_left-txt
+dump 06008800 1280 48_doc_left-win
+wait 60
+press S 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 30
+press A 4
+wait 30
+press A 4
+wait 120
+press S 4
+wait 10
+press A 4
+wait 20
+press < 4
+wait 8
+press < 4
+wait 8
+press A 4
+wait 60
+shot 49_holt_on_exit
+dump 06008000 1280 49_holt_on_exit-txt
+dump 06008800 1280 49_holt_on_exit-win
+press A 4
+wait 20
+press U 4
+wait 6
+press A 4
+wait 90
+press T 4
+wait 20
+press A 4
+wait 20
+wait 60
+shot 50_horde_turn3
+dump 06008000 1280 50_horde_turn3-txt
+dump 06008800 1280 50_horde_turn3-win
+wait 470
+shot 51_turn6
+dump 06008000 1280 51_turn6-txt
+dump 06008800 1280 51_turn6-win
+
+# ---- turn 6: Mara takes the exit, June falls back to the caravan: the mission ends
+press A 4
+wait 20
+press < 4
+wait 8
+press < 4
+wait 8
+press A 4
+wait 60
+press A 4
+wait 20
+press U 4
+wait 6
+press A 4
+wait 90
+press S 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 30
+press A 4
+wait 20
+press U 4
+wait 6
+press A 4
+wait 90
+shot 52_results
+dump 06008000 1280 52_results-txt
+dump 06008800 1280 52_results-win
+
+# ---- after the mission: the mission-end storylet, then the camp job board
+press A 4
+wait 60
+shot 53_mission_end_story
+dump 06008000 1280 53_mission_end_story-txt
+dump 06008800 1280 53_mission_end_story-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 54_camp_jobs
+dump 06008000 1280 54_camp_jobs-txt
+dump 06008800 1280 54_camp_jobs-win
+# Mara: Rest -> Cook -> Tend -> Forage -> Guard; Doc: Tend
+press A 4
+wait 20
+press A 4
+wait 20
+press A 4
+wait 20
+press A 4
+wait 20
+shot 55_camp_guard
+dump 06008000 1280 55_camp_guard-txt
+dump 06008800 1280 55_camp_guard-win
+press D 4
+wait 10
+press A 4
+wait 20
+press A 4
+wait 20
+shot 56_camp_tend
+dump 06008000 1280 56_camp_tend-txt
+dump 06008800 1280 56_camp_tend-win
+press T 4
+wait 40
+shot 57_night_summary
+dump 06008000 1280 57_night_summary-txt
+dump 06008800 1280 57_night_summary-win
+
+# ---- the camp storylet, the journey to Hensley Farm (2 days), its stop storylet
+press A 4
+wait 40
+shot 58_camp_story
+dump 06008000 1280 58_camp_story-txt
+dump 06008800 1280 58_camp_story-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 59_camp_choice
+dump 06008000 1280 59_camp_choice-txt
+dump 06008800 1280 59_camp_choice-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 60_journey_day2
+dump 06008000 1280 60_journey_day2-txt
+dump 06008800 1280 60_journey_day2-win
+press A 4
+wait 40
+shot 61_roads_to_farm
+dump 06008000 1280 61_roads_to_farm-txt
+dump 06008800 1280 61_roads_to_farm-win
+press A 4
+wait 40
+press A 4
+wait 40
+shot 62_road_story2
+dump 06008000 1280 62_road_story2-txt
+dump 06008800 1280 62_road_story2-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 63_farm_arrival
+dump 06008000 1280 63_farm_arrival-txt
+dump 06008800 1280 63_farm_arrival-win
+press A 4
+wait 40
+shot 64_farm_story
+dump 06008000 1280 64_farm_story-txt
+dump 06008800 1280 64_farm_story-win
+press A 4
+wait 40
+press A 4
+wait 40
+shot 65_farm_choice
+dump 06008000 1280 65_farm_choice-txt
+dump 06008800 1280 65_farm_choice-win
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+press A 4
+wait 40
+shot 66_farm_stop
+dump 06008000 1280 66_farm_stop-txt
+dump 06008800 1280 66_farm_stop-win
+
+# ---- the farm stop: the caravan and the journal, then Get through (a night mission)
+press D 4
+wait 6
+press D 4
+wait 6
+press D 4
+wait 6
+press D 4
+wait 6
+press A 4
+wait 30
+shot 67_caravan
+dump 06008000 1280 67_caravan-txt
+dump 06008800 1280 67_caravan-win
+press R 4
+wait 30
+shot 68_person_sheet
+dump 06008000 1280 68_person_sheet-txt
+dump 06008800 1280 68_person_sheet-win
+press B 4
+wait 20
+press B 4
+wait 30
+press D 4
+wait 6
+press A 4
+wait 30
+shot 69_journal
+dump 06008000 1280 69_journal-txt
+dump 06008800 1280 69_journal-win
+press B 4
+wait 30
+press D 4
+wait 6
+press D 4
+wait 6
+press A 4
+wait 30
+shot 70_farm_deploy
+dump 06008000 1280 70_farm_deploy-txt
+dump 06008800 1280 70_farm_deploy-win
+press T 4
+wait 60
+shot 71_farm_briefing
+dump 06008000 1280 71_farm_briefing-txt
+dump 06008800 1280 71_farm_briefing-win
+press A 4
+wait 80
+shot 72_night_mission
+dump 06008000 1280 72_night_mission-txt
+dump 06008800 1280 72_night_mission-win
+press A 4
+wait 20
+shot 73_night_move_range
+dump 06008000 1280 73_night_move_range-txt
+dump 06008800 1280 73_night_move_range-win
+press B 4
+wait 10
+press T 4
+wait 20
+press A 4
+wait 30
+shot 74_night_horde_turn
+dump 06008000 1280 74_night_horde_turn-txt
+dump 06008800 1280 74_night_horde_turn-win
+wait 400
+shot 75_night_turn2
+dump 06008000 1280 75_night_turn2-txt
+dump 06008800 1280 75_night_turn2-win

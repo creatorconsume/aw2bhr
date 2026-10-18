@@ -1,0 +1,6 @@
+# storyc selftest data (docs/tech/STORY.md)
+storylet	choice	op	role	other	target	value	chance	doc
+m_talk		var_add			mood	-1
+m_talk	1	rel_add	A	B		1
+m_talk	2	var_set			seen	1
+m_grave		morale_add				-1
