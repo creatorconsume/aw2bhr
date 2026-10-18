@@ -1,3 +1,5 @@
+# STALE (QA, 2026-10-18): since the mission balance tuning, goal_days = 6 and passive play loses,
+# so this script no longer reaches the results window. qa_3_m1_victory.txt covers this flow with checks.
 # Regression: after winning, the results window (Victory / Days / Zombies / Lost / Press A)
 # must stay up until A. Bug: the A that closes the outro dialogue is still in keys_down,
 # so results() and the title "Press START" are skipped instantly.

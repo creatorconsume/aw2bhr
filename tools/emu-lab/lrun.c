@@ -2,14 +2,18 @@
 // usage: lrun --core CORE.so --rom ROM [--bios-dir DIR] [--save-dir DIR] [--opts FILE]
 //             [--script FILE] [--out DIR] [--autostate FILE] [--map FILE] [--hang-secs N] [-v]
 // SCRIPT lines (same as deadwars/test/gbarun.c, plus extras):
-//   wait N | press KEYS [N] | hold KEYS | release | shot NAME | dump HEXADDR LEN NAME
-//   savestate FILE | loadstate FILE | sram FILE | peek ADDR LEN | poke ADDR BYTE.. | count ADDR | reset
-// FILE and NAME paths are relative to --out unless absolute. ADDR is hex, or a symbol name when --map points at the game's GNU ld map file.
-// "count ADDR" reads a u32 frame counter and prints how many game frames ran since the last count
-// (game frames < emulated frames means the game lags / misses vblanks).
+//   wait N | press KEYS [N] | hold KEYS | release | shot NAME | dump ADDR LEN NAME
+//   savestate FILE | loadstate FILE | sram FILE | reset
+//   peek ADDR LEN | poke ADDR B0 [B1 ..] | expect ADDR B0 [B1 ..] | count ADDR
+//   until ADDR BYTE [MAXFRAMES]   (run until the RAM byte equals BYTE; counts as a FAIL on timeout)
 // KEYS: any of A B L R S(elect) T(start) U D < >   e.g. "press A 4"
-// Exit status: 0 ok, 1 setup/core error, 3 suspect: a uniform (black/white) screenshot, no screen
-// change for --hang-secs after an input, or the last input of the script never changed the screen.
+// FILE and NAME paths are relative to --out unless absolute. ADDR is hex, or SYMBOL[+OFFSET]
+// when --map points at the game's GNU ld map file. Bytes are hex.
+// "expect" checks RAM bytes and prints PASS/FAIL. "count" reads a u32 frame counter and prints how
+// many game frames ran since the last count (fewer than emulated frames = the game lags).
+// Exit status: 0 ok, 1 setup/core error, 4 an expect failed, 3 suspect: a uniform (black/white)
+// screenshot, no screen change for --hang-secs after an input, or the script's last input never
+// changed the screen.
 #define _POSIX_C_SOURCE 200809L
 #include "libretro.h"
 #include <dlfcn.h>
@@ -252,10 +256,12 @@ static uint8_t* gba_addr(uint32_t addr) {
 }
 
 // "0x3001234" / "3001234" or a symbol from the ld map file ("                0x030012d8                frame_count")
-static uint32_t parse_addr(const char* s) {
-	char* end;
-	uint32_t a = strtoul(s, &end, 16);
+static uint32_t parse_addr(const char* arg) {
+	char s[256], *end, *plus;
+	snprintf(s, sizeof s, "%s", arg);
+	uint32_t off = 0, a = strtoul(s, &end, 16);
 	if (!*end) return a;
+	if ((plus = strchr(s, '+'))) *plus = 0, off = strtoul(plus + 1, NULL, 0); // SYMBOL+OFFSET
 	FILE* f = map_path ? fopen(map_path, "r") : NULL;
 	char line[512], name[256];
 	unsigned long v;
@@ -267,7 +273,7 @@ static uint32_t parse_addr(const char* s) {
 		}
 	if (f) fclose(f);
 	if (!a) fprintf(stderr, "lrun: unknown symbol %s (pass --map)\n", s);
-	return a;
+	return a ? a + off : 0;
 }
 
 static void mkdirs(const char* dir) {
@@ -364,7 +370,7 @@ static void shot(const char* name) {
 // ---- running ----
 static double host_secs, worst_ms;
 static long hang_frames = 600, hang_reported, hangs;
-static long count_frame = -1;
+static long count_frame = -1, fails;
 static uint32_t count_value;
 
 static void run_frames(long n) {
@@ -441,18 +447,30 @@ static void run_script(const char* path) {
 		else if (!strcmp(cmd, "loadstate")) state_load(out_path(a1, ""));
 		else if (!strcmp(cmd, "sram")) sram_write(out_path(a1, ""));
 		else if (!strcmp(cmd, "reset")) core.reset(), printf("reset at frame %ld\n", frame_no);
-		else if (!strcmp(cmd, "poke")) {
-			// poke ADDR B0 [B1 ...]: write bytes (hex) into RAM, e.g. to force a game state
+		else if (!strcmp(cmd, "poke") || !strcmp(cmd, "expect")) {
+			// poke writes the bytes (e.g. to force a game state), expect compares them
 			uint32_t addr = parse_addr(a1);
 			char* p = line;
+			int bad = 0;
 			for (int k = 0; k < 2; ++k) p += strspn(p, " \t"), p += strcspn(p, " \t\n");
 			for (char* end;; p = end) {
 				unsigned long v = strtoul(p, &end, 16);
 				if (end == p) break;
 				uint8_t* m = gba_addr(addr++);
-				if (m) *m = v;
-				else printf("poke %08x: not mapped\n", addr - 1);
+				if (!m) printf("%s %08x: not mapped\n", cmd, addr - 1), bad = 1;
+				else if (cmd[0] == 'p') *m = v;
+				else if (*m != v) printf("expect %s: byte %08x is %02x, want %02lx\n", a1, addr - 1, *m, v), bad = 1;
 			}
+			if (cmd[0] == 'e') printf("expect %s: %s (frame %ld)\n", a1, bad ? "FAIL" : "PASS", frame_no), fails += bad;
+		} else if (!strcmp(cmd, "until")) {
+			// wait for a game state instead of a fixed frame count, so scripts survive timing changes
+			unsigned want = 0;
+			long max = 3600, start = frame_no;
+			sscanf(line, "%*s %*s %x %ld", &want, &max);
+			const uint8_t* m = gba_addr(parse_addr(a1));
+			while (m && *m != want && frame_no - start < max) run_frames(1);
+			if (!m || *m != want) printf("until %s == %02x: FAIL after %ld frames\n", a1, want, frame_no - start), ++fails;
+			else if (verbose) printf("until %s == %02x: %ld frames\n", a1, want, frame_no - start);
 		} else if (!strcmp(cmd, "count")) {
 			uint32_t addr = parse_addr(a1), v = 0;
 			for (int i = 0; i < 4; ++i) {
@@ -597,7 +615,8 @@ int main(int argc, char** argv) {
 	core.deinit();
 	dlclose(lib);
 	free(romdata);
-	if (hangs || uniform_count) printf("RESULT: SUSPECT (%ld hang reports, %d uniform screenshots)\n", hangs, uniform_count);
+	if (fails) printf("RESULT: FAIL (%ld expect failures)\n", fails);
+	else if (hangs || uniform_count) printf("RESULT: SUSPECT (%ld hang reports, %d uniform screenshots)\n", hangs, uniform_count);
 	else printf("RESULT: OK\n");
-	return hangs || uniform_count ? 3 : 0;
+	return fails ? 4 : hangs || uniform_count ? 3 : 0;
 }
