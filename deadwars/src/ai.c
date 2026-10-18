@@ -1,6 +1,7 @@
 // Dead Wars - horde AI: spawning, waking, hunting, overrunning buildings
 #include "game.h"
 #include "video.h"
+#include "perf.h"
 #include <string.h>
 
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
@@ -22,23 +23,24 @@ static void build_field(void)
 {
 	static u16 queue[MAP_MAX_W * MAP_MAX_H * 4] EWRAM_BSS;
 	int qh = 0, qt = 0;
+	PERF_T0(t0);
 	for (int i = 0; i < MAP_MAX_W * MAP_MAX_H; i++)
 		field[i] = 0xFFFF;
 	for (int i = 0; i < MAX_UNITS; i++) {
 		Unit *u = &gs.units[i];
 		if (u->alive && !u->carried && u->side == SIDE_SURVIVOR) {
 			field[IDX(u->x, u->y)] = 0;
-			queue[qt++] = IDX(u->x, u->y);
+			queue[qt++] = u->x | u->y << 8; // packed x,y: no division on the GBA
 		}
 	}
 	for (int y = 0; y < gs.h; y++)
 		for (int x = 0; x < gs.w; x++)
 			if (gs.owner[y][x] == SIDE_SURVIVOR && field[IDX(x, y)]) {
 				field[IDX(x, y)] = gs.terrain[y][x] == TT_SAFEHOUSE ? 0 : 2;
-				queue[qt++] = IDX(x, y);
+				queue[qt++] = x | y << 8;
 			}
 	while (qh < qt) {
-		int c = queue[qh++], cx = c % MAP_MAX_W, cy = c / MAP_MAX_W;
+		int cx = queue[qh] & 0xFF, cy = queue[qh++] >> 8, c = IDX(cx, cy);
 		for (int k = 0; k < 4; k++) {
 			int nx = cx + dirx[k], ny = cy + diry[k];
 			if (nx < 0 || ny < 0 || nx >= gs.w || ny >= gs.h)
@@ -50,10 +52,11 @@ static void build_field(void)
 			if (nd < field[IDX(nx, ny)]) {
 				field[IDX(nx, ny)] = nd;
 				if (qt < (int)(sizeof queue / sizeof queue[0]))
-					queue[qt++] = IDX(nx, ny);
+					queue[qt++] = nx | ny << 8;
 			}
 		}
 	}
+	PERF_ADD(field, t0);
 }
 
 // Returns how many zombies were actually placed.
@@ -130,17 +133,28 @@ static void act(int z)
 {
 	Unit *zu = &gs.units[z];
 	bool indirect = unit_info[zu->type].flags & UF_INDIRECT;
+	PERF_T0(t0);
 	find_paths(z, dist, prev);
+	occ_begin();
+	u8 prey[MAX_UNITS];
+	int np = 0;
+	for (int t = 0; t < MAX_UNITS; t++)
+		if (gs.units[t].alive && !gs.units[t].carried && gs.units[t].side == SIDE_SURVIVOR)
+			prey[np++] = t;
+	// only scan the box the zombie can reach
+	int mp = unit_move_points(zu);
+	int x0 = MAX(0, zu->x - mp), x1 = MIN(gs.w - 1, zu->x + mp);
+	int y0 = MAX(0, zu->y - mp), y1 = MIN(gs.h - 1, zu->y + mp);
 	int best = 0, bx = -1, by = -1, bt = -1;
-	for (int y = 0; y < gs.h; y++)
-		for (int x = 0; x < gs.w; x++) {
+	for (int y = y0; y <= y1; y++)
+		for (int x = x0; x <= x1; x++) {
 			if (dist[IDX(x, y)] == NO_PATH || !can_end_on(z, x, y))
 				continue;
 			if (indirect && (x != zu->x || y != zu->y))
 				continue;
-			for (int t = 0; t < MAX_UNITS; t++) {
-				Unit *tu = &gs.units[t];
-				if (!tu->alive || tu->carried || tu->side != SIDE_SURVIVOR || !in_range(zu, x, y, tu->x, tu->y))
+			for (int j = 0; j < np; j++) {
+				int t = prey[j];
+				if (!in_range(zu, x, y, gs.units[t].x, gs.units[t].y))
 					continue;
 				int s = attack_score(z, t, x, y);
 				if (s > best) {
@@ -157,8 +171,8 @@ static void act(int z)
 			bx = zu->x, by = zu->y;
 		else {
 			int bestf = 0xFFFF;
-			for (int y = 0; y < gs.h; y++)
-				for (int x = 0; x < gs.w; x++) {
+			for (int y = y0; y <= y1; y++)
+				for (int x = x0; x <= x1; x++) {
 					if (dist[IDX(x, y)] == NO_PATH || !can_end_on(z, x, y) || (unit_at(x, y) >= 0 && unit_at(x, y) != z))
 						continue;
 					int f = field[IDX(x, y)];
@@ -172,6 +186,8 @@ static void act(int z)
 				}
 		}
 	}
+	occ_end();
+	PERF_ADD(think, t0);
 	if (bx < 0) {
 		zu->moved = 1;
 		return;
@@ -201,6 +217,7 @@ void horde_turn(void)
 {
 	const Mission *m = &missions[gs.mission];
 	start_side_turn(SIDE_HORDE);
+	PERF_TURN_START();
 	text_clear();
 	banner("The Horde", gs.night ? "They hunt in the dark." : "The dead are moving...", 45);
 

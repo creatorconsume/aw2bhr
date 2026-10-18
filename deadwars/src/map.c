@@ -113,8 +113,32 @@ int move_cost(int movetype, int tt)
 	return terrain_info[tt].cost[movetype];
 }
 
+// Occupancy grid (index+1 per tile) for hot loops. Only valid between
+// occ_begin() and occ_end(), while no unit moves, spawns or dies.
+static u8 occ[MAP_MAX_H][MAP_MAX_W];
+static u8 occ_depth;
+
+void occ_begin(void)
+{
+	if (occ_depth++)
+		return;
+	memset(occ, 0, sizeof occ);
+	for (int i = 0; i < MAX_UNITS; i++) {
+		Unit *u = &gs.units[i];
+		if (u->alive && !u->carried && u->x < MAP_MAX_W && u->y < MAP_MAX_H)
+			occ[u->y][u->x] = i + 1;
+	}
+}
+
+void occ_end(void)
+{
+	occ_depth--;
+}
+
 int unit_at(int x, int y)
 {
+	if (occ_depth)
+		return (unsigned)x < MAP_MAX_W && (unsigned)y < MAP_MAX_H ? occ[y][x] - 1 : -1;
 	for (int i = 0; i < MAX_UNITS; i++) {
 		Unit *u = &gs.units[i];
 		if (u->alive && !u->carried && u->x == x && u->y == y)
@@ -283,6 +307,13 @@ void camera_follow(int x, int y, bool smooth)
 // AW-style damage: base * attacker HP/10 * (100 - stars*defender HP)/100, plus small luck.
 int damage_estimate(const Unit *a, const Unit *d, bool luck)
 {
+	if (!base_damage[a->type][d->type])
+		return 0;
+	return damage_calc(a, d, luck ? rng_next() % 10 : 0);
+}
+
+int damage_calc(const Unit *a, const Unit *d, int luck)
+{
 	int base = base_damage[a->type][d->type];
 	if (!base)
 		return 0;
@@ -293,9 +324,7 @@ int damage_estimate(const Unit *a, const Unit *d, bool luck)
 	int stars = terrain_info[gs.terrain[d->y][d->x]].defense;
 	if (unit_info[d->type].flags & UF_VEHICLE)
 		stars = stars > 2 ? 2 : stars; // vehicles can't dig into buildings as well
-	int dmg = base * boost / 100;
-	if (luck)
-		dmg += rng_next() % 10;
+	int dmg = base * boost / 100 + luck;
 	dmg = dmg * ahp / 10;
 	dmg = dmg * (100 - stars * dhp) / 100;
 	return MAX(dmg, 0);

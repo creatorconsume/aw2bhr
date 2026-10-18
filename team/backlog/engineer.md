@@ -21,7 +21,8 @@ pass. Don't redo them.
   - More than 9 missions: `mission_select()` in `main.c` prints `'1' + i`, so mission 10 shows `:`. Also
     `Profile.best_days[16]` and the `unlocked` logic.
   - Escort or VIP goal ("unit X must survive") and defend-a-tile goal, if the designer asks for them.
-- [ ] **gpSP performance review** (measure only until hardening is merged). Use QA's `tools/emu-lab` `lrun` with the
+- [x] **gpSP performance review**: first pass done in d68ceeb (mGBA cycle counters, `make PERF=1`, docs/tech/PERF.md). Occupancy grid (scoped), division-free BFS, `act()` move-box scan. Still to do: gpSP numbers via emu-lab `lrun`, `show_ranges` O((W·H)²), DMA for copy16/fill16, IWRAM ARM.
+  Original item: (measure only until hardening is merged). Use QA's `tools/emu-lab` `lrun` with the
   gpSP Onion core (rev 6250979) and `count frame_count`. Measure: an M5 night horde turn, the Sniper/Spitter
   range view, map scrolling and dialogue typing. Suspects found by reading the code:
   - `unit_at()` scans all 96 units. `find_paths()` calls it for every neighbour (≈600 tiles × 4 × 96), and
@@ -32,7 +33,8 @@ pass. Don't redo them.
   - `copy16`/`fill16` are CPU loops from ROM. Use DMA3 or `CpuFastSet` for VRAM/OAM, and IWRAM ARM code for hot loops.
   - Done when the before/after frame counts per scenario are in `team/status/engineer.md`, and no animation drops
     frames on gpSP-onion.
-- [ ] **Damage forecast with counter** (new file `src/forecast.c` now, hook it into `pick_target()` after hardening).
+- [x] **Damage forecast with counter**: c36b67d (`src/ui.c` `forecast_draw`, hooked in `pick_target`). Shows hit and counter as luck ranges, "Destroys" and "No counter". Terrain stars not shown yet.
+  Original item: (new file `src/forecast.c` now, hook it into `pick_target()` after hardening).
   The window currently shows only `Dmg %`. Add: expected damage, the defender's counter after taking that damage
   (only if adjacent, direct and able to hurt the attacker; mirror `attack()`), "kills" when lethal, and the
   defender's terrain stars. Night +15% and the 0..9 luck should show as a range, for example `45-54%`.
@@ -42,10 +44,17 @@ pass. Don't redo them.
 
 ## P1
 
-- [ ] **Unit and terrain info screen.** Press R on a unit to show its name, HP, move and move type, vision, range,
+- [ ] **Part Two mechanics** (designer inbox 20261018-0141): VIP, GOAL_ESCORT, GOAL_BOSS, UT_ZERO behaviour, day events, 10+ missions. Blocked until hardening is merged.
+- [ ] **Audio Part Two hooks** (audio inbox 20261018-0149 on claude/deadwars-dev): `sfx(SFX_CALL/LINK/ROAR)` at the Zero events; `UF_BOSS` as a `#define`; keep `snd_flags`/`snd_magic` when saves get versioned.
+- [ ] **Patient Zero gfx hookup** (artist inbox 20261018-0143): `OBJT_BOSS`, `speaker_names[5]`. Blocked until hardening is merged.
+- [x] **Turn-start summary**: c36b67d (`summary_show`: supplies, healed HP, lost, turned).
+
+- [x] **Unit and terrain info screen**: c36b67d (`info_card()` on R).
+  Original item: Press R on a unit to show its name, HP, move and move type, vision, range,
   cost, flags and its `unit_info[].desc` text. `desc` exists in `data.c` but nothing displays it. Press R on an empty
   tile to show the terrain name, stars, move costs per type and income.
-- [ ] **Path arrows.** While the player picks a destination, draw an AW-style arrow from the unit to the cursor along
+- [x] **Path arrows**: c36b67d. OBJ sprites generated in code (tiles 288+, OBJ palette 12) along `build_path()`, so no art request was needed. The artist may replace them. Cursor-trail paths are still to do.
+  Original item: While the player picks a destination, draw an AW-style arrow from the unit to the cursor along
   the cursor's trail, falling back to `build_path()` when the trail is too long. This needs arrow overlay tiles from the
   artist. Request them as additive symbols (new `OV_ARROW_*` after the current set, or a separate `arrow_meta`) so
   `ASSET_SPEC.md` stays backward compatible.
@@ -68,6 +77,10 @@ pass. Don't redo them.
 - [ ] **End Day confirmation** when ready units remain, and a counter of units left to move.
 
 ## P2
+
+- [ ] Release builds: fill the header logo (gbafix `LOGO_ROM` fallback), as QA suggested via the producer.
+- [ ] Versioned release filename, for example `deadwars-vX.Y-<sha>.gba`.
+- [ ] After the merge: check the text.c:29 `-Warray-bounds` warning (audio's `noinline` on `text_put`).
 
 - [ ] Fix the `-Warray-bounds` warning in `text.c` `dialogue()` (the `text_put` of `"v"`/`" "` gets inlined). It
   showed up in a clean build of integration + `claude/onion-lab`.

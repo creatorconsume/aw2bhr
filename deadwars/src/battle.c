@@ -1,6 +1,7 @@
 // Dead Wars - battle flow: player turn, movement, actions, combat, turn cycle
 #include "game.h"
 #include "video.h"
+#include "perf.h"
 #include <string.h>
 
 #define IDX(x, y) ((y) * MAP_MAX_W + (x))
@@ -34,13 +35,15 @@ int find_paths(int ui, u8 *d, u8 *p)
 	Unit *u = &gs.units[ui];
 	int mt = unit_info[u->type].movetype, mp = unit_move_points(u);
 	static u16 queue[MAP_MAX_W * MAP_MAX_H * 4] EWRAM_BSS;
+	PERF_T0(t0);
 	memset(d, NO_PATH, MAP_MAX_W * MAP_MAX_H);
 	memset(p, NO_PATH, MAP_MAX_W * MAP_MAX_H);
+	occ_begin();
 	int qh = 0, qt = 0, n = 0;
 	d[IDX(u->x, u->y)] = 0;
-	queue[qt++] = IDX(u->x, u->y);
+	queue[qt++] = u->x | u->y << 8; // packed x,y: no division on the GBA
 	while (qh < qt) {
-		int c = queue[qh++], cx = c % MAP_MAX_W, cy = c / MAP_MAX_W;
+		int cx = queue[qh] & 0xFF, cy = queue[qh++] >> 8, c = IDX(cx, cy);
 		for (int k = 0; k < 4; k++) {
 			int nx = cx + dirx[k], ny = cy + diry[k];
 			if (nx < 0 || ny < 0 || nx >= gs.w || ny >= gs.h)
@@ -58,12 +61,14 @@ int find_paths(int ui, u8 *d, u8 *p)
 			d[IDX(nx, ny)] = nd;
 			p[IDX(nx, ny)] = k;
 			if (qt < (int)(sizeof queue / sizeof queue[0]))
-				queue[qt++] = IDX(nx, ny);
+				queue[qt++] = nx | ny << 8;
 		}
 	}
+	occ_end();
 	for (int i = 0; i < MAP_MAX_W * MAP_MAX_H; i++)
 		if (d[i] != NO_PATH)
 			n++;
+	PERF_ADD(paths, t0);
 	return n;
 }
 
@@ -153,6 +158,7 @@ void kill_unit(int i, int killer)
 		int z = spawn_unit(UT_WALKER, SIDE_HORDE, x, y, 80);
 		if (z >= 0)
 			gs.units[z].moved = 1;
+		turn_risen++;
 	}
 	// destroyed vehicles leave wrecks on open ground
 	if ((unit_info[type].flags & UF_VEHICLE) && (gs.terrain[y][x] == TT_PLAIN || gs.terrain[y][x] == TT_ROAD)) {
@@ -354,12 +360,7 @@ static int pick_target(int ui, const int *targets, int n)
 		gs.cur_x = t->x;
 		gs.cur_y = t->y;
 		camera_follow(t->x, t->y, true);
-		int dmg = damage_estimate(&gs.units[ui], t, false);
-		int px = (t->x - gs.cam_x) < 8 ? 18 : 1;
-		text_clear();
-		text_window(px, 1, 11, 4);
-		text_put(px + 1, 2, unit_info[t->type].name, BGPAL_TEXT_RED);
-		text_printf(px + 1, 3, BGPAL_TEXT_YEL, "Dmg %3d%%", MIN(dmg, 100));
+		forecast_draw(ui, targets[sel]);
 		frame();
 		if (keys_rep & (KEY_RIGHT | KEY_DOWN | KEY_R))
 			sel = (sel + 1) % n;
@@ -717,6 +718,11 @@ static bool player_turn(void)
 		}
 		if (keys_down & KEY_START)
 			goto menu;
+		if (keys_down & KEY_R) {
+			info_card();
+			info_panel();
+			continue;
+		}
 		if (!(keys_down & KEY_A))
 			continue;
 		int ui = unit_at(gs.cur_x, gs.cur_y);
@@ -741,9 +747,11 @@ static bool player_turn(void)
 					int ny = gs.cur_y + ((keys_rep & KEY_DOWN) ? 1 : 0) - ((keys_rep & KEY_UP) ? 1 : 0);
 					gs.cur_x = MAX(0, MIN(nx, gs.w - 1));
 					gs.cur_y = MAX(0, MIN(ny, gs.h - 1));
+					path_arrow_update(dist, prev, ox, oy);
 					camera_follow(gs.cur_x, gs.cur_y, true);
 				}
 				if (keys_down & KEY_B) {
+					path_arrow_clear();
 					overlay_clear();
 					gs.cur_x = ox;
 					gs.cur_y = oy;
@@ -757,6 +765,7 @@ static bool player_turn(void)
 				if (dist[IDX(tx, ty)] == NO_PATH ||
 				    (o >= 0 && gs.units[o].side == SIDE_SURVIVOR && !can_end_on(ui, tx, ty)))
 					continue;
+				path_arrow_clear();
 				overlay_clear();
 				u16 path[64];
 				int len = build_path(prev, ox, oy, tx, ty, path);
@@ -790,6 +799,7 @@ static bool player_turn(void)
 						for (int x = 0; x < gs.w; x++)
 							if (dist[IDX(x, y)] != NO_PATH)
 								overlay_set(x, y, OV_MOVE);
+					path_arrow_update(dist, prev, ox, oy);
 					continue;
 				}
 				fog_update();
@@ -868,6 +878,9 @@ void battle_run(int mission)
 			return;
 	} else {
 		map_load(mission);
+#ifdef PERF
+		perf_stress();
+#endif
 	}
 	REG_DISPCNT = DCNT_BLANK;
 	video_load_game_gfx();
@@ -893,11 +906,13 @@ void battle_run(int mission)
 		if (gs.over)
 			break;
 		text_clear();
+		summary_mark_horde();
 		horde_turn();
 		check_victory();
 		if (gs.over)
 			break;
 		gs.day++;
+		summary_mark_upkeep();
 		start_side_turn(SIDE_SURVIVOR);
 		check_victory();
 		if (gs.over)
@@ -923,7 +938,7 @@ void battle_run(int mission)
 			memcpy(l2, gs.night ? "They're hunting." : "Survivors' turn", 17);
 		}
 		camera_follow(gs.cur_x, gs.cur_y, false);
-		banner(l1, l2, 60);
+		summary_show(l1, l2, 120);
 	}
 	results();
 out:

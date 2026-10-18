@@ -1,6 +1,7 @@
 // Dead Wars - video setup, palettes, sprite manager, input, frame loop
 #include "game.h"
 #include "video.h"
+#include "perf.h"
 #include <string.h>
 
 u16 keys_down, keys_held, keys_rep;
@@ -114,6 +115,7 @@ void video_load_game_gfx(void)
 	copy16(OBJ_VRAM + OBJT_PORTRAIT * 16, portrait_gfx, sizeof(portrait_gfx));
 	load_ui_palettes();
 	palettes_apply();
+	path_arrow_load_gfx();
 
 	fill16(SCREENBLOCK(SB_TERRAIN), 0, 4 * 1024);
 	fill16(SCREENBLOCK(SB_OVERLAY), 0, 4 * 1024);
@@ -168,7 +170,7 @@ void video_init(void)
 		shadow_oam[i * 4] = ATTR0_HIDE;
 }
 
-static void oam_add(u16 a0, u16 a1, u16 a2)
+void oam_add(u16 a0, u16 a1, u16 a2)
 {
 	if (oam_n >= 128)
 		return;
@@ -244,6 +246,7 @@ static void build_oam(void)
 		oam_sprite(px, py, ATTR1_SIZE16, OBJT_UNITS + (u->type * 2 + frame) * 4, pal, 2,
 		           u->side == SIDE_HORDE);
 	}
+	path_arrow_oam();
 done:
 	for (int i = oam_n; i < 128; i++)
 		shadow_oam[i * 4] = ATTR0_HIDE;
@@ -252,7 +255,21 @@ done:
 void frame(void)
 {
 	build_oam();
+#ifdef PERF
+	static u32 last;
+	if (last) {
+		u32 c = perf_now() - last;
+		perf_add(&perf.frame_work, last);
+		if (c > 280896 - 83776) // longer than the visible part of a frame
+			perf.dropped++;
+		if (perf.turn_frame_max && c > perf.turn_frame_max)
+			perf.turn_frame_max = c;
+	}
+#endif
 	VBlankIntrWait();
+#ifdef PERF
+	last = perf_now();
+#endif
 	copy16(OAM, shadow_oam, sizeof(shadow_oam));
 	if (spr.map_visible) {
 		REG_BGHOFS(1) = REG_BGHOFS(2) = cam_px;

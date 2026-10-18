@@ -1,0 +1,25 @@
+# Perf: one horde turn on the PERF=1 stress map (30x20, 60 zombies).
+# Run: ./gbarun deadwars-perf.gba test/perf_horde.txt out ; python3 test/perf_report.py out
+wait 30
+press T 3
+wait 10
+press A 3
+wait 10
+press A 3
+wait 30
+press T 3
+wait 20
+press T 3
+wait 20
+press T 3
+wait 150
+shot start
+dump 02003a84 64 before
+press T 3
+wait 10
+press A 3
+wait 1200
+shot mid
+wait 2400
+shot end
+dump 02003a84 64 after

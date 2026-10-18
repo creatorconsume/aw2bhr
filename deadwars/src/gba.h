@@ -89,6 +89,7 @@ typedef uint32_t u32; typedef int32_t s32;
 #define ATTR0_TALL   0x8000
 #define ATTR0_BLEND  0x0400
 #define ATTR1_HFLIP  0x1000
+#define ATTR1_VFLIP  0x2000
 #define ATTR1_SIZE8  0x0000
 #define ATTR1_SIZE16 0x4000
 #define ATTR1_SIZE32 0x8000
