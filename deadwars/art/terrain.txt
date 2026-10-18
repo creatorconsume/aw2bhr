@@ -180,24 +180,25 @@ GKdddddKdDKdddKG
 GKKKKKKKKKKKKKKG
 GggggggggggggggG
 
-# --- same house, ransacked: boarded windows, open door, roof hole, junk ---
+# --- same house, ransacked: caved-in roof, windows boarded with crossed planks,
+#     door kicked in, junk in the yard (must read as "already searched" at 1x) ---
 sprite MT_HOUSE_LOOTED 16x16 terrain
 GGGGGGGGGGGKKGGG
 GGGGKKKKKKKKcKGG
-GGGKXXXXXKKKaKGG
-GGKXXXYYKaKYKKGG
-GKXYYYYYYKYYYKGG
-KXYYYYYYYYYYYYKG
+GGGKXXXKKKKKaKGG
+GGKXXXKaaKdKKKGG
+GKXYYYKaKdaKYKGG
+KXYYYYYKKKKYYYKG
 KZZZZZZZZZZZZZZK
 GKKKKKKKKKKKKKKG
 GKDDDDDDDDDDDdKG
-GKDKKKDKKKKDDdKG
-GKDKDKDKKKKdDdKG
-GKDKKKDKKKKrDrKG
-GKDDDDDKKKKDrDKG
-GKddddcKKKKrdrKG
+GKDdKdDKKKKdKdKG
+GKDKdKDKKKKKdKKG
+GKDdKdDKKKKdKdKG
+GKDDDDDKKKKDDDKG
+GKddddcKKKKdddKG
 GKKKKKKKKKKKKKKG
-GgcggggggdgwgggG
+GgcgrggggdgwgcgG
 
 # --- workshop / garage: builds vehicles + units ---
 sprite MT_WORKSHOP 16x16 terrain

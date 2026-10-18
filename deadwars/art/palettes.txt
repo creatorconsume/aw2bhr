@@ -78,8 +78,8 @@ palette horde
 . 000000  0 transparent
 K 1a1018  1 outline
 z 50684c  2 skin dark
-Z 8ca878  3 skin
-L c8dcaa  4 skin light
+Z a4b88c  3 skin
+L d8e8bc  4 skin light
 p 3a2e44  5 rags dark
 P 6a5c70  6 rags
 q a69aa4  7 rags light

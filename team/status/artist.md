@@ -8,6 +8,11 @@
 - Onion box art: deadwars/boxart/deadwars.png, aw2remix.png (250x360, `python3 -I boxart/boxart.py .` from deadwars/).
 - Patient Zero: BOSS_ZERO map sprite (boss_gfx) + PT_ZERO_BOSS portrait. Look at build/preview/units.png, portraits.png, scene.png.
 
+- Night audit (mock replicating palettes_apply on the scene): fog vs visible is clearly different
+  at night, and HP digits read on every terrain. Walkers and Brutes were low-contrast on dark grass, so
+  I lightened the horde skin. The Bloater is still muted but readable. No blend-constant change needed.
+- MT_HOUSE_LOOTED redrawn so it reads as "searched" at 1x (look at terrain.png and scene_1x.png).
+
 ## Next
 - Night/fog readability audit (gbarun night shots); HP digits; looted/damaged building variants.
 - Effects: infection rise, nest burn, capture flag, Bloater splash (after hardening merged; reuse BOOM_FRAMES timing).

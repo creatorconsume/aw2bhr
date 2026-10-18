@@ -11,7 +11,7 @@ the engineer through the inbox.
 
 ## P0
 
-- [x] **Onion box art** for Dead Wars and AW2 Remix, in `deadwars/boxart/` (commit 07cbd5a-ish, see git log).
+- [x] **Onion box art** for Dead Wars and AW2 Remix, in `deadwars/boxart/` (a2000d2).
 
 - [ ] **Art audit** (brief, task 1). Use `build/preview/scene_1x.png` plus smoke and gbarun screenshots, with your own
   scripts for night and fog. Check:
