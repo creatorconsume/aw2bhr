@@ -1,7 +1,7 @@
 # Artist status
 
 - **Session:** session_01YDdSYUkiJH2qD5sNiJiBop
-- **Branch:** claude/dw-art @ c4ba564 (plus this status commit)
+- **Branch:** claude/dw-art @ 2797c2b (plus this status commit)
 - **Current focus:** waiting for the engineer: battle contract feedback, and boss_gfx vs UG_ZERO. Then export the map fx and VIP marker.
 
 ## Last done
